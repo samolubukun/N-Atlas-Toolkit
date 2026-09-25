@@ -1,0 +1,14 @@
+{"id":"hau_01","language":"Hausa","prompt":"Mako ɗaya yana da kwanaki nawa?","accepted":["7","bakwai"],"needs_native_review":false}
+{"id":"hau_02","language":"Hausa","prompt":"Shekara ɗaya tana da watanni nawa?","accepted":["12","sha biyu"],"needs_native_review":false}
+{"id":"hau_03","language":"Hausa","prompt":"Menene babban birnin Nijeriya?","accepted":["Abuja","abuja"],"needs_native_review":false}
+{"id":"hau_04","language":"Hausa","prompt":"Idan ka haɗa 5 da 3, nawa ne?","accepted":["8","takwas"],"needs_native_review":false}
+{"id":"hau_05","language":"Hausa","prompt":"Wane lokaci ne yake zuwa bayan dare?","accepted":["safiya"],"needs_native_review":false}
+{"id":"ibo_01","language":"Igbo","prompt":"Otu izu nwere ụbọchị ole?","accepted":["7","asaa"],"needs_native_review":false}
+{"id":"ibo_02","language":"Igbo","prompt":"Otu afọ nwere ọnwa ole?","accepted":["12","iri na abụọ"],"needs_native_review":false}
+{"id":"ibo_03","language":"Igbo","prompt":"Gịnị bụ isi obodo Naịjirịa?","accepted":["Abuja","abuja"],"needs_native_review":false}
+{"id":"ibo_04","language":"Igbo","prompt":"Mgbe ị gbakwunyere 6 na 2, ole ka ọ ga-abụ?","accepted":["8","asatọ"],"needs_native_review":false}
+{"id":"yor_01","language":"Yoruba","prompt":"Ọ̀sẹ̀ kan ní ọjọ́ mélòó?","accepted":["7","méje","meje","eje"],"needs_native_review":false}
+{"id":"yor_02","language":"Yoruba","prompt":"Ọdún kan ní oṣù mélòó?","accepted":["12","méjìlá","mejila"],"needs_native_review":false}
+{"id":"yor_03","language":"Yoruba","prompt":"Kí ni olú-ìlú Nàìjíríà?","accepted":["Abuja","abuja"],"needs_native_review":false}
+{"id":"yor_04","language":"Yoruba","prompt":"4 àti 3 jẹ́ mélòó?","accepted":["7","méje","meje","eje"],"needs_native_review":false}
+{"id":"yor_05","language":"Yoruba","prompt":"Ọwọ́ kan ní ìka mélòó?","accepted":["5","marùn-ún","marun"],"needs_native_review":false}
