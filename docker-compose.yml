@@ -1,0 +1,87 @@
+version: "3.8"
+
+services:
+  # =========================================================================
+  # 1. UNIFIED GATEWAY (Port 8000)
+  # Provides 1:1 Modal Parity on a single port for both LLM and ASR
+  # =========================================================================
+  natlas-gateway:
+    image: nginx:alpine
+    container_name: natlas-gateway
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - natlas-vllm
+      - natlas-asr
+
+  # =========================================================================
+  # 2. SOVEREIGN LLM ENGINE (vLLM Backend)
+  # Serves NCAIR1/N-ATLaS for Chat Completions, Text Generation, and Reasoning
+  # =========================================================================
+  natlas-vllm:
+    image: vllm/vllm-openai:v0.6.2
+    container_name: natlas-engine
+    restart: unless-stopped
+    runtime: nvidia
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN:-${HUGGING_FACE_HUB_TOKEN}}
+      - HF_TOKEN=${HF_TOKEN}
+      - VLLM_API_KEY=${NATLAS_API_KEY:-natlas-super-secret-key-2026}
+    expose:
+      - "8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: >
+      --model NCAIR1/N-ATLaS
+      --dtype bfloat16
+      --gpu-memory-utilization 0.90
+      --max-model-len 8192
+      --trust-remote-code
+      --api-key ${NATLAS_API_KEY:-natlas-super-secret-key-2026}
+
+  # =========================================================================
+  # 3. SOVEREIGN ASR ENGINE (Speech-to-Text & Realtime Streaming)
+  # Serves official Nigerian Whisper models directly from natlas_engine.py
+  # =========================================================================
+  natlas-asr:
+    build:
+      context: .
+      dockerfile: Dockerfile.asr
+    container_name: natlas-asr-engine
+    restart: unless-stopped
+    runtime: nvidia
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+      - NATLAS_API_KEY=${NATLAS_API_KEY:-natlas-super-secret-key-2026}
+      # Official Sovereign Nigerian Whisper Speech Models (Awarri / NCAIR / NITDA):
+      # Yoruba: https://huggingface.co/NCAIR1/Yoruba-ASR
+      - ASR_MODEL_YORUBA=NCAIR1/Yoruba-ASR
+      # Hausa: https://huggingface.co/NCAIR1/Hausa-ASR
+      - ASR_MODEL_HAUSA=NCAIR1/Hausa-ASR
+      # Igbo: https://huggingface.co/NCAIR1/Igbo-ASR
+      - ASR_MODEL_IGBO=NCAIR1/Igbo-ASR
+      # Nigerian Accented English: https://huggingface.co/NCAIR1/NigerianAccentedEnglish
+      - ASR_MODEL_ENGLISH=NCAIR1/NigerianAccentedEnglish
+    expose:
+      - "8001"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ./:/app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

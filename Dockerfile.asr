@@ -1,0 +1,39 @@
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+# System dependencies for audio decoding and sound processing
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    libsndfile1 \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install PyTorch & core ASR + FastAPI dependencies
+RUN pip install --no-cache-dir \
+    torch \
+    torchaudio \
+    transformers \
+    accelerate \
+    librosa \
+    soundfile \
+    fastapi \
+    uvicorn \
+    pydantic \
+    python-multipart \
+    websockets
+
+# Copy SDK and install
+COPY python-sdk /app/python-sdk
+RUN pip install --no-cache-dir -e /app/python-sdk
+
+# Copy application files
+COPY natlas_engine.py /app/
+
+EXPOSE 8001
+
+CMD ["python", "-m", "uvicorn", "natlas_engine:create_asr_app", "--factory", "--host", "0.0.0.0", "--port", "8001"]
