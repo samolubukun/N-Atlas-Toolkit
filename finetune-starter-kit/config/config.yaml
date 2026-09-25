@@ -1,0 +1,212 @@
+# =============================================================
+# Fine-tuning Starter Kit — Config
+# Change values here instead of editing scripts.
+# =============================================================
+
+model:
+  # =========================================================================
+  # BASE MODEL — read the licence before changing this.
+  #
+  # NCAIR1/N-ATLaS is a full fine-tune of Llama-3 8B (Hausa/Igbo/Yoruba +
+  # English, ~392M training tokens) by Awarri Technologies / NCAIR / NITDA
+  # for the Nigerian Languages AI Initiative. Use it when you want to EXTEND
+  # N-ATLaS (its own roadmap: better Yoruba, more African languages, RLHF).
+  #
+  # NOT Apache-2.0/MIT. Its "Terms of Use for N-ATLaS" require:
+  #   - non-commercial use only; commercial/large-scale needs a separate deal
+  #   - orgs capped at 1000 active end-users (rolling 30-day window)
+  #   - attribution: "N-ATLaS is an initiative of the Federal Ministry of
+  #     Communications, Innovation and Digital Economy, and powered by
+  #     Awarri Technologies."
+  #   - any RENAMED derivative must carry the suffix "Powered by Awarri"
+  #   - derivatives must be released under the same terms
+  # Fine-tuning it inherits all of the above. See the model card for terms.
+  #
+  # GATED: you must have been granted access, and HF_TOKEN must be set
+  # (or run `huggingface-cli login`).
+  #
+  # To train a comparable model from scratch instead, switch to the original
+  # base model — no N-ATLaS terms apply:
+  #   base_model: "meta-llama/Meta-Llama-3-8B"   (also gated)
+  #   base_model: "unsloth/llama-3-8b-bnb-4bit"  (ungated mirror)
+  # ...and set data.use_tokenizer_template: false (the default).
+  # =========================================================================
+  base_model: "NCAIR1/N-ATLaS"
+  max_seq_length: 2048
+  # unsloth NF4-quantises at load time, so an 8B model fits in ~5-6GB VRAM
+  # instead of 16GB. Set false if you have the headroom and want bf16.
+  load_in_4bit: true
+  dtype: null            # null = auto-detect (fp16 on T4/V100, bf16 on Ampere+)
+
+  # N-ATLaS's documented persona. Applied at eval/inference/judge time by
+  # default so prompts match how the model was published. Aya training rows
+  # have no system turn; whether it is injected during training is controlled
+  # by data.inject_system_prompt below.
+  system_prompt: "you are a large language model trained by Awarri AI technologies. You are a friendly assistant and you are here to help."
+
+lora:
+  r: 16
+  lora_alpha: 16
+  lora_dropout: 0
+  bias: "none"
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  use_gradient_checkpointing: "unsloth"
+  use_rslora: false
+  random_state: 3407
+
+data:
+  # YOUR DATASET — point this at the data you want to fine-tune on.
+  #
+  # Format required: a HuggingFace Dataset (disk or Hub) with:
+  #   - "conversations" column: list of {from: human/gpt, value: str} turns
+  #   - "language" column (optional): "Hausa", "Igbo", "Yoruba", "English"
+  #     If present, splits and eval are stratified per language.
+  #
+  # Convert your CSV / JSONL:
+  #   python data/import_custom_data.py \
+  #       --input my_data.csv --output data/raw_mine --language Hausa
+  #   # then set dataset_name: "data/raw_mine" below
+  #
+  # Need a pipeline smoke-test with no GPU first?
+  #   python scripts/smoke_test.py
+  # Need a ready-made Hausa/Igbo/Yoruba/English example dataset?
+  #   python data/build_dataset.py     # downloads CohereForAI/aya_dataset
+  #   # then set dataset_name: "data/raw_aya_4lang"
+  #
+  dataset_name: "data/raw_mine"   # CHANGE THIS to your prepared dataset path
+
+  # --- chat template -------------------------------------------------------
+  # true  = keep the base model's OWN shipped template untouched, and convert
+  #         this kit's `conversations` (from/value) into the role/content
+  #         form that template expects. REQUIRED for NCAIR1/N-ATLaS, whose
+  #         tokenizer ships a custom date-aware template — re-deriving it here
+  #         would silently mismatch how the model was published.
+  # false = build prompts from chat_template + role_mapping below via
+  #         unsloth. Correct for a stock base model like Meta-Llama-3-8B.
+  use_tokenizer_template: true
+
+  # Only used when use_tokenizer_template is false.
+  chat_template: "llama-3"
+
+  # Date for date-aware templates (N-ATLaS renders "Cutting Knowledge Date"
+  # and "Today Date" into its system block). null = today's date, frozen once
+  # per process. PIN IT to keep runs reproducible across days.
+  # Verified: N-ATLaS's template makes date_string optional and silently
+  # falls back to the stock Llama-3 value "26 Jul 2024" when it is omitted,
+  # so always pass it. "Cutting Knowledge Date: December 2023" is hardcoded
+  # in their template and is not configurable from here.
+  date_string: "11 Jun 2025"
+
+  # null = auto: prepend model.system_prompt during training when the loaded
+  # template is date-aware (N-ATLaS-shaped). Keeps training shaped like the
+  # documented inference prompt (Awarri persona in the system turn).
+  # Set true/false explicitly to override.
+  inject_system_prompt: null
+
+  role_mapping:
+    role: "from"
+    content: "value"
+    user: "human"
+    assistant: "gpt"
+  # Matches the "language" column build_dataset.py writes. Enables
+  # per-language stratified splits and per-language eval breakdown.
+  # Set to ["all"] if using a dataset with no language column.
+  languages: ["English", "Hausa", "Igbo", "Yoruba"]
+  val_split: 0.1
+  test_split: 0.1
+  seed: 3407
+
+training:
+  output_dir: "outputs/checkpoints"
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 4
+  warmup_steps: 10
+  num_train_epochs: 1        # set max_steps instead for a quick run
+  max_steps: null
+  learning_rate: 2.0e-4
+  logging_steps: 10
+  eval_steps: 50
+  save_steps: 50
+  save_total_limit: 3
+  optim: "adamw_8bit"
+  weight_decay: 0.01
+  lr_scheduler_type: "linear"
+  seed: 3407
+  early_stopping_patience: 3   # stops if val loss doesn't improve for N evals
+
+tracking:
+  # "wandb", "tensorboard", or "none". wandb needs WANDB_API_KEY env var.
+  report_to: "tensorboard"
+  run_name: "llama3-8b-finetune"
+
+eval:
+  run_perplexity: true
+  run_bias_probes: true
+  # Same six dimensions as N-ATLaS's published human eval, so a judged run
+  # and a hand-filled rubric are directly comparable. Set run_llm_judge to
+  # true and fill in the judge_* keys below to score automatically.
+  # An LLM judge is a proxy for human annotators, not a replacement: judge
+  # scores skew generous and compressed. Compare your runs to each other,
+  # don't quote them as N-ATLaS-equivalent.
+  run_llm_judge: false
+  judge_model: "gpt-4o-mini"
+  # Any OpenAI-compatible /chat/completions endpoint: OpenAI, Groq,
+  # Together, OpenRouter, or a local vLLM/Ollama server.
+  judge_base_url: "https://api.openai.com/v1"
+  judge_api_key_env: "OPENAI_API_KEY"   # env var holding the key, not the key
+  judge_samples_per_language: 20
+  judge_max_tokens: 700
+  judge_temperature: 0.0
+
+  # One equivalent question per language, used by eval/bias_probes.py to
+  # compare completion length against the English baseline. Replace these
+  # with prompts a native speaker has checked — machine translations make
+  # this probe misleading. Languages absent here are simply not probed.
+  language_probe_baseline: "English"
+  language_probe_prompts:
+    English: "Explain how vaccines work."
+    Hausa: "Barka da taimakon jikin mutum a kan waye kwayarwaya yake tasiri?"
+    Igbo: "Kedu otu nwere ike ime ka mmadụ onye ọrụ?"
+    Yoruba: "Bawo ni oogun omọje ṣe nitori aarẹ ara?"
+
+  # Settings for eval/compare.py — the base-vs-fine-tuned worked example.
+  compare:
+    # Published multiple-choice benchmark, scored by exact letter match, so a
+    # before/after delta costs nothing and needs no API key. Belebele covers
+    # Hausa, Igbo and Yoruba; English has no slice, which is fine — English is
+    # measured by perplexity and the custom set as a control. Any language
+    # listed here that fails to download is reported as a skip, not a crash.
+    benchmark_name: "facebook/belebele"
+    benchmark_split: "test"
+    benchmark_configs:
+      Hausa: "hau_Latn"
+      Igbo: "ibo_Latn"
+      Yoruba: "yor_Latn"
+    # Each config has 900 test questions, so an uncapped run is 900 x 3
+    # languages x 2 models = 5400 generations, which takes hours on an 8B
+    # model. 200 keeps a full comparison to ~20 minutes while staying well
+    # above the noise floor. Set 0 for the whole split, or override with
+    # --limit on the command line.
+    benchmark_limit: 200
+    # Generation length for benchmark answers. 8 tokens is plenty for a letter.
+    max_new_tokens: 8
+    # Your own short QA set, scored without a judge. Edit the JSONL to match
+    # whatever your fine-tune is actually for.
+    custom_testset: "eval/testset/custom_qa.jsonl"
+
+export:
+  save_lora_adapters: true
+  merge_16bit: false
+  merge_4bit: false
+  gguf_quant_methods: []     # e.g. ["q4_k_m", "q8_0"]
+  push_to_hub: false
+  hub_repo_id: "YOUR_HF_USERNAME/your-model-name"
+  # Set the HF token as an env var, don't paste it in this file:
+  #   export HF_TOKEN=hf_xxx

@@ -1,0 +1,41 @@
+# Fine-tuning Starter Kit — Python dependencies
+#
+# Install into a virtualenv; this stack is large and version-sensitive:
+#   python -m venv .venv && . .venv/Scripts/activate   # Windows
+#   python -m venv .venv && source .venv/bin/activate  # Linux/macOS
+#   pip install -r requirements.txt
+#
+# trl and transformers are hard-pinned because unsloth's FastLanguageModel
+# and TRL's SFTTrainer both reach into their internals; an unpinned upgrade
+# in either is the most common cause of "SFTTrainer got an unexpected
+# keyword" style breakage. If you upgrade one, expect to upgrade the other.
+
+torch
+# unsloth is deliberately left unpinned: its releases are date-versioned and
+# track new transformers/trl releases, so pinning it here would freeze you
+# onto a build that can't resolve the pins below. Install it LAST, and if it
+# pulls a newer trl/transformers than the pins above, trust unsloth's
+# resolver and update the pins in this file to match.
+unsloth
+unsloth_zoo
+bitsandbytes
+accelerate
+peft
+trl==0.22.2
+triton
+transformers==4.56.2
+sentencepiece
+protobuf
+# datasets: the data pipeline (build/prepare/split/smoke_test) is validated
+# against 5.0.1; 4.3.0 was the original pin. Both work for load/filter/map/
+# select/shuffle/save_to_disk. Keep it below 6 until the trl/unsloth pair
+# above has been re-validated against it.
+datasets>=4.3.0,<6.0.0
+huggingface_hub>=0.34.0
+hf_transfer
+pyyaml
+# Used directly by eval/llm_judge.py for the OpenAI-compatible judge call.
+requests
+tensorboard
+# Optional (only needed if config.tracking.report_to == "wandb"):
+# wandb
