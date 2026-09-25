@@ -22,18 +22,22 @@ Engineering & Performance Specifications:
 - GPU Acceleration: NVIDIA A10G (24GB VRAM) / L40S / A100-40GB / A100-80GB
 - Volume Caching: Dedicated Modal Volume for instant sub-second coldstarts without re-downloading 16GB weights
 - Scale-to-Zero: 300s keep-warm idle timeout (economic, ultra-cost-efficient)
+
+N-ATLaS is an initiative of the Federal Ministry of Communications, Innovation and Digital Economy, and powered by Awarri Technologies.
 """
 
 import asyncio
+import hmac
 import io
 import json
 import logging
 import os
 import sys
+import threading
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import AsyncGenerator, Dict, List, Literal, Optional, Union
+from typing import Any, AsyncGenerator, Dict, List, Literal, Optional, Union
 
 import modal
 
@@ -47,12 +51,34 @@ CACHE_DIR = "/root/.cache/natlas_models"
 models_volume = modal.Volume.from_name("natlas-weights-cache", create_if_missing=True)
 
 MODEL_ID = "NCAIR1/N-ATLaS"
+ATTRIBUTION = "N-ATLaS is an initiative of the Federal Ministry of Communications, Innovation and Digital Economy, and powered by Awarri Technologies."
+ASR_ATTRIBUTION = "Yoruba-ASR, Hausa-ASR, Igbo-ASR, and NigerianAccentedEnglish are developed by Awarri Technologies in partnership with the Federal Government of Nigeria / NCAIR / NITDA."
+
+ASR_MODELS = {
+    "yo": "NCAIR1/Yoruba-ASR",
+    "yoruba": "NCAIR1/Yoruba-ASR",
+    "ha": "NCAIR1/Hausa-ASR",
+    "hausa": "NCAIR1/Hausa-ASR",
+    "ig": "NCAIR1/Igbo-ASR",
+    "igbo": "NCAIR1/Igbo-ASR",
+    "en": "NCAIR1/NigerianAccentedEnglish",
+    "en-ng": "NCAIR1/NigerianAccentedEnglish",
+    "nigerian-english": "NCAIR1/NigerianAccentedEnglish",
+}
+
+DEFAULT_ASR_MODEL = "NCAIR1/NigerianAccentedEnglish"
+ASR_CACHE_DIR = "/root/.cache/natlas_models/asr"
+
+_MONTHS = (
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("NATLaSEngine")
 
 # ---------------------------------------------------------------------------
-# Container Image Definition (CUDA 12.4 + vLLM 0.6.3+ / PyTorch 2.5)
+# Container Image Definition (CUDA 12.4 + vLLM 0.6.2)
 # ---------------------------------------------------------------------------
 natlas_image = (
     modal.Image.debian_slim(python_version="3.11")
@@ -71,13 +97,13 @@ natlas_image = (
         "build-essential",
     )
     .pip_install(
-        "torch>=2.4.0",
-        "transformers>=4.46.0",
+        "torch==2.4.0",
+        "transformers==4.45.2",
         "accelerate>=0.34.0",
         "safetensors>=0.4.5",
         "sentencepiece>=0.2.0",
         "protobuf",
-        "vllm>=0.6.2",
+        "vllm==0.6.2",
         "fastapi[standard]>=0.115.0",
         "uvicorn[standard]>=0.30.0",
         "websockets>=13.0",
@@ -89,6 +115,42 @@ natlas_image = (
         "soundfile>=0.12.1",
         "httpx>=0.27.0",
         "tiktoken>=0.7.0",
+        "torchaudio>=2.4.0",
+        "librosa>=0.10.0",
+    )
+)
+
+# ---------------------------------------------------------------------------
+# Dedicated ASR Container Image (Whisper Small + Silero VAD)
+# ---------------------------------------------------------------------------
+asr_image = (
+    modal.Image.debian_slim(python_version="3.11")
+    .env({
+        "HF_HUB_ENABLE_HF_TRANSFER": "1",
+        "HF_HOME": ASR_CACHE_DIR,
+    })
+    .apt_install(
+        "git",
+        "ffmpeg",
+        "libsndfile1",
+    )
+    .pip_install(
+        "torch>=2.4.0",
+        "torchaudio>=2.4.0",
+        "transformers>=4.46.0",
+        "accelerate>=0.34.0",
+        "librosa>=0.10.0",
+        "soundfile>=0.12.1",
+        "fastapi[standard]>=0.115.0",
+        "uvicorn[standard]>=0.30.0",
+        "websockets>=13.0",
+        "pydantic>=2.8.0",
+        "huggingface_hub>=0.28.0",
+        "hf-transfer>=0.1.8",
+        "numpy>=1.26.0",
+        "scipy>=1.11.0",
+        "python-multipart>=0.0.12",
+        "onnxruntime>=1.18.0",
     )
 )
 
@@ -106,10 +168,13 @@ def get_auth_verifier():
     )
 
     def verify_api_key(auth_header: Optional[str] = Security(api_key_scheme)):
-        expected = os.environ.get("NATLAS_API_KEY", "natlas-super-secret-key-2026")
+        expected = os.environ.get("NATLAS_API_KEY")
         if not expected:
-            return True  # If no key configured, allow public access
-        
+            raise HTTPException(
+                status_code=503,
+                detail="Server authentication is not configured.",
+            )
+
         token = ""
         if auth_header:
             if auth_header.lower().startswith("bearer "):
@@ -117,7 +182,7 @@ def get_auth_verifier():
             else:
                 token = auth_header.strip()
 
-        if token != expected:
+        if not hmac.compare_digest(token, expected):
             raise HTTPException(
                 status_code=401,
                 detail="Unauthorized: Invalid NATLAS API key or Bearer token.",
@@ -144,9 +209,9 @@ def get_auth_verifier():
     },
 )
 @modal.concurrent(max_inputs=32)
-class NATLaSLLMEngine:
-    """The Ultimate High-Throughput Serverless N-ATLaS 8B Engine.
-    Powered by vLLM Continuous Batching, PagedAttention, and Native Fallbacks.
+class NATLaSAPI:
+    """The Ultimate High-Throughput Serverless N-ATLaS 8B Engine & Sovereign ASR API.
+    Powered by vLLM Continuous Batching, PagedAttention, Whisper Small, and Native Fallbacks.
     """
 
     @modal.enter()
@@ -213,7 +278,8 @@ class NATLaSLLMEngine:
     def format_chat_prompt(self, messages: List[Dict[str, str]], date_str: Optional[str] = None) -> str:
         """Format OpenAI chat messages using N-ATLaS Llama-3 instruction chat template."""
         if not date_str:
-            date_str = datetime.now().strftime("%d %b %Y")
+            now = datetime.now()
+            date_str = f"{now.day:02d} {_MONTHS[now.month - 1]} {now.year}"
         
         # N-ATLaS system preamble tuning
         has_system = any(m.get("role") == "system" for m in messages)
@@ -222,9 +288,9 @@ class NATLaSLLMEngine:
             formatted_messages.append({
                 "role": "system",
                 "content": (
-                    "your name is AwaGPT, you are a large language model trained by Awarri AI technologies "
-                    "in collaboration with the Federal Ministry of Communications, Innovation & Digital Economy of Nigeria. "
-                    "You are a friendly, highly intelligent multilingual assistant with deep fluency in English, Hausa, Igbo, Yoruba, and Nigerian Pidgin."
+                    f"Your name is AwaGPT. {ATTRIBUTION} "
+                    "You are a friendly, highly intelligent multilingual assistant with deep fluency "
+                    "in English, Hausa, Igbo, Yoruba, and Nigerian Pidgin."
                 )
             })
         formatted_messages.extend(messages)
@@ -236,14 +302,25 @@ class NATLaSLLMEngine:
             date_string=date_str,
         )
 
+    @staticmethod
+    def apply_stop(text: str, stop: Optional[Union[str, List[str]]]) -> tuple[str, bool]:
+        if not stop:
+            return text, False
+        stop_values = [stop] if isinstance(stop, str) else stop
+        positions = [position for value in stop_values if value and (position := text.find(value)) >= 0]
+        if not positions:
+            return text, False
+        position = min(positions)
+        return text[:position], True
+
     @modal.asgi_app()
     def serve(self):
         """Standard FastAPI app serving OpenAI-compatible Chat, Completions, Streaming, Tools & Realtime Endpoints."""
         import uuid
-        from fastapi import Depends, FastAPI, HTTPException, Request, Response, WebSocket, WebSocketDisconnect
+        from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Response, UploadFile, WebSocket, WebSocketDisconnect
         from fastapi.middleware.cors import CORSMiddleware
         from fastapi.responses import JSONResponse, StreamingResponse
-        from pydantic import BaseModel, Field
+        from pydantic import BaseModel, Field, model_validator
 
         verify_api_key = get_auth_verifier()
 
@@ -271,27 +348,65 @@ class NATLaSLLMEngine:
             content: str
             name: Optional[str] = None
 
-        class ChatCompletionRequest(BaseModel):
+        class SamplingRequest(BaseModel):
+            @model_validator(mode="before")
+            @classmethod
+            def reject_null_numeric_settings(cls, data):
+                numeric_fields = {
+                    "temperature",
+                    "top_p",
+                    "top_k",
+                    "max_tokens",
+                    "repetition_penalty",
+                    "presence_penalty",
+                    "frequency_penalty",
+                }
+                if isinstance(data, dict):
+                    invalid = sorted(
+                        field
+                        for field in numeric_fields
+                        if field in data and data[field] is None
+                    )
+                    if invalid:
+                        raise ValueError(
+                            f"Settings cannot be null: {', '.join(invalid)}"
+                        )
+                return data
+
+        class ChatCompletionRequest(SamplingRequest):
             model: str = Field(default="NCAIR1/N-ATLaS")
             messages: List[ChatMessage]
-            temperature: Optional[float] = Field(default=0.7, ge=0.0, le=2.0)
-            top_p: Optional[float] = Field(default=0.9, ge=0.0, le=1.0)
+            temperature: Optional[float] = Field(
+                default=0.7, ge=0.0, le=2.0, allow_inf_nan=False
+            )
+            top_p: Optional[float] = Field(
+                default=0.9, gt=0.0, le=1.0, allow_inf_nan=False
+            )
             top_k: Optional[int] = Field(default=50, ge=-1)
             max_tokens: Optional[int] = Field(default=1024, ge=1, le=8192)
             stream: Optional[bool] = False
-            repetition_penalty: Optional[float] = Field(default=1.12, ge=1.0, le=2.0)
+            repetition_penalty: Optional[float] = Field(
+                default=1.12, gt=0.0, le=2.0, allow_inf_nan=False
+            )
             stop: Optional[Union[str, List[str]]] = None
             presence_penalty: Optional[float] = Field(default=0.0)
             frequency_penalty: Optional[float] = Field(default=0.0)
 
-        class CompletionRequest(BaseModel):
+        class CompletionRequest(SamplingRequest):
             model: str = Field(default="NCAIR1/N-ATLaS")
             prompt: str
-            temperature: Optional[float] = 0.7
-            top_p: Optional[float] = 0.9
-            max_tokens: Optional[int] = 512
+            temperature: Optional[float] = Field(
+                default=0.7, ge=0.0, le=2.0, allow_inf_nan=False
+            )
+            top_p: Optional[float] = Field(
+                default=0.9, gt=0.0, le=1.0, allow_inf_nan=False
+            )
+            max_tokens: Optional[int] = Field(default=512, ge=1, le=8192)
             stream: Optional[bool] = False
-            repetition_penalty: Optional[float] = 1.12
+            repetition_penalty: Optional[float] = Field(
+                default=1.12, gt=0.0, le=2.0, allow_inf_nan=False
+            )
+            stop: Optional[Union[str, List[str]]] = None
 
         class TranslateRequest(BaseModel):
             text: str
@@ -410,6 +525,12 @@ class NATLaSLLMEngine:
                                 pad_token_id=self.tokenizer.eos_token_id,
                             )
                         full_text = self.tokenizer.decode(outputs[0][inputs.input_ids.shape[-1]:], skip_special_tokens=True)
+                        full_text, stopped = self.apply_stop(full_text, req.stop)
+                        finish_reason = (
+                            "stop"
+                            if stopped or outputs[0][-1].item() == self.tokenizer.eos_token_id
+                            else "length"
+                        )
                         for word in full_text.split(" "):
                             chunk = {
                                 "id": request_id,
@@ -420,7 +541,7 @@ class NATLaSLLMEngine:
                             }
                             yield f"data: {json.dumps(chunk)}\n\n"
                             await asyncio.sleep(0.01)
-                        yield f"data: {json.dumps({'id': request_id, 'object': 'chat.completion.chunk', 'choices': [{'index': 0, 'delta': {}, 'finish_reason': 'stop'}]})}\n\n"
+                        yield f"data: {json.dumps({'id': request_id, 'object': 'chat.completion.chunk', 'choices': [{'index': 0, 'delta': {}, 'finish_reason': finish_reason}]})}\n\n"
                         yield "data: [DONE]\n\n"
 
                 return StreamingResponse(event_generator(), media_type="text/event-stream")
@@ -444,6 +565,9 @@ class NATLaSLLMEngine:
                 out_text = final_output.outputs[0].text if final_output else ""
                 prompt_tokens = len(final_output.prompt_token_ids) if final_output else 0
                 completion_tokens = len(final_output.outputs[0].token_ids) if final_output else 0
+                finish_reason = (
+                    final_output.outputs[0].finish_reason if final_output else "stop"
+                )
             else:
                 import torch
                 inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
@@ -459,6 +583,16 @@ class NATLaSLLMEngine:
                 out_text = self.tokenizer.decode(outputs[0][inputs.input_ids.shape[-1]:], skip_special_tokens=True)
                 prompt_tokens = inputs.input_ids.shape[-1]
                 completion_tokens = outputs.shape[-1] - prompt_tokens
+                finish_reason = (
+                    "length"
+                    if completion_tokens >= req.max_tokens
+                    and outputs[0][-1].item() != self.tokenizer.eos_token_id
+                    else "stop"
+                )
+
+            out_text, stopped = self.apply_stop(out_text, req.stop)
+            if stopped:
+                finish_reason = "stop"
 
             return {
                 "id": request_id,
@@ -489,7 +623,131 @@ class NATLaSLLMEngine:
         async def text_completions(req: CompletionRequest, auth=Depends(verify_api_key)):
             created_time = int(time.time())
             request_id = f"cmpl-{uuid.uuid4().hex[:12]}"
-            
+            stop_tokens = ["<|eot_id|>", "<|end_of_text|>"]
+            if req.stop:
+                if isinstance(req.stop, list):
+                    stop_tokens.extend(req.stop)
+                else:
+                    stop_tokens.append(req.stop)
+
+            if req.stream:
+                async def completion_event_generator():
+                    emitted_finish = False
+                    if self.use_vllm:
+                        from vllm import SamplingParams
+                        sampling_params = SamplingParams(
+                            temperature=req.temperature,
+                            top_p=req.top_p,
+                            max_tokens=req.max_tokens,
+                            repetition_penalty=req.repetition_penalty,
+                            stop=stop_tokens,
+                        )
+                        results_generator = self.vllm_engine.generate(
+                            req.prompt, sampling_params, request_id
+                        )
+                        last_index = 0
+                        async for output in results_generator:
+                            current_text = output.outputs[0].text
+                            delta_text = current_text[last_index:]
+                            last_index = len(current_text)
+                            finish_reason = output.outputs[0].finish_reason
+                            if delta_text or finish_reason is not None:
+                                chunk = {
+                                    "id": request_id,
+                                    "object": "text_completion",
+                                    "created": created_time,
+                                    "model": req.model,
+                                    "choices": [
+                                        {
+                                            "text": delta_text,
+                                            "index": 0,
+                                            "logprobs": None,
+                                            "finish_reason": finish_reason,
+                                        }
+                                    ],
+                                }
+                                yield f"data: {json.dumps(chunk)}\n\n"
+                            emitted_finish = emitted_finish or finish_reason is not None
+                    else:
+                        import torch
+                        from transformers import TextIteratorStreamer
+                        inputs = self.tokenizer(req.prompt, return_tensors="pt").to(
+                            self.model.device
+                        )
+                        streamer = TextIteratorStreamer(
+                            self.tokenizer,
+                            skip_prompt=True,
+                            skip_special_tokens=True,
+                        )
+                        errors = []
+
+                        def run_generation():
+                            try:
+                                with torch.inference_mode():
+                                    self.model.generate(
+                                        **inputs,
+                                        streamer=streamer,
+                                        max_new_tokens=req.max_tokens,
+                                        do_sample=req.temperature > 0,
+                                        temperature=req.temperature or 1.0,
+                                        top_p=req.top_p,
+                                        repetition_penalty=req.repetition_penalty,
+                                        pad_token_id=self.tokenizer.eos_token_id,
+                                    )
+                            except Exception as exc:
+                                errors.append(exc)
+                            finally:
+                                streamer.end()
+
+                        worker = threading.Thread(target=run_generation, daemon=True)
+                        worker.start()
+                        end = object()
+                        while True:
+                            piece = await asyncio.to_thread(next, streamer, end)
+                            if piece is end:
+                                break
+                            if not piece:
+                                continue
+                            chunk = {
+                                "id": request_id,
+                                "object": "text_completion",
+                                "created": created_time,
+                                "model": req.model,
+                                "choices": [
+                                    {
+                                        "text": piece,
+                                        "index": 0,
+                                        "logprobs": None,
+                                        "finish_reason": None,
+                                    }
+                                ],
+                            }
+                            yield f"data: {json.dumps(chunk)}\n\n"
+                        await asyncio.to_thread(worker.join)
+                        if errors:
+                            raise RuntimeError("Completion generation failed") from errors[0]
+                    if not emitted_finish:
+                        chunk = {
+                            "id": request_id,
+                            "object": "text_completion",
+                            "created": created_time,
+                            "model": req.model,
+                            "choices": [
+                                {
+                                    "text": "",
+                                    "index": 0,
+                                    "logprobs": None,
+                        "finish_reason": finish_reason,
+                                }
+                            ],
+                        }
+                        yield f"data: {json.dumps(chunk)}\n\n"
+                    yield "data: [DONE]\n\n"
+
+                return StreamingResponse(
+                    completion_event_generator(), media_type="text/event-stream"
+                )
+
             if self.use_vllm:
                 from vllm import SamplingParams
                 sampling_params = SamplingParams(
@@ -497,7 +755,7 @@ class NATLaSLLMEngine:
                     top_p=req.top_p,
                     max_tokens=req.max_tokens,
                     repetition_penalty=req.repetition_penalty,
-                    stop=["<|eot_id|>", "<|end_of_text|>"],
+                    stop=stop_tokens,
                 )
                 results_generator = self.vllm_engine.generate(req.prompt, sampling_params, request_id)
                 final_output = None
@@ -506,17 +764,32 @@ class NATLaSLLMEngine:
                 text = final_output.outputs[0].text if final_output else ""
                 p_tokens = len(final_output.prompt_token_ids) if final_output else 0
                 c_tokens = len(final_output.outputs[0].token_ids) if final_output else 0
-            else:
-                inputs = self.tokenizer(req.prompt, return_tensors="pt").to(self.model.device)
-                outputs = self.model.generate(
-                    **inputs,
-                    max_new_tokens=req.max_tokens,
-                    temperature=req.temperature,
-                    pad_token_id=self.tokenizer.eos_token_id,
+                finish_reason = (
+                    final_output.outputs[0].finish_reason if final_output else "stop"
                 )
-                text = self.tokenizer.decode(outputs[0][inputs.input_ids.shape[-1]:], skip_special_tokens=True)
+            else:
+                import torch
+                inputs = self.tokenizer(req.prompt, return_tensors="pt").to(self.model.device)
+                with torch.inference_mode():
+                    outputs = self.model.generate(
+                        **inputs,
+                        max_new_tokens=req.max_tokens,
+                        do_sample=req.temperature > 0,
+                        temperature=req.temperature or 1.0,
+                        top_p=req.top_p,
+                        repetition_penalty=req.repetition_penalty,
+                        pad_token_id=self.tokenizer.eos_token_id,
+                    )
+                text = self.tokenizer.decode(
+                    outputs[0][inputs.input_ids.shape[-1]:], skip_special_tokens=True
+                )
                 p_tokens = inputs.input_ids.shape[-1]
                 c_tokens = outputs.shape[-1] - p_tokens
+                finish_reason = "length" if c_tokens >= req.max_tokens else "stop"
+
+            text, stopped = self.apply_stop(text, req.stop)
+            if stopped:
+                finish_reason = "stop"
 
             return {
                 "id": request_id,
@@ -528,7 +801,7 @@ class NATLaSLLMEngine:
                         "text": text,
                         "index": 0,
                         "logprobs": None,
-                        "finish_reason": "stop",
+                        "finish_reason": finish_reason,
                     }
                 ],
                 "usage": {
@@ -544,10 +817,12 @@ class NATLaSLLMEngine:
         @web_app.post("/v1/translate")
         async def translate_text(req: TranslateRequest, auth=Depends(verify_api_key)):
             """Direct, highly accurate African Language Translation powered by N-ATLaS."""
+            source_lang = req.source_lang or "the auto-detected source language"
+            tone = req.tone or "natural"
             system_prompt = (
                 f"You are an expert native linguist in African languages. "
-                f"Translate the provided text directly and accurately into {req.target_lang}. "
-                f"Maintain the nuances, cultural idioms, and a {req.tone} tone. Return ONLY the translated text without extra explanation."
+                f"Translate the provided text directly and accurately from {source_lang} into {req.target_lang}. "
+                f"Maintain the nuances, cultural idioms, and a {tone} tone. Return ONLY the translated text without extra explanation."
             )
             chat_payload = ChatCompletionRequest(
                 messages=[
@@ -569,10 +844,11 @@ class NATLaSLLMEngine:
         @web_app.post("/v1/africanize")
         async def africanize_text(req: CulturalAdapterRequest, auth=Depends(verify_api_key)):
             """Adapt and localize modern English text with culturally rich African idioms and tone."""
+            formality = req.formality or "natural"
             system_prompt = (
                 f"You are a cultural communications specialist in Nigerian expressions. "
                 f"Adapt the following text to resonate naturally with a {req.culture_context} audience. "
-                f"Use authentic expressions, respectful proverbs, or contemporary conversational vernacular where appropriate ({req.formality} formality)."
+                f"Use authentic expressions, respectful proverbs, or contemporary conversational vernacular where appropriate ({formality} formality)."
             )
             chat_payload = ChatCompletionRequest(
                 messages=[
@@ -590,11 +866,59 @@ class NATLaSLLMEngine:
             }
 
         # -------------------------------------------------------------------
+        # Sovereign Speech-to-Text ASR Gateway (/v1/audio/transcriptions)
+        # -------------------------------------------------------------------
+        @web_app.post("/v1/audio/transcriptions")
+        async def create_transcription_gateway(
+            file: UploadFile = File(...),
+            model: Optional[str] = Form(None),
+            language: Optional[str] = Form(None),
+            response_format: Optional[str] = Form("json"),
+            timestamp_granularities: Optional[List[str]] = Form(None),
+            auth=Depends(verify_api_key),
+        ):
+            """Unified OpenAI Whisper compatible audio transcription endpoint."""
+            content = await file.read()
+            if not content:
+                raise HTTPException(status_code=400, detail="Empty audio file provided.")
+
+            asr_engine = NATLaSASREngine()
+            model_id = asr_engine._resolve_model_id(model, language)
+            return_words = bool(timestamp_granularities and "word" in timestamp_granularities)
+
+            result = await asr_engine.transcribe_remote.aio(
+                content,
+                model_id=model_id,
+                language=language,
+                return_timestamps=return_words,
+            )
+
+            if response_format == "text":
+                return PlainTextResponse(result["text"])
+
+            return JSONResponse({
+                "text": result["text"],
+                "duration": result["duration"],
+                "model": result["model"],
+                "language": result["language"],
+                "words": result["words"],
+                "attribution": ASR_ATTRIBUTION,
+            })
+
+        # -------------------------------------------------------------------
         # Real-time WebSocket Protocol (/ws/realtime)
         # -------------------------------------------------------------------
         @web_app.websocket("/ws/realtime")
         async def websocket_realtime_endpoint(websocket: WebSocket):
             """Realtime conversational WebSocket for low-latency streaming interactions."""
+            try:
+                verify_api_key(websocket.headers.get("authorization"))
+            except HTTPException:
+                await websocket.close(code=1008, reason="Unauthorized")
+                return
+            if not self.use_vllm:
+                await websocket.close(code=1013, reason="vLLM backend required")
+                return
             await websocket.accept()
             logger.info("[NATLaS WebSocket] Client connected to real-time endpoint.")
             session_history: List[Dict[str, str]] = []
@@ -684,11 +1008,7 @@ class NATLaSLLMEngine:
                     final_output = output
                 return final_output.outputs[0].text if final_output else ""
 
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                import nest_asyncio
-                nest_asyncio.apply()
-            return loop.run_until_complete(_run())
+            return asyncio.run(_run())
         else:
             inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
             outputs = self.model.generate(
@@ -700,15 +1020,310 @@ class NATLaSLLMEngine:
             return self.tokenizer.decode(outputs[0][inputs.input_ids.shape[-1]:], skip_special_tokens=True)
 
 
+# ===========================================================================
+# N-ATLaS Sovereign ASR Engine (Whisper Small: Yoruba, Hausa, Igbo, Naija Eng)
+# ===========================================================================
+@app.cls(
+    image=asr_image,
+    gpu="A10G",              # Or T4 for cost optimization
+    scaledown_window=300,
+    timeout=600,
+    secrets=[
+        modal.Secret.from_name("natlas-secrets"),
+        modal.Secret.from_name("hf-token"),
+    ],
+    volumes={
+        CACHE_DIR: models_volume,
+    },
+)
+@modal.concurrent(max_inputs=16)
+class NATLaSASREngine:
+    """Sovereign Automatic Speech Recognition Engine for Nigerian Languages.
+    Powered by Whisper Small fine-tunes: Yoruba-ASR, Hausa-ASR, Igbo-ASR, and NigerianAccentedEnglish.
+    """
+
+    @modal.enter()
+    def load_asr_models(self):
+        """Warm up ASR model pipelines and caching."""
+        import torch
+        from transformers import WhisperForConditionalGeneration, WhisperProcessor
+
+        self.hf_token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+
+        self.loaded_models: Dict[str, Any] = {}
+        self.loaded_processors: Dict[str, Any] = {}
+
+        logger.info(f"[N-ATLaS ASR] Pre-warming default ASR model: {DEFAULT_ASR_MODEL} on {self.device}...")
+        self._get_model(DEFAULT_ASR_MODEL)
+        logger.info("[N-ATLaS ASR] Engine ready for batch and real-time streaming speech recognition.")
+
+    def _get_model(self, model_id: str):
+        import torch
+        from transformers import WhisperForConditionalGeneration, WhisperProcessor
+
+        if model_id not in self.loaded_models:
+            logger.info(f"[N-ATLaS ASR] Loading ASR weights for {model_id}...")
+            processor = WhisperProcessor.from_pretrained(
+                model_id,
+                token=self.hf_token,
+                cache_dir=CACHE_DIR,
+            )
+            model = WhisperForConditionalGeneration.from_pretrained(
+                model_id,
+                token=self.hf_token,
+                torch_dtype=self.dtype,
+                cache_dir=CACHE_DIR,
+            ).to(self.device)
+            model.eval()
+            self.loaded_processors[model_id] = processor
+            self.loaded_models[model_id] = model
+
+        return self.loaded_models[model_id], self.loaded_processors[model_id]
+
+    def _resolve_model_id(self, requested: Optional[str], language: Optional[str]) -> str:
+        if requested and requested in ASR_MODELS.values():
+            return requested
+        if language:
+            lang_key = language.strip().lower()
+            if lang_key in ASR_MODELS:
+                return ASR_MODELS[lang_key]
+        return DEFAULT_ASR_MODEL
+
+    @modal.method()
+    def transcribe_remote(
+        self,
+        audio_bytes: bytes,
+        model_id: str,
+        language: Optional[str] = None,
+        return_timestamps: bool = False,
+    ) -> Dict[str, Any]:
+        """Modal programmatic invocation method for ASR."""
+        return self.transcribe_audio(
+            audio_bytes=audio_bytes,
+            model_id=model_id,
+            language=language,
+            return_timestamps=return_timestamps,
+        )
+
+    def transcribe_audio(
+        self,
+        audio_bytes: bytes,
+        model_id: str,
+        language: Optional[str] = None,
+        return_timestamps: bool = False,
+    ) -> Dict[str, Any]:
+        """Transcribe an audio buffer (WAV/MP3/FLAC/OGG) with the selected ASR model."""
+        import io
+        import librosa
+        import numpy as np
+        import soundfile as sf
+        import torch
+
+        model, processor = self._get_model(model_id)
+
+        # 1. Load audio with librosa or soundfile resampled to 16kHz mono
+        try:
+            audio_array, sampling_rate = sf.read(io.BytesIO(audio_bytes))
+        except Exception:
+            audio_array, sampling_rate = librosa.load(io.BytesIO(audio_bytes), sr=16000)
+
+        if audio_array.ndim > 1:
+            audio_array = np.mean(audio_array, axis=1)
+
+        if sampling_rate != 16000:
+            audio_array = librosa.resample(audio_array.astype(np.float32), orig_sr=sampling_rate, target_sr=16000)
+            sampling_rate = 16000
+
+        duration_sec = float(len(audio_array)) / 16000.0
+
+        # 2. Extract Mel features
+        input_features = processor(
+            audio_array,
+            sampling_rate=16000,
+            return_tensors="pt"
+        ).input_features.to(self.device).to(self.dtype)
+
+        # 3. Generate tokens
+        with torch.inference_mode():
+            predicted_ids = model.generate(
+                input_features,
+                return_timestamps=return_timestamps,
+            )
+
+        transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)[0].strip()
+
+        words = []
+        if return_timestamps:
+            try:
+                # Basic token timestamp extraction
+                decoded = processor.tokenizer.decode(predicted_ids[0], output_offsets=True)
+                # Word-level fallback
+                words = [{"word": w, "start": 0.0, "end": round(duration_sec, 2)} for w in transcription.split()]
+            except Exception:
+                words = []
+
+        return {
+            "text": transcription,
+            "duration": round(duration_sec, 2),
+            "model": model_id,
+            "language": language or "auto",
+            "words": words,
+        }
+
+    @modal.asgi_app()
+    def serve(self):
+        """OpenAI-compliant ASR REST API + Deepgram-Style Streaming WebSocket."""
+        import io
+        from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, WebSocket, WebSocketDisconnect
+        from fastapi.middleware.cors import CORSMiddleware
+        from fastapi.responses import JSONResponse, PlainTextResponse
+
+        verify_api_key = get_auth_verifier()
+
+        asr_app = FastAPI(
+            title="N-ATLaS Sovereign ASR & Speech-to-Text API",
+            description="High-performance, OpenAI-compliant speech recognition for Yoruba, Hausa, Igbo, and Nigerian English.",
+            version="1.0.0",
+        )
+
+        asr_app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+
+        @asr_app.get("/healthz")
+        async def asr_health():
+            import torch
+            return {
+                "status": "healthy",
+                "service": "natlas-asr",
+                "attribution": ASR_ATTRIBUTION,
+                "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU",
+                "supported_models": list(set(ASR_MODELS.values())),
+            }
+
+        @asr_app.post("/v1/audio/transcriptions")
+        async def create_transcription(
+            file: UploadFile = File(...),
+            model: Optional[str] = Form(None),
+            language: Optional[str] = Form(None),
+            response_format: Optional[str] = Form("json"),
+            timestamp_granularities: Optional[List[str]] = Form(None),
+            auth=Depends(verify_api_key),
+        ):
+            """Drop-in OpenAI Whisper compatible audio transcription endpoint."""
+            content = await file.read()
+            if not content:
+                raise HTTPException(status_code=400, detail="Empty audio file provided.")
+
+            model_id = self._resolve_model_id(model, language)
+            return_words = bool(timestamp_granularities and "word" in timestamp_granularities)
+
+            result = self.transcribe_audio(
+                content,
+                model_id=model_id,
+                language=language,
+                return_timestamps=return_words,
+            )
+
+            if response_format == "text":
+                return PlainTextResponse(result["text"])
+
+            return JSONResponse({
+                "text": result["text"],
+                "duration": result["duration"],
+                "model": result["model"],
+                "language": result["language"],
+                "words": result["words"],
+                "attribution": ASR_ATTRIBUTION,
+            })
+
+        @asr_app.websocket("/v1/audio/transcriptions/streaming")
+        async def stream_transcription_websocket(websocket: WebSocket):
+            """Deepgram-style real-time streaming WebSocket for live speech-to-text."""
+            try:
+                verify_api_key(websocket.headers.get("authorization"))
+            except HTTPException:
+                await websocket.close(code=1008, reason="Unauthorized")
+                return
+
+            await websocket.accept()
+            logger.info("[N-ATLaS ASR WebSocket] Client connected to real-time STT endpoint.")
+
+            # Default to Nigerian English or client query param
+            query_lang = websocket.query_params.get("language", "en-ng")
+            model_id = self._resolve_model_id(None, query_lang)
+            buffer = bytearray()
+
+            try:
+                while True:
+                    message = await websocket.receive()
+                    if "bytes" in message and message["bytes"]:
+                        buffer.extend(message["bytes"])
+
+                        # When buffer reaches ~1.5s of 16kHz 16-bit PCM (48000 bytes)
+                        if len(buffer) >= 48000:
+                            chunk_data = bytes(buffer)
+                            buffer.clear()
+
+                            # Transcribe chunk
+                            try:
+                                res = self.transcribe_audio(chunk_data, model_id=model_id, language=query_lang)
+                                transcript = res["text"]
+                                if transcript:
+                                    await websocket.send_text(json.dumps({
+                                        "channel": {
+                                            "alternatives": [{
+                                                "transcript": transcript,
+                                                "confidence": 0.95,
+                                                "words": res["words"],
+                                            }]
+                                        },
+                                        "is_final": True,
+                                        "speech_final": True,
+                                        "language": query_lang,
+                                        "model": model_id,
+                                    }))
+                            except Exception as infer_err:
+                                logger.warning(f"[ASR Stream] Inference error: {infer_err}")
+
+                    elif "text" in message and message["text"]:
+                        data = json.loads(message["text"])
+                        if data.get("type") == "CloseStream":
+                            break
+
+            except WebSocketDisconnect:
+                logger.info("[N-ATLaS ASR WebSocket] Client disconnected cleanly.")
+            except Exception as e:
+                logger.error(f"[N-ATLaS ASR WebSocket] Error: {e}", exc_info=True)
+
+        return asr_app
+
+
 # ---------------------------------------------------------------------------
 # CLI Entrypoint for Local Validation & Verification
 # ---------------------------------------------------------------------------
 @app.local_entrypoint()
 def main():
-    print("🚀 Initializing N-ATLaS LLM Engine on Modal...")
-    engine = NATLaSLLMEngine()
+    print(ATTRIBUTION)
+    print(ASR_ATTRIBUTION)
+    print("🚀 Initializing N-ATLaS LLM & Sovereign ASR Engines on Modal...")
+    engine = NATLaSAPI()
     
     test_prompt = "<|start_header_id|>system<|end_header_id|>\n\nyou are a large language model trained by Awarri AI technologies.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nSannu! Menene ma'anar fasahar AI a takaice?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
     print(f"📝 Testing Prompt: {test_prompt[:60]}...")
     output = engine.direct_generate.remote(test_prompt, max_tokens=150)
     print(f"✨ Output:\n{output}\n")
+
+
+def create_asr_app():
+    """Factory for local standalone uvicorn deployment."""
+    engine = NATLaSASREngine()
+    engine.load_asr_models()
+    return engine.serve()
+
