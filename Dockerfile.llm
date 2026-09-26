@@ -3,38 +3,37 @@ FROM python:3.11-slim
 ENV PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive
 
-# System dependencies for audio decoding and sound processing
+# System dependencies for CPU acceleration & downloads
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
-    libsndfile1 \
     git \
     curl \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Install PyTorch & core ASR + FastAPI dependencies
+# Install PyTorch & Transformers with CPU optimization
 RUN pip install --no-cache-dir \
     "typing-extensions>=4.12.0" \
     torch \
-    torchaudio \
     transformers \
     accelerate \
-    librosa \
-    soundfile \
+    sentencepiece \
+    protobuf \
     fastapi \
     uvicorn \
     pydantic \
     python-multipart \
-    websockets
+    websockets \
+    huggingface_hub
 
-# Copy SDK and install
+# Copy Python SDK and install
 COPY python-sdk /app/python-sdk
 RUN pip install --no-cache-dir -e /app/python-sdk
 
 # Copy application files
 COPY natlas_engine.py /app/
 
-EXPOSE 8001
+EXPOSE 8000
 
-CMD ["python", "-m", "uvicorn", "natlas_engine:create_asr_app", "--factory", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["python", "-m", "uvicorn", "natlas_engine:create_llm_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
