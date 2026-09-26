@@ -1,0 +1,75 @@
+version: "3.8"
+
+# =============================================================================
+# N-ATLaS Local & Apple Silicon Compose Stack (Option A)
+#
+# Runs 100% via Python + Hugging Face Transformers on CPU/Metal:
+# - Automatically downloads NCAIR1/N-ATLaS using HF_TOKEN
+# - Automatically downloads Nigerian Whisper models (Yoruba, Hausa, Igbo, English)
+# - No Nvidia GPU required
+#
+# Usage:
+#   docker compose -f docker-compose.local.yml up -d --build
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. UNIFIED GATEWAY (Port 8000)
+  # Routes LLM and ASR seamlessly to a single entrypoint
+  # ---------------------------------------------------------------------------
+  natlas-gateway:
+    image: nginx:alpine
+    container_name: natlas-gateway-local
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - natlas-vllm
+      - natlas-asr
+
+  # ---------------------------------------------------------------------------
+  # 2. LOCAL LLM ENGINE (CPU / Apple Silicon Metal Accelerated)
+  # Automatically downloads & serves NCAIR1/N-ATLaS via Transformers
+  # ---------------------------------------------------------------------------
+  natlas-vllm:
+    build:
+      context: .
+      dockerfile: Dockerfile.llm
+    container_name: natlas-llm-local
+    restart: unless-stopped
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+      - NATLAS_API_KEY=${NATLAS_API_KEY:-natlas-super-secret-key-2026}
+      - MODEL_ID=NCAIR1/N-ATLaS
+    expose:
+      - "8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ./:/app
+
+  # ---------------------------------------------------------------------------
+  # 3. SOVEREIGN ASR ENGINE (Speech-to-Text & Realtime Streaming)
+  # Automatically downloads & serves Nigerian Whisper models on CPU
+  # ---------------------------------------------------------------------------
+  natlas-asr:
+    build:
+      context: .
+      dockerfile: Dockerfile.asr
+    container_name: natlas-asr-local
+    restart: unless-stopped
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+      - NATLAS_API_KEY=${NATLAS_API_KEY:-natlas-super-secret-key-2026}
+      - ASR_MODEL_YORUBA=NCAIR1/Yoruba-ASR
+      - ASR_MODEL_HAUSA=NCAIR1/Hausa-ASR
+      - ASR_MODEL_IGBO=NCAIR1/Igbo-ASR
+      - ASR_MODEL_ENGLISH=NCAIR1/NigerianAccentedEnglish
+    expose:
+      - "8001"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ./:/app
