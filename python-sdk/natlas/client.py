@@ -515,10 +515,15 @@ class Transcriptions:
         if timestamp_granularities:
             data["timestamp_granularities"] = timestamp_granularities
 
+        # httpx requires Content-Type omitted or popped so it can format multipart boundaries
+        req_headers = dict(self._client._hosted._http.headers)
+        req_headers.pop("content-type", None)
+
         raw_res = self._client._hosted._http.post(
             "audio/transcriptions",
             files=files,
             data=data,
+            headers=req_headers,
         )
         if raw_res.status_code >= 400:
             from .hosted import _status_error
@@ -586,10 +591,15 @@ class AsyncTranscriptions:
         if timestamp_granularities:
             data["timestamp_granularities"] = timestamp_granularities
 
+        # httpx requires Content-Type omitted or popped so it can format multipart boundaries
+        req_headers = dict(self._client._hosted._http.headers)
+        req_headers.pop("content-type", None)
+
         raw_res = await self._client._hosted._http.post(
             "audio/transcriptions",
             files=files,
             data=data,
+            headers=req_headers,
         )
         if raw_res.status_code >= 400:
             from .hosted import _status_error
