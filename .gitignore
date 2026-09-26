@@ -44,6 +44,8 @@ Thumbs.db
 .ruff_cache/
 
 # Modal cloud test runners
+modal_*.py
 **/modal_*.py
 modal_run.py
 modal_notebook_run.py
+modal_docker_verify.py

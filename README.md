@@ -148,15 +148,23 @@ print(transcription.text)
 
 For enterprise, banking, healthcare, or government environments requiring **100% on-premises data privacy**:
 
-### Option 1: High-Throughput Private Server with Docker & vLLM (Recommended)
-Self-host the entire N-ATLaS ecosystem (LLM + Sovereign ASR) on any internal GPU server using the included [`docker-compose.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/docker-compose.yml):
+### Option 1: High-Throughput Dedicated GPU Server (NVIDIA / Predator / Cloud)
+Self-host the entire N-ATLaS ecosystem (LLM + Sovereign ASR) on any internal GPU server using the included [`docker-compose.yml`](docker-compose.yml):
 
 ```bash
 # Ensure HF_TOKEN and NATLAS_API_KEY are configured in your environment
 docker compose up -d --build
 ```
 
-**Single Unified Gateway on Port `8000`**:
+### Option 2: Apple Silicon (M1/M2/M3/M4) & Standard CPU Laptops
+For local developer testing on MacBooks or laptops without an NVIDIA GPU, use the lightweight local compose stack:
+
+```bash
+# Runs with zero NVIDIA requirements (Apple Metal / CPU support)
+docker compose -f docker-compose.local.yml up -d --build
+```
+
+**Single Unified Gateway on Port `8000` (Both Profiles)**:
 - **Interactive Swagger Docs**: `http://localhost:8000/docs` (LLM & Chat) & `http://localhost:8000/docs/asr` (Sovereign ASR)
 - **Chat & Completions**: `POST http://localhost:8000/v1/chat/completions`
 - **Sovereign Speech-to-Text**: `POST http://localhost:8000/v1/audio/transcriptions`
@@ -184,7 +192,7 @@ with open("speech_hausa.wav", "rb") as audio:
 print(result.text)
 ```
 
-### Option 2: In-Process Local Python Execution (Zero-Server Prototyping)
+### Option 3: In-Process Local Python Execution (Zero-Server Prototyping)
 Run inference directly inside your Python process on your local GPU/workstation:
 
 ```bash
