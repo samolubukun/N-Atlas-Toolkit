@@ -21,19 +21,25 @@ The engine is deployed, live, and fully operational on Modal:
 
 ## ⚡ Live API Endpoints
 
-All endpoints support standard CORS and can be used in web apps, mobile apps, or backend microservices:
+### Deployment Architecture & Base URLs
 
-| Method | Endpoint | Description | Auth Header |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/healthz` | Container health, active GPU, and engine state | *None (Public)* |
-| `GET` | `/v1/models` | OpenAI-compatible model catalog discovery | `Bearer <API_KEY>` |
-| `POST` | `/v1/chat/completions` | Standard OpenAI chat (supports SSE streaming with `stream=true`) | `Bearer <API_KEY>` |
-| `POST` | `/v1/completions` | Raw prompt text completion | `Bearer <API_KEY>` |
-| `POST` | `/v1/translate` | Direct African language translation (Hausa/Igbo/Yoruba/Pidgin/English) | `Bearer <API_KEY>` |
-| `POST` | `/v1/africanize` | Cultural tone adapter for Nigerian cultural contexts | `Bearer <API_KEY>` |
-| `POST` | `/v1/audio/transcriptions` | OpenAI-compliant Sovereign ASR batch speech-to-text | `Bearer <API_KEY>` |
-| `WSS` | `/ws/realtime` | Bidirectional real-time conversational voice token streaming | WebSocket |
-| `WSS` | `/v1/audio/transcriptions/streaming` | Real-time Deepgram-style streaming STT WebSocket | WebSocket |
+- **Modal Cloud Deployment (2 Dedicated Microservices)**:
+  - **LLM Engine**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run` (Chat, Completions, Translation, Africanize)
+  - **Sovereign ASR Engine**: `https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run` (Speech-to-Text & Real-Time Streaming WebSocket)
+- **Local / On-Premise Docker Gateway (100% Unified)**:
+  - `http://localhost:8000` (Nginx gateway unified reverse-proxying both LLM and ASR)
+
+| Method | Endpoint | Service | Description | Auth Header |
+| :--- | :--- | :--- | :--- | :--- |
+| `GET` | `/healthz` | Both | Container health, active GPU, and engine state | *None (Public)* |
+| `GET` | `/v1/models` | LLM | OpenAI-compatible model catalog discovery | `Bearer <API_KEY>` |
+| `POST` | `/v1/chat/completions` | LLM | Standard OpenAI chat (supports SSE streaming with `stream=true`) | `Bearer <API_KEY>` |
+| `POST` | `/v1/completions` | LLM | Raw prompt text completion | `Bearer <API_KEY>` |
+| `POST` | `/v1/translate` | LLM | Direct African language translation (Hausa/Igbo/Yoruba/Pidgin/English) | `Bearer <API_KEY>` |
+| `POST` | `/v1/africanize` | LLM | Cultural tone adapter for Nigerian cultural contexts | `Bearer <API_KEY>` |
+| `POST` | `/v1/audio/transcriptions` | ASR | OpenAI-compliant Sovereign ASR batch speech-to-text | `Bearer <API_KEY>` |
+| `WSS` | `/v1/audio/transcriptions/streaming` | ASR | Real-time Deepgram-style streaming STT WebSocket | WebSocket |
+| `WSS` | `/ws/realtime` | LLM | Bidirectional real-time conversational voice token streaming | WebSocket |
 
 ---
 
@@ -123,10 +129,22 @@ The toolkit natively incorporates the four official sovereign **Whisper Small (2
 - **Nigerian Accented English**: `NCAIR1/NigerianAccentedEnglish` (120+ hours training data)
 
 ### 1. OpenAI-Compliant Batch Transcriptions (`POST /v1/audio/transcriptions`)
+
 ```python
+import os
 import natlas
 
-client = natlas.Client()
+# On Modal: Point client directly to the dedicated ASR URL (or use NATLAS_ASR_URL env var)
+# On Docker: Point client to the unified gateway "http://localhost:8000"
+asr_base_url = os.environ.get(
+    "NATLAS_ASR_URL",
+    "https://<your-workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1",
+)
+
+client = natlas.Client(
+    base_url=asr_base_url,
+    api_key=os.environ.get("NATLAS_API_KEY", "<YOUR_API_KEY>"),
+)
 
 with open("speech_yoruba.wav", "rb") as audio:
     transcription = client.audio.transcriptions.create(
@@ -138,9 +156,25 @@ with open("speech_yoruba.wav", "rb") as audio:
 print(transcription.text)
 ```
 
+
 ### 2. Deepgram-Style Real-Time Streaming STT (`WSS /v1/audio/transcriptions/streaming`)
 - Streams 16kHz audio frames over WebSocket with real-time interim results and `is_final` events.
 - Zero-roundtrip direct coupling into `NATLaSAPI` for real-time voice agents.
+
+### 3. ASR Verification & Benchmark Test Suite (`tests/`)
+
+The repository includes ready-to-run verification scripts and audio samples covering all 4 Nigerian languages:
+
+```bash
+# 1. Batch Transcription Benchmark Test (evaluates accuracy against ground truth)
+python tests/test_asr_samples.py
+
+# 2. Deepgram-Style Real-Time Live Streaming Simulation (WebSocket chunked streaming)
+python tests/test_streaming_asr.py
+```
+
+* Audio test assets are organized in [`tests/audio/`](tests/audio) (`hausa.mp3`, `english.mp3`, `igbo.mp3`, `yoruba.mp3`).
+* Both scripts authenticate via `NATLAS_API_KEY` from your `.env` or system environment.
 
 ---
 
@@ -172,11 +206,12 @@ docker compose -f docker-compose.local.yml up -d --build
 
 Connect using the Python SDK with a single client:
 ```python
+import os
 import natlas
 
 client = natlas.Client(
     host="http://localhost:8000",
-    api_key="natlas-super-secret-key-2026",
+    api_key=os.environ.get("NATLAS_API_KEY", "<YOUR_API_KEY>"),
 )
 
 # 1. Chat Completion

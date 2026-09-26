@@ -110,11 +110,12 @@ For enterprise or government data centers requiring 100% on-premises data isolat
    ```
 2. Connect your application using the SDK:
    ```python
+   import os
    import natlas
 
    client = natlas.Client(
        host="http://localhost:8000",
-       api_key="natlas-super-secret-key-2026",
+       api_key=os.environ.get("NATLAS_API_KEY", "<YOUR_API_KEY>"),
    )
 
    response = client.chat([{"role": "user", "content": "Sannu!"}])
@@ -276,11 +277,21 @@ Paths must be relative to the configured hosted origin. The SDK rejects absolute
 The SDK provides first-class support for sovereign Nigerian speech recognition across Yoruba, Hausa, Igbo, and Nigerian Accented English using official Whisper Small models:
 
 ```python
+import os
 import natlas
 
-client = natlas.Client()
+# When targeting Modal, point client to your dedicated ASR endpoint
+# (On Docker / on-premise gateway, default "http://localhost:8000" covers both)
+asr_url = os.environ.get(
+    "NATLAS_ASR_URL",
+    "https://<your-workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1",
+)
+client = natlas.Client(
+    base_url=asr_url,
+    api_key=os.environ.get("NATLAS_API_KEY", "<YOUR_API_KEY>"),
+)
 
-# 1. Hosted Transcription (Calls Modal /v1/audio/transcriptions)
+# 1. Hosted Transcription (Calls /v1/audio/transcriptions)
 with open("yoruba_sample.wav", "rb") as audio_file:
     transcription = client.audio.transcriptions.create(
         file=audio_file,
@@ -290,6 +301,7 @@ with open("yoruba_sample.wav", "rb") as audio_file:
     )
     print(transcription.text)
     print(transcription.words)
+
 
 # 2. Local In-Process Transcription (Pure Offline / On-Premise)
 with open("hausa_sample.wav", "rb") as audio_file:
