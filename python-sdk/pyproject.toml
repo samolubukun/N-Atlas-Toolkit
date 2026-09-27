@@ -38,6 +38,9 @@ dependencies = [
   "typing-extensions>=4.12",
 ]
 
+[project.scripts]
+natlas = "src.cli:main"
+
 [project.optional-dependencies]
 local = [
   "accelerate>=0.34,<2",

@@ -14,9 +14,13 @@
   },
   "files": [
     "dist",
+    "bin",
     "README.md",
     "LICENSE"
   ],
+  "bin": {
+    "natlas": "./bin/cli.mjs"
+  },
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
