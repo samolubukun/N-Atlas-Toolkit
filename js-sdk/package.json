@@ -1,0 +1,49 @@
+{
+  "name": "natlas",
+  "version": "0.1.0",
+  "description": "TypeScript/JavaScript SDK for N-ATLaS, Nigeria's sovereign multilingual LLM and speech models",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/"
+  },
+  "keywords": [
+    "natlas",
+    "nigeria",
+    "llm",
+    "multilingual",
+    "yoruba",
+    "hausa",
+    "igbo",
+    "african-nlp",
+    "asr",
+    "speech-recognition"
+  ],
+  "author": "N-ATLaS Initiative",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
