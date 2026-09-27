@@ -59,6 +59,39 @@ TESTS = [
     },
 ]
 
+import unicodedata
+import re
+
+def normalise_for_eval(text: str) -> str:
+    if not text:
+        return ""
+    text = unicodedata.normalize("NFC", text).lower()
+    text = re.sub(r"[^\w\s]", "", text, flags=re.UNICODE)
+    return " ".join(text.split())
+
+def levenshtein_dist(seq1, seq2):
+    r_len, h_len = len(seq1), len(seq2)
+    if r_len == 0: return h_len
+    if h_len == 0: return r_len
+    dp = [[0] * (h_len + 1) for _ in range(r_len + 1)]
+    for i in range(r_len + 1): dp[i][0] = i
+    for j in range(h_len + 1): dp[0][j] = j
+    for i in range(1, r_len + 1):
+        for j in range(1, h_len + 1):
+            cost = 0 if seq1[i - 1] == seq2[j - 1] else 1
+            dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost)
+    return dp[r_len][h_len]
+
+def compute_wer(ref, hyp):
+    r_words = normalise_for_eval(ref).split()
+    h_words = normalise_for_eval(hyp).split()
+    return levenshtein_dist(r_words, h_words) / max(1, len(r_words))
+
+def compute_cer(ref, hyp):
+    r_chars = list(normalise_for_eval(ref).replace(" ", ""))
+    h_chars = list(normalise_for_eval(hyp).replace(" ", ""))
+    return levenshtein_dist(r_chars, h_chars) / max(1, len(r_chars))
+
 def main():
     print("=" * 80)
     print("N-ATLaS SOVEREIGN ASR ENGINE - AUDIO SAMPLES TEST")
@@ -109,7 +142,10 @@ def main():
                     res = resp.json()
                     transcribed = res.get("text", "").strip()
                     duration = res.get("duration", 0)
-                    print(f"Status: OK ({latency:.2f}s, Audio Duration: {duration}s)")
+
+                    wer = compute_wer(gt, transcribed)
+                    cer = compute_cer(gt, transcribed)
+                    print(f"Status: OK ({latency:.2f}s, Duration: {duration}s | WER: {wer*100:.1f}%, CER: {cer*100:.1f}%)")
                     print(f"  [Ground Truth] : {gt}")
                     print(f"  [Transcribed ] : {transcribed}")
 
@@ -120,6 +156,8 @@ def main():
                         "transcribed": transcribed,
                         "duration": duration,
                         "latency": latency,
+                        "wer": wer,
+                        "cer": cer,
                         "status": "PASS",
                     })
                 else:
@@ -129,6 +167,8 @@ def main():
                         "file": file_path.name,
                         "ground_truth": gt,
                         "transcribed": f"ERROR {resp.status_code}: {resp.text}",
+                        "wer": 1.0,
+                        "cer": 1.0,
                         "status": "FAIL",
                     })
             except Exception as ex:
@@ -138,19 +178,27 @@ def main():
                     "file": file_path.name,
                     "ground_truth": gt,
                     "transcribed": f"EXCEPTION: {ex}",
+                    "wer": 1.0,
+                    "cer": 1.0,
                     "status": "ERROR",
                 })
 
     print("\n" + "=" * 80)
-    print("FINAL SUMMARY COMPARISON")
+    print("FINAL SUMMARY COMPARISON & ACCURACY METRICS")
     print("=" * 80)
+    print(f"{'Language':<12} | {'Duration':<9} | {'Latency':<9} | {'WER':<8} | {'CER':<8} | {'Status'}")
+    print("-" * 80)
     for r in results:
-        print(f"\nLanguage : {r['language']}")
+        dur = f"{r.get('duration', 0):.1f}s"
+        lat = f"{r.get('latency', 0):.2f}s"
+        wer_str = f"{r.get('wer', 1.0)*100:.1f}%"
+        cer_str = f"{r.get('cer', 1.0)*100:.1f}%"
+        print(f"{r['language']:<12} | {dur:<9} | {lat:<9} | {wer_str:<8} | {cer_str:<8} | {r['status']}")
+
+    for r in results:
+        print(f"\n--- {r['language']} ---")
         print(f"Original : {r['ground_truth']}")
         print(f"Output   : {r['transcribed']}")
-        if "duration" in r:
-            print(f"Duration : {r['duration']}s | Latency: {r['latency']:.2f}s")
-        print("-" * 50)
 
 if __name__ == "__main__":
     main()

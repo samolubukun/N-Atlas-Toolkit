@@ -271,6 +271,26 @@ probes use.
   - **Human review** — fill in `eval/rubric_template.csv` and pass it with
     `--rubric eval/rubric_filled.csv`.
 
+## Sovereign ASR Evaluation & Benchmark (`eval/eval_asr.py`)
+
+Automated evaluation of sovereign speech recognition across Hausa, Igbo, Yoruba, and Nigerian English using [`benjaminogbonna/nigerian_common_voice_dataset`](https://huggingface.co/datasets/benjaminogbonna/nigerian_common_voice_dataset):
+
+```bash
+# Standard benchmark (25 streamed samples per language = 100 total):
+python eval/eval_asr.py
+
+# Rapid CI/smoke test (5 samples per language):
+python eval/eval_asr.py --fast
+
+# Benchmark specific languages or sample size:
+python eval/eval_asr.py --languages hausa yoruba --num-samples 50 --output asr_report.json
+```
+
+Measures:
+* **WER (Word Error Rate)**
+* **CER (Character Error Rate)** — key for tonal markings & diacritics (`ẹ`, `ọ`, `ƙ`, `ɗ`)
+* **Inference Latency & Duration Statistics**
+
 ## Known gaps / TODOs
 
 - `data/prepare_data.py::filter_toxic_or_pii` is a stub — plug in a
@@ -280,3 +300,4 @@ probes use.
   the completions in `eval/results.json` directly.
 - No hyperparameter sweep support — run `train.py` multiple times with
   different configs if you need one.
+
