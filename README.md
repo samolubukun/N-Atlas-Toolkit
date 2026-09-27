@@ -249,10 +249,14 @@ print(response.message.content)
 
 ---
 
-## 🛠️ Repository File Structure
+## Repository File Structure
 
-- **[`python-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/python-sdk)**: Production-grade typed Python SDK (`natlas`) supporting both direct hosted Modal vLLM inference and local GPU/CPU execution, complete with streaming, language presets, and test suites.
-- **[`js-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/js-sdk)**: Universal typed TypeScript & JavaScript SDK (`natlas`) for Node.js, Web, and Edge runtimes with chat completions, completions, real-time SSE streaming, speech-to-text (ASR), and Nigerian language presets.
+- **[`python-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/python-sdk)**: Production-grade typed Python SDK with full CLI (`natlas chat`, `natlas transcribe`, `natlas stream-asr`, `natlas eval`).
+- **[`js-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/js-sdk)**: Universal typed TypeScript & JavaScript SDK with executable Node CLI (`npx natlas`) and SSE / WebSocket streaming.
+- **[`cookbook/`](file:///c:/Users/USER/Downloads/natlas-toolkit/cookbook)**: Real-world production recipes (WhatsApp voice bot, customer support router, voice translation pipeline).
+- **[`scripts/`](file:///c:/Users/USER/Downloads/natlas-toolkit/scripts)**: Reproducible testing and benchmarking suite measuring WER/CER, TTFT, throughput (tok/s), and latency.
+- **[`docs/`](file:///c:/Users/USER/Downloads/natlas-toolkit/docs) & [`mkdocs.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/mkdocs.yml)**: Developer documentation site with auto-generated API reference and trilingual guides (Yoruba, Hausa, Igbo).
+- **[`.github/workflows/`](file:///c:/Users/USER/Downloads/natlas-toolkit/.github/workflows)**: Automated CI workflow testing Python SDK (matrix 3.10-3.12), JS SDK (matrix 18-22), and documentation builds.
 - **[`natlas_engine.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/natlas_engine.py)**: The complete Modal serverless engine definition with container build, volume mounting, authentication, FastAPI ASGI application, and WebSocket server.
 - **[`docker-compose.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/docker-compose.yml)**: Instant 1-command private on-premise container deployment with vLLM PagedAttention.
 - **[`run_local.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/run_local.py)**: Hardware diagnostics and interactive CLI chat runner for local in-process execution.

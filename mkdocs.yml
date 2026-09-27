@@ -65,9 +65,11 @@ nav:
       - Overview: index.md
       - Installation & Quickstart: getting-started/install.md
       - Model Catalog: getting-started/models.md
-  - SDK Guides:
+  - SDK & CLI Guides:
       - Python SDK: sdk/python.md
       - JavaScript / TypeScript SDK: sdk/javascript.md
+      - Unified CLI Reference: cli.md
+      - Developer Cookbook: cookbook.md
   - ASR (Speech-to-Text):
       - Audio Transcriptions: asr/transcriptions.md
       - Real-Time Streaming ASR: asr/streaming.md
@@ -76,6 +78,10 @@ nav:
       - Chat & SSE Streaming: llm/chat.md
       - Native Cultural Translation: llm/translation.md
       - Cultural Tone Adapter: llm/africanize.md
+  - Fine-Tuning Starter Kit:
+      - Overview & LoRA Pipeline: finetuning/overview.md
+      - Dataset Preparation: finetuning/data-prep.md
+      - Model Evaluation & Comparison: finetuning/evaluation.md
   - Deployment & Infrastructure:
       - Modal Cloud Serverless: deployment/modal.md
       - Docker GPU & CPU Gateway: deployment/docker.md
