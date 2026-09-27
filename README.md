@@ -252,6 +252,7 @@ print(response.message.content)
 ## 🛠️ Repository File Structure
 
 - **[`python-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/python-sdk)**: Production-grade typed Python SDK (`natlas`) supporting both direct hosted Modal vLLM inference and local GPU/CPU execution, complete with streaming, language presets, and test suites.
+- **[`js-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/js-sdk)**: Universal typed TypeScript & JavaScript SDK (`natlas`) for Node.js, Web, and Edge runtimes with chat completions, completions, real-time SSE streaming, speech-to-text (ASR), and Nigerian language presets.
 - **[`natlas_engine.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/natlas_engine.py)**: The complete Modal serverless engine definition with container build, volume mounting, authentication, FastAPI ASGI application, and WebSocket server.
 - **[`docker-compose.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/docker-compose.yml)**: Instant 1-command private on-premise container deployment with vLLM PagedAttention.
 - **[`run_local.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/run_local.py)**: Hardware diagnostics and interactive CLI chat runner for local in-process execution.
