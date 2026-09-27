@@ -16,6 +16,7 @@ from ._types import (
     GenerateOptions,
     GenerateResponse,
     LanguageValue,
+    LiveTranscriptionEvent,
     Message,
     MessageInput,
     TranscriptionResponse,
@@ -35,7 +36,7 @@ from .exceptions import (
     NatlasError,
     StreamProtocolError,
 )
-from .hosted import DEFAULT_BASE_URL, DEFAULT_MODEL
+from .hosted import DEFAULT_ASR_URL, DEFAULT_BASE_URL, DEFAULT_MODEL
 from .languages import EN_NG, HA, IG, SUPPORTED_LANGUAGES, YO, detect_language, system_prompt
 
 __version__ = "0.1.0"
@@ -122,6 +123,21 @@ def generate(
     return _get_default_client().generate(prompt, stream=stream, **sampling_params)
 
 
+def transcribe(
+    audio: Any,
+    language: str | None = None,
+    model: str | None = None,
+    timestamp_granularities: list[str] | None = None,
+) -> TranscriptionResponse:
+    """Use a lazily configured hosted client for a module-level transcription call."""
+    return _get_default_client().transcribe(
+        audio=audio,
+        language=language,
+        model=model,
+        timestamp_granularities=timestamp_granularities,
+    )
+
+
 __all__ = [
     "APIConnectionError",
     "APIError",
@@ -136,6 +152,7 @@ __all__ = [
     "ChatResponse",
     "Client",
     "ConfigurationError",
+    "DEFAULT_ASR_URL",
     "DEFAULT_BASE_URL",
     "DEFAULT_MODEL",
     "EN_NG",
@@ -144,6 +161,7 @@ __all__ = [
     "HA",
     "IG",
     "LanguageValue",
+    "LiveTranscriptionEvent",
     "LocalDependencyError",
     "LocalInferenceError",
     "Message",
@@ -160,4 +178,5 @@ __all__ = [
     "detect_language",
     "generate",
     "system_prompt",
+    "transcribe",
 ]

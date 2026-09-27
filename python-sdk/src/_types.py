@@ -149,6 +149,30 @@ class TranscriptionResponse(BaseModel):
     attribution: str | None = None
 
 
+class LiveAlternative(BaseModel):
+    """Deepgram-style speech alternative."""
+
+    transcript: str
+    confidence: float = 0.95
+    words: list[TranscriptionWord] = Field(default_factory=list)
+
+
+class LiveChannel(BaseModel):
+    """Deepgram-style audio channel response."""
+
+    alternatives: list[LiveAlternative] = Field(default_factory=list)
+
+
+class LiveTranscriptionEvent(BaseModel):
+    """Deepgram-compatible streaming transcription event."""
+
+    channel: LiveChannel
+    is_final: bool = True
+    speech_final: bool = True
+    language: str
+    model: str
+
+
 def normalize_messages(messages: Sequence[MessageInput]) -> list[Message]:
     """Validate and normalize mapping or model chat messages."""
     if not messages:

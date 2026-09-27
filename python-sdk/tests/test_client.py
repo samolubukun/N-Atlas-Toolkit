@@ -7,8 +7,8 @@ import httpx
 import pytest
 import respx
 
-import natlas
-from natlas import (
+import src
+from src import (
     APIStatusError,
     ChatResponse,
     Client,
@@ -260,12 +260,32 @@ def test_environment_configuration_precedence(monkeypatch: pytest.MonkeyPatch) -
         )
 
 
-def test_transcribe_is_a_clean_stub(tmp_path: Path) -> None:
-    with (
-        Client(base_url="https://example.test", api_key="secret") as client,
-        pytest.raises(NotImplementedError, match="coming later"),
-    ):
-        client.transcribe(tmp_path / "audio.wav")
+@respx.mock
+def test_transcribe_routes_to_asr_endpoint(tmp_path: Path) -> None:
+    audio_file = tmp_path / "audio.wav"
+    audio_file.write_bytes(b"RIFFdummydataWAVEfmt ")
+    
+    respx.post("https://asr.example/v1/audio/transcriptions").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "text": "Bawo ni",
+                "duration": 1.5,
+                "model": "NCAIR1/Yoruba-ASR",
+                "language": "yoruba",
+                "words": [],
+            },
+        )
+    )
+    with Client(
+        base_url="https://llm.example",
+        asr_url="https://asr.example",
+        api_key="secret",
+    ) as client:
+        res = client.transcribe(audio_file, language="yoruba")
+        assert res.text == "Bawo ni"
+        assert res.model == "NCAIR1/Yoruba-ASR"
+    
     local = Client(mode="local", hf_token="token")
     with pytest.raises(ConfigurationError, match="hosted mode"):
         local.get("healthz")
@@ -275,11 +295,11 @@ def test_transcribe_is_a_clean_stub(tmp_path: Path) -> None:
 def test_module_level_hosted_chat(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("NATLAS_BASE_URL", "https://module.example")
     monkeypatch.setenv("NATLAS_API_KEY", "module-secret")
-    monkeypatch.setattr(natlas, "_default_client", None)
+    monkeypatch.setattr(src, "_default_client", None)
     respx.post("https://module.example/v1/chat/completions").mock(
         return_value=httpx.Response(200, json=chat_payload())
     )
-    response = natlas.chat([{"role": "user", "content": "Hello"}])
+    response = src.chat([{"role": "user", "content": "Hello"}])
     assert isinstance(response, ChatResponse)
-    natlas._get_default_client().close()
-    monkeypatch.setattr(natlas, "_default_client", None)
+    src._get_default_client().close()
+    monkeypatch.setattr(src, "_default_client", None)

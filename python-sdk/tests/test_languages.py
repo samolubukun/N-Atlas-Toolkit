@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import pytest
 
-import natlas
-from natlas import EN_NG, HA, IG, YO, detect_language, system_prompt
-from natlas._types import Message
+import src
+from src import EN_NG, HA, IG, YO, detect_language, system_prompt
+from src._types import Message
 
 
 def test_language_constants_and_detection() -> None:
@@ -29,6 +29,6 @@ def test_system_prompt_returns_prependable_message() -> None:
         assert isinstance(message, Message)
         assert message.role == "system"
         assert message.content
-        assert natlas.ATTRIBUTION in message.content
+        assert src.ATTRIBUTION in message.content
     with pytest.raises(ValueError, match="Unsupported language"):
         system_prompt("french")

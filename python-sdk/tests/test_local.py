@@ -7,10 +7,10 @@ from typing import Any
 
 import pytest
 
-import natlas.local as local_module
-from natlas import ChatResponse, Client, ConfigurationError, GenerateResponse, LocalInferenceError
-from natlas._types import ChatRequest, GenerateRequest
-from natlas.local import LocalBackend, format_date_string
+import src.local as local_module
+from src import ChatResponse, Client, ConfigurationError, GenerateResponse, LocalInferenceError
+from src._types import ChatRequest, GenerateRequest
+from src.local import LocalBackend, format_date_string
 
 
 class FakeTensor:
@@ -253,5 +253,15 @@ def test_missing_hf_token_and_transcribe_stub(monkeypatch: pytest.MonkeyPatch) -
     with pytest.raises(ConfigurationError, match="gated"):
         Client(mode="local")
     client = Client(mode="local", hf_token="token")
-    with pytest.raises(NotImplementedError, match="coming later"):
-        client.transcribe("audio.wav")
+    monkeypatch.setattr(
+        "src.local.LocalASRBackend.transcribe",
+        lambda self, audio, **kwargs: {
+            "text": "test",
+            "duration": 1.0,
+            "model": "model",
+            "language": "en",
+            "words": [],
+        },
+    )
+    res = client.transcribe(b"RIFFdummydata")
+    assert res.text == "test"

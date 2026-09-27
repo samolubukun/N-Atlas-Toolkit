@@ -24,7 +24,8 @@ from .exceptions import (
     StreamProtocolError,
 )
 
-DEFAULT_BASE_URL = "https://YOUR-MODAL-ENDPOINT.modal.run"
+DEFAULT_BASE_URL = "https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run"
+DEFAULT_ASR_URL = "https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run"
 DEFAULT_MODEL = "NCAIR1/N-ATLaS"
 T = TypeVar("T")
 ModelT = TypeVar("ModelT", bound=BaseModel)
@@ -60,6 +61,17 @@ def resolve_base_url(base_url: str | None = None) -> str:
     return urlunsplit((parsed.scheme, parsed.netloc, f"{path}/", "", ""))
 
 
+def resolve_asr_url(asr_url: str | None = None, fallback_base_url: str | None = None) -> str:
+    """Resolve the sovereign ASR base URL (split Modal microservice or unified Docker gateway)."""
+    configured = asr_url if asr_url is not None else os.getenv("NATLAS_ASR_URL")
+    if configured is None:
+        if fallback_base_url is not None and "localhost" in fallback_base_url:
+            # On-premises unified Nginx gateway (e.g. localhost:8000)
+            return fallback_base_url
+        configured = DEFAULT_ASR_URL
+    return resolve_base_url(configured)
+
+
 def resolve_api_key(api_key: str | None) -> str:
     """Resolve the hosted API key and fail before a request when absent."""
     resolved = api_key if api_key is not None else os.getenv("NATLAS_API_KEY")
@@ -71,7 +83,7 @@ def resolve_api_key(api_key: str | None) -> str:
 
 
 def _headers(api_key: str, supplied: Any) -> httpx.Headers:
-    headers = httpx.Headers({"Accept": "application/json", "Content-Type": "application/json"})
+    headers = httpx.Headers({"Accept": "application/json"})
     if supplied:
         headers.update(supplied)
     authorization = f"Bearer {api_key}"

@@ -22,12 +22,20 @@ from ._types import (
     GenerateRequest,
     GenerateResponse,
     LanguageValue,
+    LiveTranscriptionEvent,
     MessageInput,
     TranscriptionResponse,
     normalize_messages,
 )
 from .exceptions import ConfigurationError
-from .hosted import DEFAULT_BASE_URL, DEFAULT_MODEL, AsyncHostedBackend, HostedBackend
+from .hosted import (
+    DEFAULT_ASR_URL,
+    DEFAULT_BASE_URL,
+    DEFAULT_MODEL,
+    AsyncHostedBackend,
+    HostedBackend,
+    resolve_asr_url,
+)
 from .local import LocalASRBackend, LocalBackend
 
 Mode = Literal["local", "hosted"]
@@ -65,6 +73,7 @@ class Client:
         model: str = DEFAULT_MODEL,
         timeout: Any = 120.0,
         host: str | None = None,
+        asr_url: str | None = None,
         **client_kwargs: Any,
     ) -> None:
         if mode not in {"local", "hosted"}:
@@ -73,6 +82,7 @@ class Client:
         self.mode = mode
         self.model = model
         self.base_url: str | None
+        self.asr_url: str | None = None
         self._local: LocalBackend | None
         self._hosted: HostedBackend | None
         if mode == "local":
@@ -89,6 +99,7 @@ class Client:
                 **client_kwargs,
             )
             self.base_url = self._hosted.base_url
+            self.asr_url = resolve_asr_url(asr_url, fallback_base_url=self.base_url)
         self.audio = Audio(self)
 
     @overload
@@ -183,14 +194,22 @@ class Client:
             return self._hosted.stream_generate(request)
         return self._hosted.generate(request)
 
-    def transcribe(self, audio_path: str | Path, language: str = "nigerian_english") -> NoReturn:
-        """Reserved for upcoming N-ATLaS ASR support.
+    def transcribe(
+        self,
+        audio: Any,
+        language: str | None = None,
+        model: str | None = None,
+        timestamp_granularities: list[str] | None = None,
+    ) -> TranscriptionResponse:
+        """Transcribe speech in Nigerian languages (Yoruba, Hausa, Igbo, Nigerian English).
 
         N-ATLaS is an initiative of the Federal Ministry of Communications, Innovation and Digital Economy, and powered by Awarri Technologies.
         """
-        del audio_path, language
-        raise NotImplementedError(
-            "N-ATLaS ASR models are not available yet; transcription is coming later."
+        return self.audio.transcriptions.create(
+            file=audio,
+            model=model,
+            language=language,
+            timestamp_granularities=timestamp_granularities,
         )
 
     @overload
@@ -267,6 +286,7 @@ class AsyncClient:
         model: str = DEFAULT_MODEL,
         timeout: Any = 120.0,
         host: str | None = None,
+        asr_url: str | None = None,
         **client_kwargs: Any,
     ) -> None:
         if mode not in {"local", "hosted"}:
@@ -275,6 +295,7 @@ class AsyncClient:
         self.mode = mode
         self.model = model
         self.base_url: str | None
+        self.asr_url: str | None = None
         self._local: LocalBackend | None
         self._hosted: AsyncHostedBackend | None
         if mode == "local":
@@ -291,6 +312,7 @@ class AsyncClient:
                 **client_kwargs,
             )
             self.base_url = self._hosted.base_url
+            self.asr_url = resolve_asr_url(asr_url, fallback_base_url=self.base_url)
         self.audio = AsyncAudio(self)
 
     @overload
@@ -397,13 +419,22 @@ class AsyncClient:
             return self._hosted.stream_generate(request)
         return await self._hosted.generate(request)
 
-    def transcribe(
-        self, audio_path: str | Path, language: LanguageValue = "nigerian_english"
-    ) -> NoReturn:
-        """Reserved for upcoming asynchronous N-ATLaS ASR support."""
-        del audio_path, language
-        raise NotImplementedError(
-            "N-ATLaS ASR models are not available yet; transcription is coming later."
+    async def transcribe(
+        self,
+        audio: Any,
+        language: str | None = None,
+        model: str | None = None,
+        timestamp_granularities: list[str] | None = None,
+    ) -> TranscriptionResponse:
+        """Asynchronously transcribe speech in Nigerian languages (Yoruba, Hausa, Igbo, Nigerian English).
+
+        N-ATLaS is an initiative of the Federal Ministry of Communications, Innovation and Digital Economy, and powered by Awarri Technologies.
+        """
+        return await self.audio.transcriptions.create(
+            file=audio,
+            model=model,
+            language=language,
+            timestamp_granularities=timestamp_granularities,
         )
 
     @overload
@@ -519,8 +550,10 @@ class Transcriptions:
         req_headers = dict(self._client._hosted._http.headers)
         req_headers.pop("content-type", None)
 
+        target_url = f"{self._client.asr_url}audio/transcriptions" if self._client.asr_url else "audio/transcriptions"
+
         raw_res = self._client._hosted._http.post(
-            "audio/transcriptions",
+            target_url,
             files=files,
             data=data,
             headers=req_headers,
@@ -595,8 +628,10 @@ class AsyncTranscriptions:
         req_headers = dict(self._client._hosted._http.headers)
         req_headers.pop("content-type", None)
 
+        target_url = f"{self._client.asr_url}audio/transcriptions" if self._client.asr_url else "audio/transcriptions"
+
         raw_res = await self._client._hosted._http.post(
-            "audio/transcriptions",
+            target_url,
             files=files,
             data=data,
             headers=req_headers,
@@ -606,6 +641,100 @@ class AsyncTranscriptions:
             raise _status_error(raw_res)
 
         return TranscriptionResponse.model_validate(raw_res.json())
+
+    def connect_live(
+        self,
+        language: str | None = None,
+        model: str | None = None,
+    ) -> AsyncLiveTranscriptionSession:
+        """Connect to the real-time Deepgram-style streaming ASR WebSocket endpoint."""
+        return AsyncLiveTranscriptionSession(
+            client=self._client,
+            language=language,
+            model=model,
+        )
+
+
+class AsyncLiveTranscriptionSession:
+    """Asynchronous WebSocket session for real-time streaming speech recognition (Deepgram protocol)."""
+
+    def __init__(
+        self,
+        client: AsyncClient,
+        language: str | None = None,
+        model: str | None = None,
+    ) -> None:
+        self._client = client
+        self.language = language
+        self.model = model
+        self._ws: Any = None
+
+    async def connect(self) -> Self:
+        try:
+            import websockets
+        except ImportError:
+            # Fallback to standard websockets or raise a clean error
+            raise ConfigurationError(
+                "Streaming WebSocket ASR requires the 'websockets' library. "
+                "Install with: pip install websockets"
+            )
+
+        raw_url = self._client.asr_url or "https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run/v1/"
+        ws_proto = "wss://" if raw_url.startswith("https://") else "ws://"
+        host_path = raw_url.split("://", 1)[-1].rstrip("/")
+        ws_url = f"{ws_proto}{host_path}/audio/transcriptions/streaming"
+
+        query_params = []
+        if self.language:
+            query_params.append(f"language={self.language}")
+        if self.model:
+            query_params.append(f"model={self.model}")
+        if query_params:
+            ws_url = f"{ws_url}?{'&'.join(query_params)}"
+
+        headers = {"Authorization": f"Bearer {self._client._hosted.api_key}"} if self._client._hosted else {}
+        self._ws = await websockets.connect(ws_url, extra_headers=headers)
+        return self
+
+    async def send(self, data: bytes) -> None:
+        """Send a chunk of raw binary audio (e.g. PCM 16-bit 16kHz mono)."""
+        if self._ws is None:
+            raise ConfigurationError("WebSocket is not connected. Call await session.connect() or use async with.")
+        await self._ws.send(data)
+
+    async def receive(self) -> LiveTranscriptionEvent:
+        """Receive the next live transcription event."""
+        if self._ws is None:
+            raise ConfigurationError("WebSocket is not connected.")
+        msg = await self._ws.recv()
+        import json
+        payload = json.loads(msg)
+        return LiveTranscriptionEvent.model_validate(payload)
+
+    def __aiter__(self) -> AsyncIterator[LiveTranscriptionEvent]:
+        return self
+
+    async def __anext__(self) -> LiveTranscriptionEvent:
+        try:
+            return await self.receive()
+        except Exception:
+            raise StopAsyncIteration
+
+    async def close(self) -> None:
+        if self._ws is not None:
+            import json
+            try:
+                await self._ws.send(json.dumps({"type": "CloseStream"}))
+            except Exception:
+                pass
+            await self._ws.close()
+            self._ws = None
+
+    async def __aenter__(self) -> Self:
+        return await self.connect()
+
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        await self.close()
 
 
 class AsyncAudio:

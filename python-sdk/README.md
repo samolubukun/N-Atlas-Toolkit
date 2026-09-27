@@ -272,26 +272,26 @@ result = client.post(
 
 Paths must be relative to the configured hosted origin. The SDK rejects absolute escape-hatch URLs so the API key cannot be redirected to another host.
 
-## Sovereign Speech-to-Text (ASR)
+## Sovereign Speech-to-Text (ASR) & Real-Time Streaming
 
 The SDK provides first-class support for sovereign Nigerian speech recognition across Yoruba, Hausa, Igbo, and Nigerian Accented English using official Whisper Small models:
+
+### 1. Hosted Batch Audio Transcription (`/v1/audio/transcriptions`)
 
 ```python
 import os
 import natlas
 
-# When targeting Modal, point client to your dedicated ASR endpoint
-# (On Docker / on-premise gateway, default "http://localhost:8000" covers both)
-asr_url = os.environ.get(
-    "NATLAS_ASR_URL",
-    "https://<your-workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1",
-)
+# Supports deterministic dual URL routing:
+# base_url -> LLM endpoint
+# asr_url  -> Sovereign ASR endpoint (or defaults to NATLAS_ASR_URL)
 client = natlas.Client(
-    base_url=asr_url,
+    base_url=os.environ.get("NATLAS_BASE_URL", "https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run"),
+    asr_url=os.environ.get("NATLAS_ASR_URL", "https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run"),
     api_key=os.environ.get("NATLAS_API_KEY", "<YOUR_API_KEY>"),
 )
 
-# 1. Hosted Transcription (Calls /v1/audio/transcriptions)
+# Hosted Transcription:
 with open("yoruba_sample.wav", "rb") as audio_file:
     transcription = client.audio.transcriptions.create(
         file=audio_file,
@@ -301,9 +301,46 @@ with open("yoruba_sample.wav", "rb") as audio_file:
     )
     print(transcription.text)
     print(transcription.words)
+```
 
+### 2. Deepgram-Style Real-Time Live Streaming ASR (`AsyncLiveTranscriptionSession`)
 
-# 2. Local In-Process Transcription (Pure Offline / On-Premise)
+Stream raw audio chunks (16kHz PCM mono) over WebSocket with real-time transcript events:
+
+```python
+import asyncio
+import natlas
+
+async def stream_live_speech():
+    async with natlas.AsyncClient(
+        asr_url="https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run",
+        api_key="your-api-key",
+    ) as client:
+        session = await client.audio.transcriptions.connect_live(language="hausa")
+
+        async def listen():
+            async for event in session:
+                transcript = event.channel.alternatives[0].transcript
+                if transcript:
+                    print(f"[{'FINAL' if event.is_final else 'INTERIM'}] {transcript}")
+
+        listener_task = asyncio.create_task(listen())
+
+        # Stream audio chunks from microphone or file:
+        with open("hausa_sample.wav", "rb") as f:
+            while chunk := f.read(4096):
+                await session.send_audio(chunk)
+                await asyncio.sleep(0.05)
+
+        await session.close()
+        await listener_task
+
+asyncio.run(stream_live_speech())
+```
+
+### 3. Local In-Process Transcription (Pure Offline / On-Premise)
+
+```python
 with open("hausa_sample.wav", "rb") as audio_file:
     local_transcription = client.audio.transcriptions.create(
         file=audio_file,
@@ -345,12 +382,12 @@ Both public clients validate the same Pydantic request models and return the sam
 ## Package layout
 
 ```text
-natlas/
+src/
   __init__.py       public exports and module-level functions
-  client.py         Client and AsyncClient
+  client.py         Client, AsyncClient, Audio namespace, live ASR session
   _types.py         typed requests, responses, and sampling options
-  local.py          Transformers backend
-  hosted.py         HTTPX hosted backend
+  local.py          Transformers backend & local Whisper ASR
+  hosted.py         HTTPX hosted backend & ASR client
   languages.py      presets, detection, and system prompts
   exceptions.py     SDK exception hierarchy
   py.typed          PEP 561 marker
@@ -359,7 +396,7 @@ examples/
   hosted_chat_streaming.py
   language_detect.py
 tests/
-  mocked HTTP, SSE, local backend, typing, and language tests
+  mocked HTTP, SSE, local backend, typing, ASR, and language tests
 ```
 
 ## Examples
@@ -377,9 +414,9 @@ NATLAS_BASE_URL=... NATLAS_API_KEY=... \
 
 ```bash
 python -m pytest
-python -m ruff check natlas tests examples
-python -m ruff format --check natlas tests examples
-python -m mypy natlas
+python -m ruff check src tests examples
+python -m ruff format --check src tests examples
+python -m mypy src
 python -m build
 ```
 

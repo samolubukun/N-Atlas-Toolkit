@@ -3,8 +3,8 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from natlas import ChatResponse, Message
-from natlas._types import ChatRequest, GenerateRequest, normalize_messages
+from src import ChatResponse, Message
+from src._types import ChatRequest, GenerateRequest, normalize_messages
 
 
 def test_chat_request_defaults_and_mapping_messages() -> None:

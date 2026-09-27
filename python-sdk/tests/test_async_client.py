@@ -6,7 +6,7 @@ import httpx
 import pytest
 import respx
 
-from natlas import AsyncClient, ChatResponse, GenerateResponse, Message
+from src import AsyncClient, ChatResponse, GenerateResponse, Message
 
 
 @respx.mock
