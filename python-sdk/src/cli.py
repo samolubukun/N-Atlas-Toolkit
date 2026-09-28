@@ -22,7 +22,6 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import Any, List, Optional
 
 # Ensure proper UTF-8 output on Windows console for diacritics
 if sys.platform == "win32":
@@ -276,7 +275,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
     return 0
 
 
-def main(argv: Optional[List[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     """Main CLI entrypoint."""
     parser = argparse.ArgumentParser(
         prog="natlas",

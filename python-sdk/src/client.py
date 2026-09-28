@@ -6,10 +6,11 @@ N-ATLaS is an initiative of the Federal Ministry of Communications, Innovation a
 from __future__ import annotations
 
 import asyncio
+import contextlib
 from collections.abc import AsyncIterator, Iterator, Sequence
 from pathlib import Path
 from types import TracebackType
-from typing import Any, Literal, NoReturn, TypeVar, overload
+from typing import Any, Literal, TypeVar, overload
 
 from pydantic import BaseModel
 from typing_extensions import Self, Unpack
@@ -21,7 +22,6 @@ from ._types import (
     GenerateOptions,
     GenerateRequest,
     GenerateResponse,
-    LanguageValue,
     LiveTranscriptionEvent,
     MessageInput,
     TranscriptionResponse,
@@ -29,7 +29,6 @@ from ._types import (
 )
 from .exceptions import ConfigurationError
 from .hosted import (
-    DEFAULT_ASR_URL,
     DEFAULT_BASE_URL,
     DEFAULT_MODEL,
     AsyncHostedBackend,
@@ -672,14 +671,14 @@ class AsyncLiveTranscriptionSession:
     async def connect(self) -> Self:
         try:
             import websockets
-        except ImportError:
+        except ImportError as err:
             # Fallback to standard websockets or raise a clean error
             raise ConfigurationError(
                 "Streaming WebSocket ASR requires the 'websockets' library. "
                 "Install with: pip install websockets"
-            )
+            ) from err
 
-        raw_url = self._client.asr_url or "https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run/v1/"
+        raw_url = self._client.asr_url or "https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1/"
         ws_proto = "wss://" if raw_url.startswith("https://") else "ws://"
         host_path = raw_url.split("://", 1)[-1].rstrip("/")
         ws_url = f"{ws_proto}{host_path}/audio/transcriptions/streaming"
@@ -717,16 +716,14 @@ class AsyncLiveTranscriptionSession:
     async def __anext__(self) -> LiveTranscriptionEvent:
         try:
             return await self.receive()
-        except Exception:
-            raise StopAsyncIteration
+        except Exception as err:
+            raise StopAsyncIteration from err
 
     async def close(self) -> None:
         if self._ws is not None:
             import json
-            try:
+            with contextlib.suppress(Exception):
                 await self._ws.send(json.dumps({"type": "CloseStream"}))
-            except Exception:
-                pass
             await self._ws.close()
             self._ws = None
 
