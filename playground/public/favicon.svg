@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <!-- Background: rounded square with Nigerian green gradient -->
+  <rect width="40" height="40" rx="10" fill="#008751"/>
+  <rect width="40" height="40" rx="10" fill="url(#grad)" opacity="0.6"/>
+  
+  <!-- Sound wave / waveform icon composed of three bars -->
+  <!-- Outer left bar (short) -->
+  <rect x="6" y="16" width="3.5" height="8" rx="1.75" fill="white" opacity="0.5"/>
+  <!-- Inner left bar (tall) -->
+  <rect x="11.5" y="11" width="3.5" height="18" rx="1.75" fill="white" opacity="0.8"/>
+  <!-- Center bar (tallest) -->
+  <rect x="17" y="8" width="4" height="24" rx="2" fill="white"/>
+  <!-- Inner right bar (tall) -->
+  <rect x="23.5" y="12" width="3.5" height="16" rx="1.75" fill="white" opacity="0.8"/>
+  <!-- Outer right bar (short) -->
+  <rect x="29" y="17" width="3.5" height="6" rx="1.75" fill="white" opacity="0.5"/>
+
+  <!-- Small ochre dot / accent -->
+  <circle cx="32" cy="10" r="2.5" fill="#E5A93C"/>
+
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#056b43"/>
+      <stop offset="100%" stop-color="#022417"/>
+    </linearGradient>
+  </defs>
+</svg>
