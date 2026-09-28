@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply text-stone-900 antialiased font-sans min-h-screen selection:bg-federal-100 selection:text-federal-900;
+    /* Warm parchment base — from N-ATLaS brand palette */
+    background-color: #f4edd8;
+    /* Layered dot grid: green on large grid, ochre on offset small grid */
+    background-image:
+      radial-gradient(circle, rgba(0,135,81,0.09) 1.5px, transparent 1.5px),
+      radial-gradient(circle, rgba(229,169,60,0.06) 1px,   transparent 1px);
+    background-size:   48px 48px, 24px 24px;
+    background-position: 0 0, 12px 12px;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* "White" sections → warm white (same family, not stark) */
+  .bg-white {
+    background-color: #fffdf8 !important;
+    background-image: none !important;
+  }
+  .bg-stone-50 {
+    background-color: #faf8f2 !important;
+    background-image: none !important;
+  }
+
+  h1, h2, h3, h4, h5 {
+    letter-spacing: -0.025em;
+    @apply text-stone-900;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .rule { @apply border-stone-200; }
+
+  /* Warm parchment section bg utility */
+  .bg-parchment { background-color: #f4edd8; background-image: none; }
+  .bg-parchment-light { background-color: #f9f5ea; background-image: none; }
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c8bc9a; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #008751; }
+
+/* Page transitions */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Recording pulse */
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35); }
+  50%       { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+}
+.record-pulse { animation: pulse-ring 1.4s ease-out infinite; }
