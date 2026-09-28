@@ -22,20 +22,26 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 # Ensure proper UTF-8 output on Windows console for diacritics
 if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8")
-    sys.stderr.reconfigure(encoding="utf-8")
+    reconf_out = getattr(sys.stdout, "reconfigure", None)
+    if callable(reconf_out):
+        reconf_out(encoding="utf-8")
+    reconf_err = getattr(sys.stderr, "reconfigure", None)
+    if callable(reconf_err):
+        reconf_err(encoding="utf-8")
 
 # Support running as a standalone script or installed package
 try:
+    from ._types import MessageInput
     from .client import AsyncClient, Client
     from .languages import EN_NG, HA, IG, YO, detect_language, system_prompt
 except ImportError:
     # If run directly as python python-sdk/src/cli.py
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from src._types import MessageInput
     from src.client import AsyncClient, Client
     from src.languages import EN_NG, HA, IG, YO, detect_language, system_prompt
 
@@ -62,7 +68,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
 
     # One-shot prompt
     if args.prompt:
-        messages = []
+        messages: list[MessageInput] = []
         if lang:
             messages.append(system_prompt(lang))
         messages.append({"role": "user", "content": args.prompt})
@@ -85,7 +91,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
     print("Type 'exit', 'quit', or Ctrl+C to stop.")
     print("=" * 65 + "\n")
 
-    history = []
+    history: list[MessageInput] = []
     if lang:
         history.append(system_prompt(lang))
 
@@ -100,7 +106,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
 
             # Auto-detect language if not explicitly provided
             active_lang = lang or detect_language(user_input)
-            prompt_history = history.copy()
+            prompt_history: list[MessageInput] = history.copy()
             if not history and active_lang:
                 prompt_history.append(system_prompt(active_lang))
 
@@ -169,12 +175,12 @@ def cmd_stream_asr(args: argparse.Namespace) -> int:
         print(f"Error: Audio file not found at '{file_path}'", file=sys.stderr)
         return 1
 
-    async def run_live():
+    async def run_live() -> None:
         async with AsyncClient(asr_url=args.asr_url, api_key=args.api_key) as client:
             print(f"Connecting to live WebSocket ASR session for language: {args.language}...")
-            session = await client.audio.transcriptions.connect_live(language=args.language)
+            session = await client.audio.transcriptions.connect_live(language=args.language).connect()
 
-            async def listen():
+            async def listen() -> None:
                 async for event in session:
                     transcript = event.channel.alternatives[0].transcript
                     if transcript:
@@ -186,7 +192,7 @@ def cmd_stream_asr(args: argparse.Namespace) -> int:
             print(f"Streaming {file_path.name} in chunk size {args.chunk_size} bytes...")
             with open(file_path, "rb") as f:
                 while chunk := f.read(args.chunk_size):
-                    await session.send_audio(chunk)
+                    await session.send(chunk)
                     await asyncio.sleep(args.delay)
 
             await session.close()
@@ -259,9 +265,10 @@ def cmd_models(args: argparse.Namespace) -> int:
 
 def cmd_eval(args: argparse.Namespace) -> int:
     """Run benchmark evaluation suite."""
-    from finetune_starter_kit.eval.eval_asr import run_benchmark  # type: ignore
+    from finetune_starter_kit.eval.eval_asr import run_benchmark
+    default_asr = "https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1/audio/transcriptions"
     run_benchmark(
-        endpoint=args.endpoint or (client.asr_url or "https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1/audio/transcriptions"),
+        endpoint=args.endpoint or os.environ.get("NATLAS_ASR_URL", default_asr),
         api_key=args.api_key or os.environ.get("NATLAS_API_KEY"),
         languages=args.languages,
         samples_per_language=args.num_samples,

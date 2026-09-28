@@ -6,7 +6,7 @@ N-ATLaS is an initiative of the Federal Ministry of Communications, Innovation a
 from __future__ import annotations
 
 from collections.abc import Iterator, Sequence
-from typing import Literal, overload
+from typing import Any, Literal, overload
 
 from typing_extensions import Unpack
 
