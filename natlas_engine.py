@@ -1123,11 +1123,23 @@ class NATLaSASREngine:
 
         model, processor = self._get_model(model_id)
 
-        # 1. Load audio with librosa or soundfile resampled to 16kHz mono
+        # 1. Load audio: support raw 16kHz 16-bit Mono PCM chunks as well as container formats (WAV, MP3, etc.)
         try:
-            audio_array, sampling_rate = sf.read(io.BytesIO(audio_bytes))
+            if audio_bytes.startswith(b"RIFF") or audio_bytes.startswith(b"ID3") or audio_bytes.startswith(b"OggS"):
+                audio_array, sampling_rate = sf.read(io.BytesIO(audio_bytes))
+            else:
+                # Direct conversion of raw 16kHz 16-bit mono PCM stream
+                audio_array = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
+                sampling_rate = 16000
         except Exception:
-            audio_array, sampling_rate = librosa.load(io.BytesIO(audio_bytes), sr=16000)
+            try:
+                audio_array, sampling_rate = sf.read(io.BytesIO(audio_bytes))
+            except Exception:
+                try:
+                    audio_array, sampling_rate = librosa.load(io.BytesIO(audio_bytes), sr=16000)
+                except Exception:
+                    audio_array = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
+                    sampling_rate = 16000
 
         if audio_array.ndim > 1:
             audio_array = np.mean(audio_array, axis=1)
@@ -1267,22 +1279,22 @@ class NATLaSASREngine:
                     if "bytes" in message and message["bytes"]:
                         buffer.extend(message["bytes"])
 
-                        # When buffer reaches ~1.5s of 16kHz 16-bit PCM (48000 bytes)
-                        if len(buffer) >= 48000:
+                        # When buffer reaches ~1.0s of 16kHz 16-bit PCM (32000 bytes)
+                        if len(buffer) >= 32000:
                             chunk_data = bytes(buffer)
                             buffer.clear()
 
                             # Transcribe chunk
                             try:
                                 res = self.transcribe_audio(chunk_data, model_id=model_id, language=query_lang)
-                                transcript = res["text"]
+                                transcript = res.get("text", "").strip()
                                 if transcript:
                                     await websocket.send_text(json.dumps({
                                         "channel": {
                                             "alternatives": [{
                                                 "transcript": transcript,
                                                 "confidence": 0.95,
-                                                "words": res["words"],
+                                                "words": res.get("words", []),
                                             }]
                                         },
                                         "is_final": True,
@@ -1296,6 +1308,27 @@ class NATLaSASREngine:
                     elif "text" in message and message["text"]:
                         data = json.loads(message["text"])
                         if data.get("type") == "CloseStream":
+                            # Process any remaining buffer before closing
+                            if len(buffer) >= 16000:
+                                try:
+                                    res = self.transcribe_audio(bytes(buffer), model_id=model_id, language=query_lang)
+                                    transcript = res.get("text", "").strip()
+                                    if transcript:
+                                        await websocket.send_text(json.dumps({
+                                            "channel": {
+                                                "alternatives": [{
+                                                    "transcript": transcript,
+                                                    "confidence": 0.95,
+                                                    "words": res.get("words", []),
+                                                }]
+                                            },
+                                            "is_final": True,
+                                            "speech_final": True,
+                                            "language": query_lang,
+                                            "model": model_id,
+                                        }))
+                                except Exception as err:
+                                    logger.warning(f"[ASR Stream Final] Error: {err}")
                             break
 
             except WebSocketDisconnect:
