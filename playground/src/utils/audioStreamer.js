@@ -4,8 +4,9 @@
  * to the N-ATLaS live STT endpoint.
  */
 export class AudioStreamer {
-  constructor({ wsUrl, onTranscript, onError, onStatusChange, onAudioLevel }) {
+  constructor({ wsUrl, apiKey, onTranscript, onError, onStatusChange, onAudioLevel }) {
     this.wsUrl = wsUrl;
+    this.apiKey = apiKey;
     this.onTranscript = onTranscript;
     this.onError = onError;
     this.onStatusChange = onStatusChange;
@@ -29,6 +30,9 @@ export class AudioStreamer {
       // 2. Connect WebSocket stream to ASR backend
       const url = new URL(this.wsUrl);
       url.searchParams.set("language", language);
+      if (this.apiKey) {
+        url.searchParams.set("token", this.apiKey);
+      }
       
       this.socket = new WebSocket(url.toString());
       this.socket.binaryType = "arraybuffer";

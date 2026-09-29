@@ -1245,9 +1245,10 @@ class NATLaSASREngine:
 
         @asr_app.websocket("/v1/audio/transcriptions/streaming")
         async def stream_transcription_websocket(websocket: WebSocket):
-            """Deepgram-style real-time streaming WebSocket for live speech-to-text."""
+            """Real-time streaming WebSocket for live speech-to-text."""
             try:
-                verify_api_key(websocket.headers.get("authorization"))
+                auth_val = websocket.headers.get("authorization") or websocket.query_params.get("token") or websocket.query_params.get("api_key")
+                verify_api_key(auth_val)
             except HTTPException:
                 await websocket.close(code=1008, reason="Unauthorized")
                 return

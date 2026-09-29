@@ -33,10 +33,23 @@ export const ASRStudio = ({ onSendToLLM }) => {
       setWords([]);
       const wsUrl = DEFAULT_ENDPOINTS.asrUrl.replace(/^http/, 'ws') + '/v1/audio/transcriptions/streaming';
       
+      // Wake-up ping to Modal container if cold
+      setStreamStatus('connecting');
+      setLiveTranscript('Establishing connection with sovereign ASR engine on Modal...');
+
+      try {
+        // Quick HTTP ping to ensure container is awake
+        await fetch(`${DEFAULT_ENDPOINTS.asrUrl}/healthz`, {
+          method: 'GET',
+          signal: AbortSignal.timeout(6000),
+        }).catch(() => {});
+      } catch (e) {}
+
       const streamer = new AudioStreamer({
         wsUrl,
+        apiKey: DEFAULT_ENDPOINTS.apiKey,
         onTranscript: (res) => {
-          setLiveTranscript(prev => (prev ? prev + ' ' : '') + res.transcript);
+          setLiveTranscript(prev => (prev && !prev.startsWith('Establishing') ? prev + ' ' : '') + res.transcript);
           if (res.words?.length) {
             setWords(prev => [...prev, ...res.words]);
           }
@@ -45,9 +58,14 @@ export const ASRStudio = ({ onSendToLLM }) => {
           console.error("Streamer error:", err);
           setStreamStatus('error');
           setIsRecording(false);
-          setLiveTranscript(prev => prev || `Microphone/Streaming error: ${err}. Please ensure microphone permission is granted.`);
+          setLiveTranscript(prev => (prev && !prev.startsWith('Establishing') ? prev : '') || `Microphone/Streaming error: ${err}. Please ensure microphone permission is granted.`);
         },
-        onStatusChange: (status) => setStreamStatus(status),
+        onStatusChange: (status) => {
+          setStreamStatus(status);
+          if (status === 'connected') {
+            setLiveTranscript('Connected. Speak now into your microphone...');
+          }
+        },
         onAudioLevel: (level) => setAudioLevel(level),
       });
 
@@ -289,6 +307,20 @@ export const ASRStudio = ({ onSendToLLM }) => {
               <span className="flex items-center gap-1.5 text-xs font-mono text-federal-700 animate-pulse">
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                 Transcribing...
+              </span>
+            )}
+
+            {streamStatus === 'connecting' && (
+              <span className="flex items-center gap-1.5 text-xs font-mono text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 animate-pulse">
+                <RefreshCw className="w-3 h-3 animate-spin" />
+                Waking engine & establishing connection...
+              </span>
+            )}
+
+            {streamStatus === 'connected' && isRecording && (
+              <span className="flex items-center gap-1.5 text-xs font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                Live audio connected
               </span>
             )}
           </div>
