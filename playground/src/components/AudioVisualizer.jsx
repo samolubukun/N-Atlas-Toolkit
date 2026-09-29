@@ -138,7 +138,7 @@ export const AudioVisualizer = ({ isRecording, audioLevel = 0, isLiveStream = fa
       <div className="flex justify-between items-center z-10 pointer-events-none gap-2">
         <span className="text-[11px] sm:text-xs font-mono text-federal-700 font-semibold tracking-wider uppercase flex items-center gap-1.5 truncate">
           <span className={`w-2 h-2 rounded-full shrink-0 ${isRecording ? 'bg-red-500 animate-ping' : 'bg-slate-300'}`} />
-          <span className="truncate">{isLiveStream ? "Sovereign Live Stream" : "Oscilloscope Waveform"}</span>
+          <span className="truncate">{isRecording ? "Listening to Speech Input" : "Voice Input Oscilloscope"}</span>
         </span>
         <span className="text-[10px] sm:text-xs font-mono text-slate-500 shrink-0">16kHz Mono</span>
       </div>

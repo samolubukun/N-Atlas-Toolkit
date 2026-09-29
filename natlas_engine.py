@@ -1123,23 +1123,18 @@ class NATLaSASREngine:
 
         model, processor = self._get_model(model_id)
 
-        # 1. Load audio: support raw 16kHz 16-bit Mono PCM chunks as well as container formats (WAV, MP3, etc.)
+        # 1. Load audio: support WebM/OGG from browser MediaRecorder, WAV, MP3, FLAC, or raw PCM
         try:
-            if audio_bytes.startswith(b"RIFF") or audio_bytes.startswith(b"ID3") or audio_bytes.startswith(b"OggS"):
-                audio_array, sampling_rate = sf.read(io.BytesIO(audio_bytes))
-            else:
-                # Direct conversion of raw 16kHz 16-bit mono PCM stream
-                audio_array = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
-                sampling_rate = 16000
+            # First try standard soundfile (WAV, FLAC, OGG)
+            audio_array, sampling_rate = sf.read(io.BytesIO(audio_bytes))
         except Exception:
             try:
-                audio_array, sampling_rate = sf.read(io.BytesIO(audio_bytes))
+                # Use librosa/ffmpeg fallback for WebM, MP3, AAC browser audio blobs
+                audio_array, sampling_rate = librosa.load(io.BytesIO(audio_bytes), sr=16000)
             except Exception:
-                try:
-                    audio_array, sampling_rate = librosa.load(io.BytesIO(audio_bytes), sr=16000)
-                except Exception:
-                    audio_array = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
-                    sampling_rate = 16000
+                # Raw 16kHz 16-bit Mono PCM buffer fallback
+                audio_array = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
+                sampling_rate = 16000
 
         if audio_array.ndim > 1:
             audio_array = np.mean(audio_array, axis=1)
@@ -1218,9 +1213,9 @@ class NATLaSASREngine:
 
     @modal.asgi_app()
     def serve(self):
-        """OpenAI-compliant ASR REST API + Deepgram-Style Streaming WebSocket."""
+        """OpenAI-compliant Sovereign ASR REST API for Nigerian Accents and Indigenous Languages."""
         import io
-        from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, WebSocket, WebSocketDisconnect
+        from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
         from fastapi.middleware.cors import CORSMiddleware
         from fastapi.responses import JSONResponse, PlainTextResponse
 
@@ -1286,119 +1281,6 @@ class NATLaSASREngine:
                 "words": result["words"],
                 "attribution": ASR_ATTRIBUTION,
             })
-
-        @asr_app.websocket("/v1/audio/transcriptions/streaming")
-        async def stream_transcription_websocket(websocket: WebSocket):
-            """Real-time streaming WebSocket for live speech-to-text."""
-            try:
-                auth_val = websocket.headers.get("authorization") or websocket.query_params.get("token") or websocket.query_params.get("api_key")
-                verify_api_key(auth_val)
-            except HTTPException:
-                await websocket.close(code=1008, reason="Unauthorized")
-                return
-
-            await websocket.accept()
-            logger.info("[N-ATLaS ASR WebSocket] Client connected to real-time STT endpoint.")
-
-            # Default to Nigerian English or client query param
-            query_lang = websocket.query_params.get("language", "en-ng")
-            model_id = self._resolve_model_id(None, query_lang)
-            buffer = bytearray()
-            stream_time_offset = 0.0
-
-            try:
-                while True:
-                    message = await websocket.receive()
-                    if "bytes" in message and message["bytes"]:
-                        buffer.extend(message["bytes"])
-
-                        # When buffer reaches ~1.2s of 16kHz 16-bit PCM (38400 bytes)
-                        if len(buffer) >= 38400:
-                            chunk_data = bytes(buffer)
-                            chunk_duration = len(chunk_data) / 32000.0  # 16000 samples * 2 bytes = 32000 bytes/sec
-                            buffer.clear()
-
-                            # Transcribe chunk with word timestamps
-                            try:
-                                res = self.transcribe_audio(
-                                    chunk_data,
-                                    model_id=model_id,
-                                    language=query_lang,
-                                    return_timestamps=True,
-                                )
-                                transcript = res.get("text", "").strip()
-                                if transcript:
-                                    # Adjust word timestamps relative to continuous stream timeline
-                                    adjusted_words = []
-                                    for w in res.get("words", []):
-                                        adjusted_words.append({
-                                            "word": w["word"],
-                                            "start": round(stream_time_offset + w.get("start", 0.0), 2),
-                                            "end": round(stream_time_offset + w.get("end", 0.0), 2),
-                                            "confidence": w.get("confidence", 0.95),
-                                        })
-
-                                    await websocket.send_text(json.dumps({
-                                        "channel": {
-                                            "alternatives": [{
-                                                "transcript": transcript,
-                                                "confidence": 0.95,
-                                                "words": adjusted_words,
-                                            }]
-                                        },
-                                        "is_final": True,
-                                        "speech_final": True,
-                                        "language": query_lang,
-                                        "model": model_id,
-                                    }))
-                            except Exception as infer_err:
-                                logger.warning(f"[ASR Stream] Inference error: {infer_err}")
-                            finally:
-                                stream_time_offset += chunk_duration
-
-                    elif "text" in message and message["text"]:
-                        data = json.loads(message["text"])
-                        if data.get("type") == "CloseStream":
-                            # Process any remaining buffer before closing
-                            if len(buffer) >= 16000:
-                                try:
-                                    res = self.transcribe_audio(
-                                        bytes(buffer),
-                                        model_id=model_id,
-                                        language=query_lang,
-                                        return_timestamps=True,
-                                    )
-                                    transcript = res.get("text", "").strip()
-                                    if transcript:
-                                        adjusted_words = []
-                                        for w in res.get("words", []):
-                                            adjusted_words.append({
-                                                "word": w["word"],
-                                                "start": round(stream_time_offset + w.get("start", 0.0), 2),
-                                                "end": round(stream_time_offset + w.get("end", 0.0), 2),
-                                                "confidence": w.get("confidence", 0.95),
-                                            })
-                                        await websocket.send_text(json.dumps({
-                                            "channel": {
-                                                "alternatives": [{
-                                                    "transcript": transcript,
-                                                    "confidence": 0.95,
-                                                    "words": adjusted_words,
-                                                }]
-                                            },
-                                            "is_final": True,
-                                            "speech_final": True,
-                                            "language": query_lang,
-                                            "model": model_id,
-                                        }))
-                                except Exception as err:
-                                    logger.warning(f"[ASR Stream Final] Error: {err}")
-                            break
-
-            except WebSocketDisconnect:
-                logger.info("[N-ATLaS ASR WebSocket] Client disconnected cleanly.")
-            except Exception as e:
-                logger.error(f"[N-ATLaS ASR WebSocket] Error: {e}", exc_info=True)
 
         return asr_app
 

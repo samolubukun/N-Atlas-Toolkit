@@ -12,6 +12,5 @@ Complete OpenAPI/REST route specification for the N-ATLaS ecosystem.
 | `POST` | `/v1/completions` | LLM | Raw prompt text completion | `Bearer <API_KEY>` |
 | `POST` | `/v1/translate` | LLM | Direct African language translation | `Bearer <API_KEY>` |
 | `POST` | `/v1/africanize` | LLM | Nigerian cultural tone adapter | `Bearer <API_KEY>` |
-| `POST` | `/v1/audio/transcriptions` | ASR | Batch audio speech-to-text | `Bearer <API_KEY>` |
-| `WSS` | `/v1/audio/transcriptions/streaming` | ASR | Deepgram-style live WebSocket ASR | WebSocket |
+| `POST` | `/v1/audio/transcriptions` | ASR | Sovereign audio speech-to-text with word alignment | `Bearer <API_KEY>` |
 | `WSS` | `/ws/realtime` | LLM | Conversational voice token streaming | WebSocket |

@@ -11,7 +11,6 @@ The engine is deployed, live, and fully operational on Modal:
 - **App Status**: `deployed` (Live on Modal)
 - **Base API URL**: `https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run`
 - **Realtime LLM Voice WebSocket**: `wss://samuelolubukun--natlas-engine-natlasapi-serve.modal.run/ws/realtime`
-- **Streaming ASR WebSocket**: `wss://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run/v1/audio/transcriptions/streaming`
 - **Hardware Acceleration**: NVIDIA A10G (24GB VRAM)
 - **Engine**: PyTorch / Transformers bfloat16 + SDPA with native vLLM Continuous Batching support
 - **Scale-to-Zero Economics**: 300-second idle keep-warm lifecycle
@@ -25,7 +24,7 @@ The engine is deployed, live, and fully operational on Modal:
 
 - **Modal Cloud Deployment (2 Dedicated Microservices)**:
   - **LLM Engine**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run` (Chat, Completions, Translation, Africanize)
-  - **Sovereign ASR Engine**: `https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run` (Speech-to-Text & Real-Time Streaming WebSocket)
+  - **Sovereign ASR Engine**: `https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run` (Full-Context Speech-to-Text & Word Alignment)
 - **Local / On-Premise Docker Gateway (100% Unified)**:
   - `http://localhost:8000` (Nginx gateway unified reverse-proxying both LLM and ASR)
 
@@ -37,8 +36,7 @@ The engine is deployed, live, and fully operational on Modal:
 | `POST` | `/v1/completions` | LLM | Raw prompt text completion | `Bearer <API_KEY>` |
 | `POST` | `/v1/translate` | LLM | Direct African language translation (Hausa/Igbo/Yoruba/Pidgin/English) | `Bearer <API_KEY>` |
 | `POST` | `/v1/africanize` | LLM | Cultural tone adapter for Nigerian cultural contexts | `Bearer <API_KEY>` |
-| `POST` | `/v1/audio/transcriptions` | ASR | OpenAI-compliant Sovereign ASR batch speech-to-text | `Bearer <API_KEY>` |
-| `WSS` | `/v1/audio/transcriptions/streaming` | ASR | Real-time Deepgram-style streaming STT WebSocket | WebSocket |
+| `POST` | `/v1/audio/transcriptions` | ASR | OpenAI-compliant Sovereign ASR speech-to-text with word alignment | `Bearer <API_KEY>` |
 | `WSS` | `/ws/realtime` | LLM | Bidirectional real-time conversational voice token streaming | WebSocket |
 
 ---

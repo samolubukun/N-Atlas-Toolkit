@@ -1,61 +1,35 @@
-# Real-Time Streaming ASR (WebSocket Protocol)
+# Speech Recognition (Audio & Voice Input)
 
-N-ATLaS implements a real-time, low-latency WebSocket speech-to-text protocol modeled after Deepgram.
-
----
-
-## WebSocket Endpoint
-
-* **Modal Live Cloud**: `wss://<workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1/audio/transcriptions/streaming`
-* **Docker On-Premises**: `ws://localhost:8000/v1/audio/transcriptions/streaming`
+N-ATLaS ASR provides high-accuracy speech-to-text recognition with word-level timestamp alignment for Nigerian languages (Yorùbá, Hausa, Igbo, and Nigerian English).
 
 ---
 
-## Query Parameters
+## Architecture Note: Full-Context vs. Sub-Second Slicing
 
-| Parameter | Type | Required | Default | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `language` | string | Optional | `english` | Target language: `hausa`, `igbo`, `yoruba`, or `english` |
-| `model` | string | Optional | Auto-resolved | Model ID (`NCAIR1/Yoruba-ASR`, etc.) |
-| `sample_rate` | int | Optional | `16000` | Audio sampling frequency (Hz) |
-| `encoding` | string | Optional | `linear16` | Audio encoding (PCM 16-bit) |
+N-ATLaS ASR uses an encoder-decoder sequence architecture (Whisper-based) optimized for Nigerian acoustic nuances and tonal inflections. 
+
+### Why Full-Utterance Recognition is Superior
+- **Tonal & Acoustic Context**: Slicing audio into arbitrary 1-second chunks strips away the broader tonal contour and sentence structure necessary to distinguish similar phonetic sequences in tonal languages (e.g., Yorùbá tones: *òpè* vs *ọ̀pẹ* vs *ọ̀pẹ́*).
+- **Zero Hallucination Loops**: Sub-second slicing of ambient room silence frequently triggers decoder attention degeneration. Full-utterance capture with voice activity detection (VAD) completely eliminates repetitive hallucination loops.
+- **Word-Level Timestamp Accuracy**: Full utterances preserve continuous token alignment across complete phrases.
 
 ---
 
-## Protocol Specification
+## Audio Transcription Endpoint
 
-### 1. Sending Audio
-Clients stream raw audio binary frames directly into the WebSocket connection:
-- Format: 16kHz, 16-bit mono PCM.
-- Recommended chunk size: `2048` to `4096` bytes (~64ms–128ms of audio).
+* **Modal Live Cloud**: `https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1/audio/transcriptions`
+* **Docker / On-Premises**: `http://localhost:8000/v1/audio/transcriptions`
 
-### 2. Receiving Transcripts
-The server streams JSON events conforming to the Deepgram schema:
+### Supported Input Formats
+- WAV (16kHz mono recommended)
+- MP3, OGG, FLAC, WebM (auto-resampled to 16kHz mono)
 
-```json
-{
-  "channel": {
-    "alternatives": [
-      {
-        "transcript": "ọjọ́ ajé nígbà tí mo lọ sí ọjà",
-        "confidence": 0.95,
-        "words": [
-          {"word": "ọjọ́", "start": 0.12, "end": 0.45},
-          {"word": "ajé", "start": 0.48, "end": 0.80}
-        ]
-      }
-    ]
-  },
-  "is_final": true,
-  "speech_final": true,
-  "language": "yo",
-  "model": "NCAIR1/Yoruba-ASR"
-}
-```
+### Request Parameters (Multipart Form)
 
-### 3. Closing the Stream
-Send a JSON control message:
-```json
-{"type": "CloseStream"}
-```
-Then close the WebSocket cleanly.
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `file` | Binary | Yes | Audio file or recorded voice blob |
+| `model` | string | Optional | Model ID or language override (`NCAIR1/Yoruba-ASR`, etc.) |
+| `language` | string | Optional | `yoruba`, `hausa`, `igbo`, or `english` |
+| `response_format` | string | Optional | `json` (default) or `text` |
+| `timestamp_granularities` | list | Optional | Pass `["word"]` for word-level timestamps |

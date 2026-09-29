@@ -10,7 +10,6 @@ In both GPU and CPU profiles, an Nginx reverse-proxy on port `8000` unifies both
 
 * `POST http://localhost:8000/v1/chat/completions` $\rightarrow$ LLM
 * `POST http://localhost:8000/v1/audio/transcriptions` $\rightarrow$ Sovereign ASR
-* `WSS ws://localhost:8000/v1/audio/transcriptions/streaming` $\rightarrow$ Real-Time ASR
 * `GET http://localhost:8000/docs` $\rightarrow$ LLM Swagger UI
 * `GET http://localhost:8000/docs/asr` $\rightarrow$ ASR Swagger UI
 
