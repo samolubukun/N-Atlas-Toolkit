@@ -95,6 +95,11 @@ export class AudioStreamer {
     // ScriptProcessor to capture raw PCM
     this.scriptProcessor = this.audioContext.createScriptProcessor(4096, 1, 1);
     
+    // Voice Activity Energy Gate to avoid sending pure background noise/silence
+    let silenceFrames = 0;
+    const SILENCE_THRESHOLD = 0.008; // RMS below this is treated as ambient room silence
+    const SILENCE_HANGOVER = 4; // allow ~1 sec hangover after speaking to avoid clipping trailing words
+
     this.scriptProcessor.onaudioprocess = (event) => {
       if (!this.isStreaming || this.socket?.readyState !== WebSocket.OPEN) return;
 
@@ -107,6 +112,17 @@ export class AudioStreamer {
       }
       const rms = Math.sqrt(sum / inputBuffer.length);
       this.onAudioLevel?.(Math.min(1, rms * 5));
+
+      if (rms >= SILENCE_THRESHOLD) {
+        silenceFrames = 0; // Active speech detected
+      } else {
+        silenceFrames++;
+      }
+
+      // If in continuous deep silence, suppress streaming packets to prevent Whisper silence hallucination
+      if (silenceFrames > SILENCE_HANGOVER) {
+        return;
+      }
 
       // Convert Float32Array to 16-bit PCM Int16Array
       const pcm16 = new Int16Array(inputBuffer.length);

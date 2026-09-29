@@ -15,6 +15,7 @@ export const ASRStudio = ({ onSendToLLM }) => {
   const [latency, setLatency] = useState(null);
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [streamError, setStreamError] = useState(null);
 
   const streamerRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -31,11 +32,11 @@ export const ASRStudio = ({ onSendToLLM }) => {
     } else {
       setLiveTranscript('');
       setWords([]);
+      setStreamError(null);
       const wsUrl = DEFAULT_ENDPOINTS.asrUrl.replace(/^http/, 'ws') + '/v1/audio/transcriptions/streaming';
       
       // Wake-up ping to Modal container if cold
       setStreamStatus('connecting');
-      setLiveTranscript('Establishing connection with sovereign ASR engine on Modal...');
 
       try {
         // Quick HTTP ping to ensure container is awake
@@ -49,7 +50,14 @@ export const ASRStudio = ({ onSendToLLM }) => {
         wsUrl,
         apiKey: DEFAULT_ENDPOINTS.apiKey,
         onTranscript: (res) => {
-          setLiveTranscript(prev => (prev && !prev.startsWith('Establishing') ? prev + ' ' : '') + res.transcript);
+          if (!res.transcript) return;
+          setLiveTranscript(prev => {
+            const trimmed = res.transcript.trim();
+            if (!prev) return trimmed;
+            // Prevent immediate repetition of the identical phrase
+            if (prev.endsWith(trimmed)) return prev;
+            return prev + ' ' + trimmed;
+          });
           if (res.words?.length) {
             setWords(prev => [...prev, ...res.words]);
           }
@@ -57,14 +65,11 @@ export const ASRStudio = ({ onSendToLLM }) => {
         onError: (err) => {
           console.error("Streamer error:", err);
           setStreamStatus('error');
+          setStreamError(err);
           setIsRecording(false);
-          setLiveTranscript(prev => (prev && !prev.startsWith('Establishing') ? prev : '') || `Microphone/Streaming error: ${err}. Please ensure microphone permission is granted.`);
         },
         onStatusChange: (status) => {
           setStreamStatus(status);
-          if (status === 'connected') {
-            setLiveTranscript('Connected. Speak now into your microphone...');
-          }
         },
         onAudioLevel: (level) => setAudioLevel(level),
       });
@@ -77,7 +82,7 @@ export const ASRStudio = ({ onSendToLLM }) => {
         console.error("Failed to start audio stream:", err);
         setIsRecording(false);
         setStreamStatus('error');
-        setLiveTranscript(`Could not access microphone: ${err.message || err}. Please allow mic access in your browser.`);
+        setStreamError(err.message || String(err));
       }
     }
   };
@@ -350,7 +355,13 @@ export const ASRStudio = ({ onSendToLLM }) => {
 
           <div className="min-h-24 sm:min-h-28 p-3.5 sm:p-4 bg-cream-50 rounded-xl border border-federal-100 font-sans text-xs sm:text-sm text-slate-800 leading-relaxed">
             {liveTranscript ? (
-              <p>{liveTranscript}</p>
+              <p className="font-medium text-slate-900">{liveTranscript}</p>
+            ) : streamError ? (
+              <p className="text-red-600 font-mono text-xs">Error: {streamError}</p>
+            ) : isRecording ? (
+              <p className="text-emerald-700 italic animate-pulse">
+                Listening... Speak now and your words will appear here.
+              </p>
             ) : (
               <p className="text-slate-400 italic">
                 {isLiveMode

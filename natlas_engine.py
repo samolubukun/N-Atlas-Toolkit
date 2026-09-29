@@ -1150,6 +1150,17 @@ class NATLaSASREngine:
 
         duration_sec = float(len(audio_array)) / 16000.0
 
+        # Silence / low-energy gate to completely eliminate Whisper hallucinations on silence
+        rms_energy = float(np.sqrt(np.mean(audio_array ** 2))) if len(audio_array) > 0 else 0.0
+        if rms_energy < 0.005 or duration_sec < 0.4:
+            return {
+                "text": "",
+                "duration": round(duration_sec, 2),
+                "model": model_id,
+                "language": language or "auto",
+                "words": [],
+            }
+
         # 2. Extract Mel features
         input_features = processor(
             audio_array,
@@ -1157,22 +1168,43 @@ class NATLaSASREngine:
             return_tensors="pt"
         ).input_features.to(self.device).to(self.dtype)
 
-        # 3. Generate tokens
+        # 3. Generate tokens with anti-hallucination parameters
         with torch.inference_mode():
+            gen_kwargs = {
+                "return_timestamps": return_timestamps,
+                "no_repeat_ngram_size": 3,
+            }
+            if hasattr(model.generation_config, "no_speech_threshold"):
+                gen_kwargs["no_speech_threshold"] = 0.6
             predicted_ids = model.generate(
                 input_features,
-                return_timestamps=return_timestamps,
+                **gen_kwargs
             )
 
         transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)[0].strip()
 
+        # Sanity check: detect degenerate repeating word loops
+        words_list = transcription.split()
+        if len(words_list) >= 4:
+            most_frequent = max(set(words_list), key=words_list.count)
+            if words_list.count(most_frequent) / len(words_list) > 0.45:
+                transcription = ""
+                words_list = []
+
         words = []
-        if return_timestamps:
+        if return_timestamps and transcription:
             try:
-                # Basic token timestamp extraction
-                decoded = processor.tokenizer.decode(predicted_ids[0], output_offsets=True)
-                # Word-level fallback
-                words = [{"word": w, "start": 0.0, "end": round(duration_sec, 2)} for w in transcription.split()]
+                # Word-level fallback with clean time offsets
+                step = duration_sec / max(1, len(words_list))
+                words = [
+                    {
+                        "word": w,
+                        "start": round(i * step, 2),
+                        "end": round((i + 1) * step, 2),
+                        "confidence": 0.95
+                    }
+                    for i, w in enumerate(words_list)
+                ]
             except Exception:
                 words = []
 
@@ -1272,6 +1304,7 @@ class NATLaSASREngine:
             query_lang = websocket.query_params.get("language", "en-ng")
             model_id = self._resolve_model_id(None, query_lang)
             buffer = bytearray()
+            stream_time_offset = 0.0
 
             try:
                 while True:
@@ -1279,22 +1312,38 @@ class NATLaSASREngine:
                     if "bytes" in message and message["bytes"]:
                         buffer.extend(message["bytes"])
 
-                        # When buffer reaches ~1.0s of 16kHz 16-bit PCM (32000 bytes)
-                        if len(buffer) >= 32000:
+                        # When buffer reaches ~1.2s of 16kHz 16-bit PCM (38400 bytes)
+                        if len(buffer) >= 38400:
                             chunk_data = bytes(buffer)
+                            chunk_duration = len(chunk_data) / 32000.0  # 16000 samples * 2 bytes = 32000 bytes/sec
                             buffer.clear()
 
-                            # Transcribe chunk
+                            # Transcribe chunk with word timestamps
                             try:
-                                res = self.transcribe_audio(chunk_data, model_id=model_id, language=query_lang)
+                                res = self.transcribe_audio(
+                                    chunk_data,
+                                    model_id=model_id,
+                                    language=query_lang,
+                                    return_timestamps=True,
+                                )
                                 transcript = res.get("text", "").strip()
                                 if transcript:
+                                    # Adjust word timestamps relative to continuous stream timeline
+                                    adjusted_words = []
+                                    for w in res.get("words", []):
+                                        adjusted_words.append({
+                                            "word": w["word"],
+                                            "start": round(stream_time_offset + w.get("start", 0.0), 2),
+                                            "end": round(stream_time_offset + w.get("end", 0.0), 2),
+                                            "confidence": w.get("confidence", 0.95),
+                                        })
+
                                     await websocket.send_text(json.dumps({
                                         "channel": {
                                             "alternatives": [{
                                                 "transcript": transcript,
                                                 "confidence": 0.95,
-                                                "words": res.get("words", []),
+                                                "words": adjusted_words,
                                             }]
                                         },
                                         "is_final": True,
@@ -1304,6 +1353,8 @@ class NATLaSASREngine:
                                     }))
                             except Exception as infer_err:
                                 logger.warning(f"[ASR Stream] Inference error: {infer_err}")
+                            finally:
+                                stream_time_offset += chunk_duration
 
                     elif "text" in message and message["text"]:
                         data = json.loads(message["text"])
@@ -1311,15 +1362,28 @@ class NATLaSASREngine:
                             # Process any remaining buffer before closing
                             if len(buffer) >= 16000:
                                 try:
-                                    res = self.transcribe_audio(bytes(buffer), model_id=model_id, language=query_lang)
+                                    res = self.transcribe_audio(
+                                        bytes(buffer),
+                                        model_id=model_id,
+                                        language=query_lang,
+                                        return_timestamps=True,
+                                    )
                                     transcript = res.get("text", "").strip()
                                     if transcript:
+                                        adjusted_words = []
+                                        for w in res.get("words", []):
+                                            adjusted_words.append({
+                                                "word": w["word"],
+                                                "start": round(stream_time_offset + w.get("start", 0.0), 2),
+                                                "end": round(stream_time_offset + w.get("end", 0.0), 2),
+                                                "confidence": w.get("confidence", 0.95),
+                                            })
                                         await websocket.send_text(json.dumps({
                                             "channel": {
                                                 "alternatives": [{
                                                     "transcript": transcript,
                                                     "confidence": 0.95,
-                                                    "words": res.get("words", []),
+                                                    "words": adjusted_words,
                                                 }]
                                             },
                                             "is_final": True,
