@@ -1,7 +1,7 @@
 /**
  * AudioStreamer: Manages Web Audio API microphone capture, 
  * downsampling to 16kHz 16-bit Mono PCM, and streaming over WebSocket
- * to the Deepgram-style live STT endpoint.
+ * to the N-ATLaS live STT endpoint.
  */
 export class AudioStreamer {
   constructor({ wsUrl, onTranscript, onError, onStatusChange, onAudioLevel }) {
@@ -23,16 +23,19 @@ export class AudioStreamer {
     try {
       this.onStatusChange?.("connecting");
       
-      // Connect WebSocket
+      // 1. Immediately request microphone access from user system
+      await this._initAudio();
+
+      // 2. Connect WebSocket stream to ASR backend
       const url = new URL(this.wsUrl);
       url.searchParams.set("language", language);
       
       this.socket = new WebSocket(url.toString());
       this.socket.binaryType = "arraybuffer";
 
-      this.socket.onopen = async () => {
+      this.socket.onopen = () => {
         this.onStatusChange?.("connected");
-        await this._initAudio();
+        this.isStreaming = true;
       };
 
       this.socket.onmessage = (event) => {

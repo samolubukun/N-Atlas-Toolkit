@@ -22,7 +22,7 @@ export const ASRStudio = ({ onSendToLLM }) => {
 
   const currentModelObj = ASR_MODELS.find(m => m.id === selectedModel) || ASR_MODELS[0];
 
-  // 1. Live Streaming Mode (Deepgram-style WebSocket)
+  // 1. Live Streaming Mode (Real-time WebSocket)
   const toggleLiveStreaming = async () => {
     if (isRecording) {
       streamerRef.current?.stop();
@@ -44,14 +44,79 @@ export const ASRStudio = ({ onSendToLLM }) => {
         onError: (err) => {
           console.error("Streamer error:", err);
           setStreamStatus('error');
+          setIsRecording(false);
+          setLiveTranscript(prev => prev || `Microphone/Streaming error: ${err}. Please ensure microphone permission is granted.`);
         },
         onStatusChange: (status) => setStreamStatus(status),
         onAudioLevel: (level) => setAudioLevel(level),
       });
 
       streamerRef.current = streamer;
-      await streamer.start(currentModelObj.lang);
-      setIsRecording(true);
+      try {
+        await streamer.start(currentModelObj.lang);
+        setIsRecording(true);
+      } catch (err) {
+        console.error("Failed to start audio stream:", err);
+        setIsRecording(false);
+        setStreamStatus('error');
+        setLiveTranscript(`Could not access microphone: ${err.message || err}. Please allow mic access in your browser.`);
+      }
+    }
+  };
+
+  // 1b. Batch Microphone Recorder (Direct Browser Mic Capture)
+  const [isBatchRecording, setIsBatchRecording] = useState(false);
+
+  const toggleBatchRecording = async () => {
+    if (isBatchRecording) {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
+      setIsBatchRecording(false);
+      setAudioLevel(0);
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recordedChunksRef.current = [];
+        
+        // Setup audio level visualization for recording
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const src = audioCtx.createMediaStreamSource(stream);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        src.connect(analyser);
+        const dataArr = new Uint8Array(analyser.frequencyBinCount);
+
+        const checkLevel = () => {
+          if (!mediaRecorderRef.current || mediaRecorderRef.current.state === 'inactive') {
+            audioCtx.close();
+            return;
+          }
+          analyser.getByteFrequencyData(dataArr);
+          let sum = 0;
+          for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
+          const avg = sum / dataArr.length / 255;
+          setAudioLevel(Math.min(1, avg * 3));
+          requestAnimationFrame(checkLevel);
+        };
+        requestAnimationFrame(checkLevel);
+
+        const recorder = new MediaRecorder(stream);
+        recorder.ondataavailable = (e) => {
+          if (e.data.size > 0) recordedChunksRef.current.push(e.data);
+        };
+        recorder.onstop = async () => {
+          stream.getTracks().forEach(t => t.stop());
+          const audioBlob = new Blob(recordedChunksRef.current, { type: 'audio/wav' });
+          await transcribeBatchAudio(audioBlob);
+        };
+        recorder.start();
+        mediaRecorderRef.current = recorder;
+        setIsBatchRecording(true);
+      } catch (err) {
+        console.error("Microphone access error:", err);
+        setLiveTranscript(`Microphone error: ${err.message}. Please check browser microphone permissions.`);
+      }
     }
   };
 
@@ -166,7 +231,7 @@ export const ASRStudio = ({ onSendToLLM }) => {
       <div className="bg-white rounded-2xl border border-stone-200 shadow-card p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Real-time Oscilloscope & Spectrogram Visualizer */}
         <AudioVisualizer
-          isRecording={isRecording || isBatchProcessing}
+          isRecording={isRecording || isBatchRecording || isBatchProcessing}
           audioLevel={audioLevel}
           isLiveStream={isLiveMode}
         />
@@ -188,6 +253,18 @@ export const ASRStudio = ({ onSendToLLM }) => {
               </button>
             ) : (
               <>
+                <button
+                  onClick={toggleBatchRecording}
+                  className={`px-3.5 sm:px-4 py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition-all ${
+                    isBatchRecording
+                      ? 'bg-red-600 hover:bg-red-700 text-white shadow-sm animate-pulse'
+                      : 'bg-federal-700 hover:bg-federal-800 text-white shadow-sm'
+                  }`}
+                >
+                  {isBatchRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  <span>{isBatchRecording ? 'Stop Recording' : `Record in ${currentModelObj.badge}`}</span>
+                </button>
+
                 <label className="px-3.5 sm:px-4 py-2.5 rounded-xl font-semibold text-xs bg-federal-50 hover:bg-federal-100 text-federal-900 border border-federal-200 cursor-pointer flex items-center justify-center gap-2 transition-all flex-1 sm:flex-initial truncate">
                   <Upload className="w-4 h-4 text-federal-600 shrink-0" />
                   <span className="truncate">{selectedFile ? selectedFile.name : 'Upload Audio'}</span>
