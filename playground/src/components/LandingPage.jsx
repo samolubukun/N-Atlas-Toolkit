@@ -309,7 +309,7 @@ export const LandingPage = ({ onSelectStudio }) => {
         <div className="relative mt-14 sm:mt-16 max-w-2xl mx-auto px-4">
           <div className="grid grid-cols-3 gap-6 border-t border-stone-200 pt-10">
             <Stat value="8.03B" label="LLM parameters" />
-            <Stat value="120h"  label="Yoruba audio" />
+            <Stat value="480h"  label="Speech training audio" />
             <Stat value="5"     label="Open models" />
           </div>
         </div>
