@@ -270,7 +270,7 @@ export const LandingPage = ({ onSelectStudio }) => {
         <div className="relative max-w-4xl mx-auto px-4">
           <h1 className="text-4xl sm:text-7xl lg:text-8xl font-extrabold text-stone-900 leading-[1.02] tracking-tight mb-6">
             AI that understands{' '}
-            <span className="text-gradient-nigeria">Nigerian</span>{' '}
+            <span className="text-federal-600">Nigerian</span>{' '}
             the way Nigerians do.
           </h1>
 
