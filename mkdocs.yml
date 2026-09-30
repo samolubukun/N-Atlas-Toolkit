@@ -72,7 +72,6 @@ nav:
       - Developer Cookbook: cookbook.md
   - ASR (Speech-to-Text):
       - Audio Transcriptions: asr/transcriptions.md
-      - Real-Time Streaming ASR: asr/streaming.md
       - ASR Benchmarks & WER/CER: asr/benchmarks.md
   - LLM Capabilities:
       - Chat & SSE Streaming: llm/chat.md

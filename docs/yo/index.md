@@ -16,7 +16,7 @@
 
 === "JavaScript / TypeScript"
     ```bash
-    npm install natlas
+    npm install ./js-sdk
     ```
 
 ---

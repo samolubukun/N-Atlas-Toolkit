@@ -2,6 +2,15 @@
 
 Get started with N-ATLaS in your environment in minutes.
 
+!!! tip "Source Code & GitHub Repository"
+    Both SDKs (`python-sdk` and `js-sdk`), deployment configs, and fine-tuning kits are hosted on GitHub:
+    **[github.com/samolubukun/N-Atlas-Toolkit](https://github.com/samolubukun/N-Atlas-Toolkit)**
+
+    ```bash
+    git clone https://github.com/samolubukun/N-Atlas-Toolkit.git
+    cd N-Atlas-Toolkit
+    ```
+
 ---
 
 ## 1. Environment Setup & API Keys
@@ -50,23 +59,19 @@ print(response.message.content)
 
 ## 3. JavaScript / TypeScript SDK Installation
 
-Install in your Node.js, Bun, Next.js, or web application:
+Install directly from the repository in your Node.js, Bun, Next.js, or web application:
 
 === "npm"
     ```bash
-    npm install natlas
+    npm install ./js-sdk
     ```
 === "pnpm"
     ```bash
-    pnpm add natlas
-    ```
-=== "yarn"
-    ```bash
-    yarn add natlas
+    pnpm add ./js-sdk
     ```
 === "bun"
     ```bash
-    bun add natlas
+    bun add ./js-sdk
     ```
 
 ### Your First TypeScript Chat

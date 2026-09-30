@@ -27,7 +27,7 @@ All speech models are built on the **Whisper Small (244M)** architecture, fine-t
 
 | Model ID | Language | Dataset Size | Key Phonetic Strengths |
 | :--- | :--- | :--- | :--- |
-| **`NCAIR1/Yoruba-ASR`** | Yoruba (`yo`) | 627+ hours | Acute/grave tone accents (`é`, `è`), sub-dots (`ẹ`, `ọ`, `ṣ`). |
+| **`NCAIR1/Yoruba-ASR`** | Yoruba (`yo`) | 120+ hours | Acute/grave tone accents (`é`, `è`), sub-dots (`ẹ`, `ọ`, `ṣ`). |
 | **`NCAIR1/Hausa-ASR`** | Hausa (`ha`) | 120+ hours | Hooked implosive consonants (`ɓ`, `ɗ`, `ƙ`), glottal stops. |
 | **`NCAIR1/Igbo-ASR`** | Igbo (`ig`) | 120+ hours | Sub-dot vowel harmony (`ị`, `ọ`, `ụ`), nasal compounds (`ṅ`, `nw`, `ny`). |
 | **`NCAIR1/NigerianAccentedEnglish`** | Nigerian English (`en-ng`) | 120+ hours | Heavy West African pitch, syllable-timed stress patterns, local vocabulary. |

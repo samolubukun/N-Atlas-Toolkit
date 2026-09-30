@@ -13,6 +13,6 @@ Cikakken bayani kan ƙirar fasahohin hankali na wucin-gadi da ke cikin tsarin N-
 
 ## 2. Ƙirar Fahimtar Murya (ASR Models)
 * **Hausa**: `NCAIR1/Hausa-ASR` (Fiye da awanni 120 na sautin asali)
-* **Yorùbá**: `NCAIR1/Yoruba-ASR` (Fiye da awanni 627 na sautin asali)
+* **Yorùbá**: `NCAIR1/Yoruba-ASR` (Fiye da awanni 120 na sautin asali)
 * **Igbo**: `NCAIR1/Igbo-ASR` (Fiye da awanni 120 na sautin asali)
 * **Nigerian English**: `NCAIR1/NigerianAccentedEnglish` (Fiye da awanni 120 na sautin asali)

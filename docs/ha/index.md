@@ -16,7 +16,7 @@ Wannan ita ce takardar jagora a harshen Hausa ga masu haɓaka software (develope
 
 === "JavaScript / TypeScript"
     ```bash
-    npm install natlas
+    npm install ./js-sdk
     ```
 
 ---

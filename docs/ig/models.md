@@ -14,5 +14,5 @@ Nkọwa zuru oke banyere ụdị ọgụgụ isi dị n'ime N-ATLaS.
 ## 2. Ụdị Ịghọta Olu (ASR Models)
 * **Igbo**: `NCAIR1/Igbo-ASR` (Ihe karịrị awa 120 nke olu e dere ede)
 * **Hausa**: `NCAIR1/Hausa-ASR` (Ihe karịrị awa 120)
-* **Yorùbá**: `NCAIR1/Yoruba-ASR` (Ihe karịrị awa 627)
+* **Yorùbá**: `NCAIR1/Yoruba-ASR` (Ihe karịrị awa 120)
 * **Nigerian English**: `NCAIR1/NigerianAccentedEnglish` (Ihe karịrị awa 120)

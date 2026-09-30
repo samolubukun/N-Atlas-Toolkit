@@ -19,16 +19,14 @@ N-ATLaS is an initiative of the Federal Ministry of Communications, Innovation a
 
 ## Installation
 
-Install using your preferred package manager:
+Install directly from the repository directory:
 
 ```bash
-npm install natlas
+npm install ./js-sdk
 # or
-pnpm add natlas
+pnpm add ./js-sdk
 # or
-yarn add natlas
-# or
-bun add natlas
+bun add ./js-sdk
 ```
 
 ---

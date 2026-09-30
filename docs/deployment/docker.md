@@ -8,10 +8,10 @@ Run the entire N-ATLaS ecosystem (LLM + Sovereign ASR) on your private internal 
 
 In both GPU and CPU profiles, an Nginx reverse-proxy on port `8000` unifies both engines under a single host:
 
-* `POST http://localhost:8000/v1/chat/completions` $\rightarrow$ LLM
-* `POST http://localhost:8000/v1/audio/transcriptions` $\rightarrow$ Sovereign ASR
-* `GET http://localhost:8000/docs` $\rightarrow$ LLM Swagger UI
-* `GET http://localhost:8000/docs/asr` $\rightarrow$ ASR Swagger UI
+* `POST http://localhost:8000/v1/chat/completions` → LLM
+* `POST http://localhost:8000/v1/audio/transcriptions` → Sovereign ASR
+* `GET http://localhost:8000/docs` → LLM Swagger UI
+* `GET http://localhost:8000/docs/asr` → ASR Swagger UI
 
 ---
 

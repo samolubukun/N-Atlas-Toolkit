@@ -1,21 +1,29 @@
 # Command-Line Interface (CLI) Reference
 
-The N-ATLaS toolkit provides unified command-line interfaces for both Python (`natlas`) and JavaScript/Node.js (`npx natlas`).
+The N-ATLaS toolkit provides unified command-line interfaces for both Python (`python-sdk`) and JavaScript / Node.js (`js-sdk`).
 
 ---
 
-## Installation & Running
+## Installation & Running from Repository
 
-=== "Python"
+=== "Python CLI"
     ```bash
-    pip install ./python-sdk
+    # Option 1: Run directly with Python from repo root:
+    python python-sdk/src/cli.py --help
+
+    # Option 2: Install locally in editable mode:
+    pip install -e ./python-sdk
     natlas --help
     ```
 
-=== "JavaScript (npx)"
+=== "Node.js / JavaScript CLI"
     ```bash
-    # Run instantly with npx or install globally:
-    npx natlas help
+    # Option 1: Run directly with Node from repo root:
+    node js-sdk/bin/cli.mjs --help
+
+    # Option 2: Link locally:
+    cd js-sdk && npm link
+    natlas --help
     ```
 
 ---
@@ -41,7 +49,7 @@ natlas chat "Kí ni àǹfààní ìmọ̀ ẹ̀rọ AI?" --lang yoruba --tempera
 
 ## 2. Audio Transcription (`natlas transcribe`)
 
-Transcribe spoken Nigerian audio into text with optional millisecond timestamps:
+Transcribe spoken Nigerian audio files into text with optional millisecond word timestamps:
 
 ```bash
 # Basic transcription
@@ -49,16 +57,6 @@ natlas transcribe speech_hausa.mp3 --language hausa
 
 # Transcription with word-level timestamps
 natlas transcribe speech_yoruba.wav --language yoruba --timestamps
-```
-
----
-
-## 3. Real-Time Streaming ASR (`natlas stream-asr`)
-
-Streams audio frames over WebSocket with real-time interim and final transcript events:
-
-```bash
-natlas stream-asr audio_stream.wav --language igbo
 ```
 
 ---

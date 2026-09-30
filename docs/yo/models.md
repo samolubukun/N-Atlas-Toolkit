@@ -12,7 +12,7 @@
 ---
 
 ## 2. Ẹ̀rọ Ìgbọ́hùn (ASR Models)
-* **Yorùbá**: `NCAIR1/Yoruba-ASR` (Wákàtí 627+ ti ohùn gidi)
+* **Yorùbá**: `NCAIR1/Yoruba-ASR` (Wákàtí 120+ ti ohùn gidi)
 * **Hausa**: `NCAIR1/Hausa-ASR` (Wákàtí 120+)
 * **Igbo**: `NCAIR1/Igbo-ASR` (Wákàtí 120+)
 * **Nigerian English**: `NCAIR1/NigerianAccentedEnglish` (Wákàtí 120+)

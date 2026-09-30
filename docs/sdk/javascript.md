@@ -6,8 +6,11 @@ The official typed JavaScript and TypeScript SDK (`natlas`) is designed for mode
 
 ## Installation
 
+Install directly from the repository:
+
 ```bash
-npm install natlas
+npm install ./js-sdk
+# or: pnpm add ./js-sdk / bun add ./js-sdk
 ```
 
 ---

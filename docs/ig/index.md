@@ -16,7 +16,7 @@ Nke a bụ akwụkwọ ntuziaka n'asụsụ Igbo maka ndị na-emepụta ngwanr�
 
 === "JavaScript / TypeScript"
     ```bash
-    npm install natlas
+    npm install ./js-sdk
     ```
 
 ---
