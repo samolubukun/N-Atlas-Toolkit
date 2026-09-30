@@ -362,26 +362,171 @@ export const LandingPage = ({ onSelectStudio }) => {
       </section>
 
 
-      {/* ─── CAPABILITIES ─── */}
+      {/* ─── N-ATLaS IN PRACTICE (EDITORIAL SHOWCASE) ─── */}
+      <section className="py-20 sm:py-24 bg-stone-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(#008751_1px,transparent_1px)] [background-size:32px_32px] opacity-15" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-8 space-y-14">
+          <div className="max-w-2xl">
+            <p className="text-xs font-mono font-bold tracking-widest uppercase text-emerald-400 mb-3">Core Technology</p>
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight text-white">
+              Built for real Nigerian words, voices, and workflows.
+            </h2>
+            <p className="mt-4 text-stone-300 text-sm sm:text-base leading-relaxed">
+              From audio transcriptions across regional dialects to indigenous multilingual text generation and universal developer SDKs.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+            {/* Card 1: Indigenous Acoustic Models */}
+            <div className="bg-stone-950/80 border border-stone-800 rounded-2xl sm:rounded-3xl overflow-hidden hover:border-emerald-500/60 transition-all group flex flex-col justify-between shadow-2xl">
+              <div>
+                <div className="relative overflow-hidden aspect-[16/10] bg-stone-900 border-b border-stone-800/80">
+                  <img
+                    src="/assets/audio_speech.jpg"
+                    alt="Indigenous Acoustic Models - Studio Recording"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-transparent to-transparent" />
+                  <span className="absolute bottom-3 left-3 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/90 text-emerald-300 border border-emerald-700/60">
+                    Speech Recognition (Whisper Small)
+                  </span>
+                </div>
+                <div className="p-6 space-y-2.5">
+                  <h3 className="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors">
+                    Indigenous Acoustic Models
+                  </h3>
+                  <p className="text-xs sm:text-sm text-stone-400 leading-relaxed">
+                    Dedicated models for Yoruba, Hausa, Igbo, and Nigerian Accented English. Preserving tonal diacritics and hooked consonants that generic speech recognizers erase.
+                  </p>
+                </div>
+              </div>
+              <div className="px-6 pb-6 pt-2">
+                <button
+                  onClick={() => onSelectStudio('asr')}
+                  className="w-full py-2.5 rounded-xl bg-stone-800 hover:bg-emerald-600 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Radio className="w-3.5 h-3.5" /> Test Speech Recognizer
+                </button>
+              </div>
+            </div>
+
+            {/* Card 2: Multilingual Language Model */}
+            <div className="bg-stone-950/80 border border-stone-800 rounded-2xl sm:rounded-3xl overflow-hidden hover:border-amber-500/60 transition-all group flex flex-col justify-between shadow-2xl">
+              <div>
+                <div className="relative overflow-hidden aspect-[16/10] bg-stone-900 border-b border-stone-800/80">
+                  <img
+                    src="/assets/sovereign_voice.jpg"
+                    alt="N-ATLaS Sovereign Intelligence Topology"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent" />
+                  <span className="absolute bottom-3 left-3 text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-amber-950/90 text-amber-300 border border-amber-700/60">
+                    N-ATLaS 8B LLM
+                  </span>
+                </div>
+                <div className="p-6 space-y-2.5">
+                  <h3 className="text-lg font-bold text-white group-hover:text-amber-400 transition-colors">
+                    Multilingual Language Model
+                  </h3>
+                  <p className="text-xs sm:text-sm text-stone-400 leading-relaxed">
+                    Trained across Nigeria's six geopolitical zones. Understands context, local idioms, news, and informal conversations in Hausa, Yoruba, Igbo, Pidgin, and English.
+                  </p>
+                </div>
+              </div>
+              <div className="px-6 pb-6 pt-2">
+                <button
+                  onClick={() => onSelectStudio('chat')}
+                  className="w-full py-2.5 rounded-xl bg-stone-800 hover:bg-amber-600 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Bot className="w-3.5 h-3.5" /> Open Chat Studio
+                </button>
+              </div>
+            </div>
+
+            {/* Card 3: Developer & SDK */}
+            <div className="bg-stone-950/80 border border-stone-800 rounded-2xl sm:rounded-3xl overflow-hidden hover:border-federal-400 transition-all group flex flex-col justify-between shadow-2xl">
+              <div>
+                <div className="relative overflow-hidden aspect-[16/10] bg-stone-900 border-b border-stone-800/80">
+                  <img
+                    src="/assets/developer_coding.jpg"
+                    alt="Developer coding with N-ATLaS SDK"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-transparent to-transparent" />
+                  <span className="absolute bottom-3 left-3 text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-federal-950/90 text-federal-300 border border-federal-700/60">
+                    Python & TypeScript SDKs
+                  </span>
+                </div>
+                <div className="p-6 space-y-2.5">
+                  <h3 className="text-lg font-bold text-white group-hover:text-federal-400 transition-colors">
+                    Developer SDKs & Tooling
+                  </h3>
+                  <p className="text-xs sm:text-sm text-stone-400 leading-relaxed">
+                    Lightweight client libraries, streaming endpoints, and fine-tuning scripts ready to integrate into mobile apps, WhatsApp bots, and web portals.
+                  </p>
+                </div>
+              </div>
+              <div className="px-6 pb-6 pt-2">
+                <a
+                  href="/docs"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.history.pushState({}, '', '/docs');
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-stone-800 hover:bg-federal-600 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Workflow className="w-3.5 h-3.5" /> View SDK Documentation
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── CAPABILITIES (UPGRADED SLEEK CARDS) ─── */}
       <section className="py-20 sm:py-24 bg-white border-y border-stone-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          <div className="max-w-xl mb-12">
-            <Label>What it can do</Label>
+          <div className="max-w-2xl mb-12">
+            <Label>Capabilities</Label>
             <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 leading-tight">
               Built for how Nigerians actually communicate.
             </h2>
+            <p className="mt-3 text-stone-500 text-sm sm:text-base leading-relaxed">
+              Designed from ground-up for multilingual code-switching, tonal accuracy, and sovereign privacy.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {capabilities.map((c, i) => {
               const Icon = c.icon;
               return (
-                <div key={i} className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-federal-50 border border-federal-100 flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-federal-600" />
+                <div
+                  key={i}
+                  className="group bg-stone-50/70 hover:bg-white border border-stone-200/90 hover:border-federal-300 rounded-2xl p-6 transition-all duration-300 hover:shadow-card-md flex flex-col justify-between"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="w-11 h-11 rounded-xl bg-white group-hover:bg-federal-50 border border-stone-200/80 group-hover:border-federal-200 flex items-center justify-center transition-colors shadow-xs">
+                        <Icon className="w-5 h-5 text-federal-700 group-hover:text-federal-800 transition-colors" />
+                      </div>
+                      <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 border border-stone-200 group-hover:bg-federal-50 group-hover:text-federal-700 group-hover:border-federal-200 transition-colors">
+                        0{i + 1}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-base font-bold text-stone-900 group-hover:text-federal-900 transition-colors">
+                        {c.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-stone-500 mt-2 leading-relaxed">
+                        {c.body}
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="text-[15px] font-semibold text-stone-900">{c.title}</h3>
-                  <p className="text-sm text-stone-500 leading-relaxed">{c.body}</p>
                 </div>
               );
             })}
