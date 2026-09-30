@@ -3,6 +3,7 @@ import { Header } from './components/Header';
 import { LandingPage } from './components/LandingPage';
 import { PlaygroundView } from './components/PlaygroundView';
 import { DocsView } from './components/DocsView';
+import { AsoOkeWeave } from './components/SvgPatterns';
 
 export function App() {
   const [currentRoute, setCurrentRoute] = useState(() => {
@@ -64,7 +65,9 @@ export function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-stone-200 bg-white mt-auto">
+      <footer className="border-t border-stone-200 bg-white mt-auto relative overflow-hidden">
+        {/* Aso-oke-weave texture on footer */}
+        <AsoOkeWeave />
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-stone-400 text-center sm:text-left leading-relaxed max-w-lg">
             N-ATLaS is a sovereign AI initiative of the Federal Ministry of Communications, Innovation and Digital Economy (FMCIDE), maintained by Awarri Technologies in partnership with NCAIR and NITDA.

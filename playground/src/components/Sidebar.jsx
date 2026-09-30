@@ -12,6 +12,7 @@ import {
   Layers,
   Terminal
 } from 'lucide-react';
+import { AsoOkeWeave } from './SvgPatterns';
 
 export const Sidebar = ({ isOpen, onClose, currentRoute, activeStudio, onNavigate }) => {
   const isPlayground = currentRoute === '/playground';
@@ -58,9 +59,10 @@ export const Sidebar = ({ isOpen, onClose, currentRoute, activeStudio, onNavigat
           </div>
 
           {/* Institutional Mini Bar */}
-          <div className="px-4 py-2.5 bg-cream-100/70 border-b border-federal-100/60 text-[11px] font-mono text-slate-600 flex items-center gap-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-federal-600 shrink-0" />
-            <span className="truncate">FMCIDE • Awarri • NCAIR</span>
+          <div className="relative px-4 py-2.5 bg-cream-100/70 border-b border-federal-100/60 text-[11px] font-mono text-slate-600 flex items-center gap-2 overflow-hidden">
+            <AsoOkeWeave />
+            <ShieldCheck className="w-3.5 h-3.5 text-federal-600 shrink-0 relative z-10" />
+            <span className="truncate relative z-10">FMCIDE • Awarri • NCAIR</span>
           </div>
 
           {/* Primary Main Pages */}
@@ -171,7 +173,8 @@ export const Sidebar = ({ isOpen, onClose, currentRoute, activeStudio, onNavigat
         </div>
 
         {/* Sidebar Footer Info */}
-        <div className="p-4 border-t border-federal-100 bg-cream-50/50 space-y-3">
+        <div className="relative p-4 border-t border-federal-100 bg-cream-50/50 space-y-3 overflow-hidden">
+          <AsoOkeWeave />
           <div className="bg-white p-3 rounded-xl border border-federal-100/80 shadow-sm space-y-1">
             <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
               <span>Backend Status</span>

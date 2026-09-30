@@ -14,19 +14,74 @@ import {
   Zap,
   ShieldCheck,
 } from 'lucide-react';
+import { KenteStripe, NsibidiScatter, AnkaraHex } from './SvgPatterns';
 
 // Reusable section label
 const Label = ({ children }) => (
   <p className="text-xs font-semibold tracking-widest uppercase text-federal-600 mb-3">{children}</p>
 );
 
-// Stat block
-const Stat = ({ value, label }) => (
-  <div>
-    <div className="text-3xl sm:text-4xl font-bold text-stone-900 tracking-tight">{value}</div>
-    <div className="text-sm text-stone-500 mt-0.5">{label}</div>
-  </div>
-);
+// Animated Stat block with count-up on scroll
+const Stat = ({ value, label }) => {
+  const [displayVal, setDisplayVal] = React.useState(value);
+  const ref = React.useRef(null);
+  const animatedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    // Parse numeric part and suffix: "8.03B" -> num: 8.03, suffix: "B", decimals: 2
+    // "120h" -> num: 120, suffix: "h", decimals: 0
+    // "5" -> num: 5, suffix: "", decimals: 0
+    const match = String(value).match(/^([\d.]+)(.*)$/);
+    if (!match) return;
+
+    const targetNum = parseFloat(match[1]);
+    const suffix = match[2] || '';
+    const decimals = match[1].includes('.') ? match[1].split('.')[1].length : 0;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !animatedRef.current) {
+            animatedRef.current = true;
+            const startTime = performance.now();
+            const duration = 1200; // ms
+
+            const tick = (now) => {
+              const elapsed = now - startTime;
+              const progress = Math.min(elapsed / duration, 1);
+              // Ease-out cubic
+              const ease = 1 - Math.pow(1 - progress, 3);
+              const currentNum = ease * targetNum;
+              setDisplayVal(currentNum.toFixed(decimals) + suffix);
+
+              if (progress < 1) {
+                requestAnimationFrame(tick);
+              } else {
+                setDisplayVal(value);
+              }
+            };
+
+            requestAnimationFrame(tick);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [value]);
+
+  return (
+    <div ref={ref}>
+      <div className="text-3xl sm:text-4xl font-bold text-stone-900 tracking-tight">{displayVal}</div>
+      <div className="text-sm text-stone-500 mt-0.5">{label}</div>
+    </div>
+  );
+};
 
 export const LandingPage = ({ onSelectStudio }) => {
 
@@ -38,6 +93,7 @@ export const LandingPage = ({ onSelectStudio }) => {
       description: "Fine-tuned on 392 million tokens of instruction data across Nigeria's six geopolitical zones. Speaks Hausa, Yoruba, Igbo, Pidgin, and English fluently.",
       hfUrl: "https://huggingface.co/NCAIR1/N-ATLaS",
       action: "chat",
+      accentColor: "#008751",
       tags: ["8.03B Params", "8,092 Context", "~918K Instruction Pairs"],
     },
     {
@@ -47,6 +103,7 @@ export const LandingPage = ({ onSelectStudio }) => {
       description: "Trained on 120 hours of Yorùbá speech, preserving acute and grave tone diacritics that completely change word meaning when dropped.",
       hfUrl: "https://huggingface.co/NCAIR1/Yoruba-ASR",
       action: "asr",
+      accentColor: "#00897B",
       tags: ["120h Training Data", "244M Params", "Tone-Preserving"],
     },
     {
@@ -56,6 +113,7 @@ export const LandingPage = ({ onSelectStudio }) => {
       description: "120 hours of Hausa recordings from speakers across northern and southern Nigeria. Handles regional dialect variation standard models miss entirely.",
       hfUrl: "https://huggingface.co/NCAIR1/Hausa-ASR",
       action: "asr",
+      accentColor: "#1B4F8A",
       tags: ["120h Training Data", "244M Params", "All 6 Zones"],
     },
     {
@@ -65,6 +123,7 @@ export const LandingPage = ({ onSelectStudio }) => {
       description: "Built to capture authentic Igbo phonetics, including the sub-dot characters and tonal patterns that off-the-shelf models have historically failed.",
       hfUrl: "https://huggingface.co/NCAIR1/Igbo-ASR",
       action: "asr",
+      accentColor: "#C0452A",
       tags: ["120h Training Data", "244M Params", "Diacritics Intact"],
     },
     {
@@ -74,6 +133,7 @@ export const LandingPage = ({ onSelectStudio }) => {
       description: "Because your accent is not a bug. Built specifically for Nigerian-accented English so speakers aren't penalised by systems designed for other parts of the world.",
       hfUrl: "https://huggingface.co/NCAIR1/NigerianAccentedEnglish",
       action: "asr",
+      accentColor: "#E5A93C",
       tags: ["120h Training Data", "244M Params", "en-NG Native"],
     },
   ];
@@ -116,6 +176,20 @@ export const LandingPage = ({ onSelectStudio }) => {
 
       {/* ─── HERO ─── */}
       <section className="pt-10 pb-20 sm:pt-16 sm:pb-28 text-center relative overflow-hidden">
+
+      {/* ══ KENTE-STRIPE full-bleed overlay ══ */}
+      <KenteStripe />
+
+      {/* ══ NSIBIDI-SCATTER corner marks ══ */}
+      {/* Top-left nsibidi — 240px corner box */}
+      <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 pointer-events-none overflow-hidden">
+        <NsibidiScatter style={{ opacity: 0.65 }} />
+      </div>
+      {/* Bottom-right nsibidi */}
+      <div className="absolute bottom-0 right-0 w-48 h-48 sm:w-72 sm:h-72 pointer-events-none overflow-hidden">
+        <NsibidiScatter style={{ opacity: 0.65 }} />
+      </div>
+
       {/* ══ TOP-RIGHT: Realistic tropical leaf cluster ══ */}
       <div className="absolute top-0 right-0 w-56 sm:w-80 md:w-96 h-56 sm:h-80 md:h-96 pointer-events-none select-none overflow-hidden">
         <svg viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
@@ -193,21 +267,21 @@ export const LandingPage = ({ onSelectStudio }) => {
         </svg>
       </div>
 
-        <div className="relative max-w-3xl mx-auto px-4">
-          <h1 className="text-4xl sm:text-6xl font-bold text-stone-900 leading-[1.08] tracking-tight mb-5">
+        <div className="relative max-w-4xl mx-auto px-4">
+          <h1 className="text-4xl sm:text-7xl lg:text-8xl font-extrabold text-stone-900 leading-[1.02] tracking-tight mb-6">
             AI that understands{' '}
-            <span className="text-federal-600">Nigerian</span>{' '}
+            <span className="text-gradient-nigeria">Nigerian</span>{' '}
             the way Nigerians do.
           </h1>
 
-          <p className="text-base sm:text-lg text-stone-500 max-w-xl mx-auto leading-relaxed mb-8">
+          <p className="text-base sm:text-xl text-stone-500 max-w-xl mx-auto leading-relaxed mb-8">
             One language model and four speech-to-text engines, built in Nigeria for Nigerians. Open on Hugging Face, live in this playground.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
               onClick={() => onSelectStudio('chat')}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-federal-600 hover:bg-federal-700 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-glow-green"
+              className="btn-shimmer w-full sm:w-auto px-7 py-3.5 rounded-xl bg-federal-600 hover:bg-federal-700 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-glow-green"
             >
               <Bot className="w-4 h-4" />
               Open the Chat
@@ -293,9 +367,18 @@ export const LandingPage = ({ onSelectStudio }) => {
             {hfModels.map((m) => (
               <div
                 key={m.id}
-                className="group bg-white rounded-2xl border border-stone-200 p-6 shadow-card hover:shadow-card-md hover:border-stone-300 transition-all flex flex-col justify-between"
+                className="group bg-white rounded-2xl border border-stone-200 p-6 shadow-card hover:shadow-card-md hover:border-stone-300 transition-all flex flex-col justify-between relative overflow-hidden"
               >
-                <div className="space-y-3">
+                {/* Ankara-hex honeycomb watermark */}
+                <AnkaraHex style={{ opacity: 0.6 }} />
+
+                {/* Model identity top accent bar */}
+                <div
+                  style={{ backgroundColor: m.accentColor }}
+                  className="h-[3px] w-full rounded-full mb-4 relative z-10 opacity-80 group-hover:opacity-100 transition-opacity"
+                />
+
+                <div className="space-y-3 relative z-10">
                   {/* Model name & subtitle */}
                   <div>
                     <h3 className="text-[17px] font-bold text-stone-900 group-hover:text-federal-700 transition-colors">
@@ -364,7 +447,12 @@ export const LandingPage = ({ onSelectStudio }) => {
 
       {/* ─── N-ATLaS IN PRACTICE (EDITORIAL SHOWCASE) ─── */}
       <section className="py-20 sm:py-24 bg-stone-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(#008751_1px,transparent_1px)] [background-size:32px_32px] opacity-15" />
+        {/* Kente chevron-stripe diagonal background texture */}
+        <KenteStripe style={{ opacity: 0.18 }} />
+        {/* Bottom-right corner Nsibidi pictographic scatter watermark */}
+        <div className="absolute -bottom-8 -right-8 w-80 h-80 pointer-events-none select-none opacity-20">
+          <NsibidiScatter />
+        </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-8 space-y-14">
           <div className="max-w-2xl">
             <p className="text-xs font-mono font-bold tracking-widest uppercase text-emerald-400 mb-3">Core Technology</p>
