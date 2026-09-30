@@ -2,16 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { LandingPage } from './components/LandingPage';
 import { PlaygroundView } from './components/PlaygroundView';
+import { DocsView } from './components/DocsView';
 
 export function App() {
-  const [currentRoute, setCurrentRoute] = useState(() =>
-    window.location.pathname.startsWith('/playground') ? '/playground' : '/'
-  );
+  const [currentRoute, setCurrentRoute] = useState(() => {
+    const path = window.location.pathname;
+    if (path.startsWith('/playground')) return '/playground';
+    if (path.startsWith('/docs')) return '/docs';
+    return '/';
+  });
   const [activeStudio, setActiveStudio] = useState('chat');
 
   useEffect(() => {
     const handlePop = () => {
-      setCurrentRoute(window.location.pathname.startsWith('/playground') ? '/playground' : '/');
+      const path = window.location.pathname;
+      if (path.startsWith('/playground')) setCurrentRoute('/playground');
+      else if (path.startsWith('/docs')) setCurrentRoute('/docs');
+      else setCurrentRoute('/');
     };
     window.addEventListener('popstate', handlePop);
     return () => window.removeEventListener('popstate', handlePop);
@@ -46,6 +53,12 @@ export function App() {
             activeStudio={activeStudio}
             onStudioChange={setActiveStudio}
             onBackToLanding={() => navigateTo('/')}
+            onSelectDocs={() => navigateTo('/docs')}
+          />
+        )}
+        {currentRoute === '/docs' && (
+          <DocsView
+            onSelectStudio={(studio) => navigateTo('/playground', studio)}
           />
         )}
       </main>
