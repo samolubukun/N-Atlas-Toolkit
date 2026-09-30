@@ -147,21 +147,25 @@ export const ChatStream = ({ initialPrompt = '' }) => {
   return (
     <div className="max-w-5xl mx-auto space-y-4">
       {/* Top Controls & Language Selector */}
-      <div className="bg-white p-3 sm:p-4 rounded-2xl border border-stone-200 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
-          <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-widest shrink-0">Language</span>
-          <div className="flex items-center gap-1 shrink-0">
+      <div className="bg-white p-3 sm:p-4 rounded-2xl border border-stone-200 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-3 overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto min-w-0">
+          <div className="flex items-center justify-between sm:justify-start gap-2">
+            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest shrink-0">Language</span>
+          </div>
+          <div className="grid grid-cols-3 sm:flex sm:items-center gap-1.5 sm:gap-1 w-full">
             {LLM_LANGUAGES.map(lang => (
               <button
                 key={lang.id}
                 onClick={() => handleSelectLang(lang.id)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                title={lang.name}
+                className={`w-full sm:w-auto px-1.5 sm:px-2.5 py-1.5 sm:py-1 rounded-lg text-[10.5px] sm:text-xs font-semibold text-center transition-all truncate ${
                   selectedLang === lang.id
-                    ? 'bg-federal-600 text-white'
-                    : 'bg-stone-100 hover:bg-stone-200 text-stone-600'
+                    ? 'bg-federal-600 text-white shadow-xs'
+                    : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
                 }`}
               >
-                {lang.name}
+                <span className="sm:hidden">{lang.shortName || lang.name.replace('Nigerian ', 'Nig. ').replace(' (Universal)', '')}</span>
+                <span className="hidden sm:inline">{lang.name}</span>
               </button>
             ))}
           </div>

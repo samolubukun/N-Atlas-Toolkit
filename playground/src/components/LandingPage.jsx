@@ -44,10 +44,10 @@ export const LandingPage = ({ onSelectStudio }) => {
       id: "NCAIR1/Yoruba-ASR",
       name: "Yoruba Speech",
       subtitle: "Whisper Small · 244M params",
-      description: "Trained on 627 hours of Yorùbá speech, preserving acute and grave tone diacritics that completely change word meaning when dropped.",
+      description: "Trained on 120 hours of Yorùbá speech, preserving acute and grave tone diacritics that completely change word meaning when dropped.",
       hfUrl: "https://huggingface.co/NCAIR1/Yoruba-ASR",
       action: "asr",
-      tags: ["627h Training Data", "244M Params", "Tone-Preserving"],
+      tags: ["120h Training Data", "244M Params", "Tone-Preserving"],
     },
     {
       id: "NCAIR1/Hausa-ASR",
@@ -235,7 +235,7 @@ export const LandingPage = ({ onSelectStudio }) => {
         <div className="relative mt-14 sm:mt-16 max-w-2xl mx-auto px-4">
           <div className="grid grid-cols-3 gap-6 border-t border-stone-200 pt-10">
             <Stat value="8.03B" label="LLM parameters" />
-            <Stat value="627h"  label="Yoruba audio" />
+            <Stat value="120h"  label="Yoruba audio" />
             <Stat value="5"     label="Open models" />
           </div>
         </div>

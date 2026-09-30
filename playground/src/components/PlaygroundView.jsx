@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   Circle,
+  BookOpen,
 } from 'lucide-react';
 import { ASRStudio } from './ASRStudio';
 import { ChatStream } from './ChatStream';
@@ -29,7 +30,7 @@ const studios = [
     id: 'asr',
     name: 'Speech',
     full: 'Sovereign ASR',
-    sub: 'Live and batch transcription',
+    sub: 'Batch audio transcription',
     icon: Radio,
   },
   {
@@ -48,7 +49,7 @@ const studios = [
   },
 ];
 
-export const PlaygroundView = ({ activeStudio = 'chat', onStudioChange, onBackToLanding }) => {
+export const PlaygroundView = ({ activeStudio = 'chat', onStudioChange, onBackToLanding, onSelectDocs }) => {
   const [transferredPrompt, setTransferredPrompt] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -154,7 +155,17 @@ export const PlaygroundView = ({ activeStudio = 'chat', onStudioChange, onBackTo
 
         {/* Sidebar footer */}
         {(!isCollapsed || mobileOpen) && (
-          <div className="p-3 border-t border-stone-100">
+          <div className="p-3 border-t border-stone-100 flex flex-col gap-2">
+            <button
+              onClick={() => onSelectDocs ? onSelectDocs() : window.history.pushState({}, '', '/docs')}
+              className="w-full py-2 px-3 rounded-xl bg-federal-50 hover:bg-federal-100 text-xs text-federal-700 hover:text-federal-900 flex items-center justify-between transition-colors border border-federal-200 font-semibold"
+            >
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-3.5 h-3.5 text-federal-600" />
+                <span>API & SDK Docs</span>
+              </div>
+              <span className="text-[10px] bg-federal-200 text-federal-800 px-1.5 py-0.5 rounded font-mono">/docs</span>
+            </button>
             <a
               href="https://github.com/samolubukun/N-Atlas-Toolkit"
               target="_blank"

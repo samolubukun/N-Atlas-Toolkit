@@ -45,13 +45,13 @@ export const ASR_MODELS = [
 
 // LLM Language & Persona Switchers
 export const LLM_LANGUAGES = [
-  { id: "general", name: "General AI (Universal)", code: "en", greeting: "Hello! I am N-ATLaS. How can I help you today with coding, reasoning, analysis, or general questions?" },
-  { id: "english", name: "Nigerian English", code: "en-NG", greeting: "Good day! How is everything with you today? What would you like us to work on?" },
-  { id: "pidgin", name: "Nigerian Pidgin", code: "pcm", greeting: "How you dey? How things dey go? Wetin you need make I assist you with today?" },
+  { id: "general", name: "General AI (Universal)", shortName: "General AI", code: "en", greeting: "Hello! I am N-ATLaS. How can I help you today with coding, reasoning, analysis, or general questions?" },
+  { id: "english", name: "Nigerian English", shortName: "Nig. English", code: "en-NG", greeting: "Good day! How is everything with you today? What would you like us to work on?" },
+  { id: "pidgin", name: "Nigerian Pidgin", shortName: "Nig. Pidgin", code: "pcm", greeting: "How you dey? How things dey go? Wetin you need make I assist you with today?" },
 
-  { id: "yoruba", name: "Yorùbá", code: "yo", greeting: "Ẹ n lẹ́ o! Kí ni mo lè ràn yín lọ́wọ́ pẹ̀lú lónìí?" },
-  { id: "hausa", name: "Hausa", code: "ha", greeting: "Sannu! Me zan iya taimaka muku da shi a yau?" },
-  { id: "igbo", name: "Igbo", code: "ig", greeting: "Nnọọ! Kedụ ihe m nwere ike inyere gị taa?" },
+  { id: "yoruba", name: "Yorùbá", shortName: "Yorùbá", code: "yo", greeting: "Ẹ n lẹ́ o! Kí ni mo lè ràn yín lọ́wọ́ pẹ̀lú lónìí?" },
+  { id: "hausa", name: "Hausa", shortName: "Hausa", code: "ha", greeting: "Sannu! Me zan iya taimaka muku da shi a yau?" },
+  { id: "igbo", name: "Igbo", shortName: "Igbo", code: "ig", greeting: "Nnọọ! Kedụ ihe m nwere ike inyere gị taa?" },
 ];
 
 
