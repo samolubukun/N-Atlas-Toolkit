@@ -14,7 +14,7 @@ import {
   Zap,
   ShieldCheck,
 } from 'lucide-react';
-import { KenteStripe, NsibidiScatter, AnkaraHex } from './SvgPatterns';
+import { KenteStripe, NsibidiScatter, AnkaraHex, AdireDots } from './SvgPatterns';
 
 // Reusable section label
 const Label = ({ children }) => (
@@ -156,8 +156,8 @@ export const LandingPage = ({ onSelectStudio }) => {
     },
     {
       icon: Zap,
-      title: "Streaming, not waiting",
-      body: "Words appear on screen as you speak. The live WebSocket stream delivers transcriptions in real time, word by word, with timestamps.",
+      title: "Drop-in Whisper API",
+      body: "OpenAI-compatible /v1/audio/transcriptions endpoint with word-level timestamps and duration metadata, ready for instant integration.",
     },
     {
       icon: Database,
@@ -576,8 +576,15 @@ export const LandingPage = ({ onSelectStudio }) => {
       </section>
 
       {/* ─── CAPABILITIES (UPGRADED SLEEK CARDS) ─── */}
-      <section className="py-20 sm:py-24 bg-white border-y border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+      <section className="py-20 sm:py-24 bg-white border-y border-stone-200 relative overflow-hidden">
+        {/* Subtle Adire indigo double-dot grid across entire section background */}
+        <AdireDots className="opacity-65" />
+        {/* Corner Nsibidi indigenous glyph flourish in upper right */}
+        <div className="absolute -top-12 -right-12 w-64 h-64 pointer-events-none select-none opacity-25">
+          <NsibidiScatter />
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-8">
           <div className="max-w-2xl mb-12">
             <Label>Capabilities</Label>
             <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 leading-tight">
@@ -594,9 +601,12 @@ export const LandingPage = ({ onSelectStudio }) => {
               return (
                 <div
                   key={i}
-                  className="group bg-stone-50/70 hover:bg-white border border-stone-200/90 hover:border-federal-300 rounded-2xl p-6 transition-all duration-300 hover:shadow-card-md flex flex-col justify-between"
+                  className="group relative overflow-hidden bg-stone-50/70 hover:bg-white border border-stone-200/90 hover:border-federal-300 rounded-2xl p-6 transition-all duration-300 hover:shadow-card-md flex flex-col justify-between"
                 >
-                  <div className="space-y-4">
+                  {/* Ankara hexagonal weave watermark: visible at rest, elevates on hover */}
+                  <AnkaraHex className="opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  <div className="relative z-10 space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="w-11 h-11 rounded-xl bg-white group-hover:bg-federal-50 border border-stone-200/80 group-hover:border-federal-200 flex items-center justify-center transition-colors shadow-xs">
                         <Icon className="w-5 h-5 text-federal-700 group-hover:text-federal-800 transition-colors" />

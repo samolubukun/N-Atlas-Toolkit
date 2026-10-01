@@ -98,32 +98,7 @@ async function transcribeDemo() {
 transcribeDemo();
 ```
 
-### 4. Real-Time Streaming ASR (Deepgram Protocol Clone)
-
-Streams raw audio chunks (PCM 16kHz 16-bit mono) over WebSockets with immediate live transcription events:
-
-```typescript
-import { NatlasClient } from "natlas";
-
-const client = new NatlasClient();
-
-const live = client.audio.transcriptions.live({ language: "hausa" });
-
-live.on("transcript", (event) => {
-  const text = event.channel.alternatives[0]?.transcript;
-  console.log("Live Transcript:", text);
-});
-
-live.on("error", (err) => console.error("Stream error:", err));
-
-// Stream mic audio chunks:
-live.send(audioChunk);
-
-// When finished:
-live.close();
-```
-
-### 5. Language Detection & System Prompts
+### 4. Language Detection & System Prompts
 
 ```typescript
 import { detectLanguage, systemPrompt } from "natlas";

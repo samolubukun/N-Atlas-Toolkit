@@ -4,7 +4,6 @@ Command-line interface (CLI) for N-ATLaS Sovereign Multilingual AI.
 Provides full terminal access to:
 - Chat completions with live SSE streaming (`natlas chat`)
 - Speech-to-text audio transcription (`natlas transcribe`)
-- Real-time Deepgram-style live WebSocket ASR (`natlas stream-asr`)
 - High-accuracy native African translation (`natlas translate`)
 - Cultural tone adaptation (`natlas africanize`)
 - Evaluation & benchmarking (`natlas eval`)
@@ -17,7 +16,6 @@ Innovation and Digital Economy, and powered by Awarri Technologies.
 from __future__ import annotations
 
 import argparse
-import asyncio
 import os
 import sys
 import time
@@ -35,13 +33,13 @@ if sys.platform == "win32":
 # Support running as a standalone script or installed package
 try:
     from ._types import MessageInput
-    from .client import AsyncClient, Client
+    from .client import Client
     from .languages import EN_NG, HA, IG, YO, detect_language, system_prompt
 except ImportError:
     # If run directly as python python-sdk/src/cli.py
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from src._types import MessageInput
-    from src.client import AsyncClient, Client
+    from src.client import Client
     from src.languages import EN_NG, HA, IG, YO, detect_language, system_prompt
 
 LANG_MAP = {
@@ -167,40 +165,6 @@ def cmd_transcribe(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_stream_asr(args: argparse.Namespace) -> int:
-    """Stream audio chunks over WebSocket using the Deepgram protocol."""
-    file_path = Path(args.file)
-    if not file_path.exists():
-        print(f"Error: Audio file not found at '{file_path}'", file=sys.stderr)
-        return 1
-
-    async def run_live() -> None:
-        async with AsyncClient(asr_url=args.asr_url, api_key=args.api_key) as client:
-            print(f"Connecting to live WebSocket ASR session for language: {args.language}...")
-            session = await client.audio.transcriptions.connect_live(language=args.language).connect()
-
-            async def listen() -> None:
-                async for event in session:
-                    transcript = event.channel.alternatives[0].transcript
-                    if transcript:
-                        tag = "FINAL" if event.is_final else "INTERIM"
-                        print(f"[{tag}] {transcript}")
-
-            recv_task = asyncio.create_task(listen())
-
-            print(f"Streaming {file_path.name} in chunk size {args.chunk_size} bytes...")
-            with open(file_path, "rb") as f:
-                while chunk := f.read(args.chunk_size):
-                    await session.send(chunk)
-                    await asyncio.sleep(args.delay)
-
-            await session.close()
-            await recv_task
-
-    asyncio.run(run_live())
-    return 0
-
-
 def cmd_translate(args: argparse.Namespace) -> int:
     """Translate text into an African language."""
     client = Client(base_url=args.base_url, api_key=args.api_key)
@@ -302,30 +266,23 @@ def main(argv: list[str] | None = None) -> int:
     transcribe_p.add_argument("--model", default=None, help="Model ID override")
     transcribe_p.add_argument("--timestamps", action="store_true", help="Include word-level timestamps")
 
-    # 3. Stream ASR
-    stream_p = subparsers.add_parser("stream-asr", help="Real-time WebSocket streaming speech-to-text")
-    stream_p.add_argument("file", help="Path to audio file to stream")
-    stream_p.add_argument("--language", "-l", default="hausa", help="Language (hausa, yoruba, igbo, english)")
-    stream_p.add_argument("--chunk-size", type=int, default=4096, help="Chunk size in bytes")
-    stream_p.add_argument("--delay", type=float, default=0.05, help="Simulated streaming delay between chunks (s)")
-
-    # 4. Translate
+    # 3. Translate
     translate_p = subparsers.add_parser("translate", help="Translate into an African language")
     translate_p.add_argument("text", help="Source text to translate")
     translate_p.add_argument("--target", "-t", default="Yoruba", help="Target language (Yoruba, Hausa, Igbo, Pidgin)")
     translate_p.add_argument("--tone", default="formal", help="Translation register (formal, conversational)")
 
-    # 5. Africanize
+    # 4. Africanize
     africanize_p = subparsers.add_parser("africanize", help="Adapt tone to Nigerian cultural context")
     africanize_p.add_argument("text", help="Text to adapt")
     africanize_p.add_argument("--context", "-c", default="Lagos-Urban", help="Context preset (Lagos-Urban, Northern-Formal, etc.)")
     africanize_p.add_argument("--formality", default="natural", help="Formality level")
 
-    # 6. Health & Models
+    # 5. Health & Models
     subparsers.add_parser("health", help="Check server health and active GPU")
     subparsers.add_parser("models", help="List available LLM and ASR models")
 
-    # 7. Eval
+    # 6. Eval
     eval_p = subparsers.add_parser("eval", help="Run benchmark accuracy evaluation")
     eval_p.add_argument("--task", default="asr", choices=["asr", "llm"], help="Evaluation task")
     eval_p.add_argument("--languages", nargs="+", default=["hausa", "igbo", "yoruba", "english"], help="Languages to test")
@@ -341,7 +298,6 @@ def main(argv: list[str] | None = None) -> int:
     dispatch = {
         "chat": cmd_chat,
         "transcribe": cmd_transcribe,
-        "stream-asr": cmd_stream_asr,
         "translate": cmd_translate,
         "africanize": cmd_africanize,
         "health": cmd_health,

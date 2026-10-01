@@ -65,7 +65,6 @@ Usage: natlas <command> [options]
 Commands:
   chat [prompt]         Chat with N-ATLaS (interactive REPL or one-shot SSE streaming)
   transcribe <file>     Speech-to-text audio transcription
-  stream-asr <file>     Real-time WebSocket streaming transcription (Deepgram protocol)
   translate <text>      Translate text into an African language
   africanize <text>     Adapt tone to Nigerian cultural context
   models                List available models
@@ -176,36 +175,6 @@ async function handleTranscribe(client, args) {
   console.log("=================================================");
 }
 
-async function handleStreamASR(client, args) {
-  const filePath = args._[1];
-  if (!filePath || !fs.existsSync(filePath)) {
-    console.error("Error: Please provide a valid audio file path to stream.");
-    process.exit(1);
-  }
-
-  const lang = args.lang || "hausa";
-  console.log(`Streaming ${path.basename(filePath)} via WebSocket (${lang})...`);
-  const live = client.audio.transcriptions.live({ language: lang });
-
-  live.on("transcript", (event) => {
-    const text = event.channel?.alternatives?.[0]?.transcript;
-    if (text) {
-      console.log(`[${event.is_final ? "FINAL" : "INTERIM"}] ${text}`);
-    }
-  });
-
-  live.on("error", (err) => console.error("Stream error:", err));
-
-  const stream = fs.createReadStream(filePath, { highWaterMark: 4096 });
-  for await (const chunk of stream) {
-    live.send(chunk);
-    await new Promise((r) => setTimeout(r, 50));
-  }
-
-  await new Promise((r) => setTimeout(r, 1000));
-  live.close();
-}
-
 async function handleTranslate(client, args) {
   const text = args._.slice(1).join(" ");
   if (!text) {
@@ -257,9 +226,6 @@ async function main() {
       break;
     case "transcribe":
       await handleTranscribe(client, args);
-      break;
-    case "stream-asr":
-      await handleStreamASR(client, args);
       break;
     case "translate":
       await handleTranslate(client, args);

@@ -154,25 +154,17 @@ with open("speech_yoruba.wav", "rb") as audio:
 print(transcription.text)
 ```
 
-
-### 2. Deepgram-Style Real-Time Streaming STT (`WSS /v1/audio/transcriptions/streaming`)
-- Streams 16kHz audio frames over WebSocket with real-time interim results and `is_final` events.
-- Zero-roundtrip direct coupling into `NATLaSAPI` for real-time voice agents.
-
-### 3. ASR Verification & Benchmark Test Suite (`tests/`)
+### 2. ASR Verification & Benchmark Test Suite (`tests/`)
 
 The repository includes ready-to-run verification scripts and audio samples covering all 4 Nigerian languages:
 
 ```bash
-# 1. Batch Transcription Benchmark Test (evaluates accuracy against ground truth)
+# Batch Transcription Benchmark Test (evaluates accuracy against ground truth)
 python tests/test_asr_samples.py
-
-# 2. Deepgram-Style Real-Time Live Streaming Simulation (WebSocket chunked streaming)
-python tests/test_streaming_asr.py
 ```
 
 * Audio test assets are organized in [`tests/audio/`](tests/audio) (`hausa.mp3`, `english.mp3`, `igbo.mp3`, `yoruba.mp3`).
-* Both scripts authenticate via `NATLAS_API_KEY` from your `.env` or system environment.
+* Evaluates transcription against ground truth with word-level timestamps and duration metadata.
 
 ---
 
@@ -249,7 +241,7 @@ print(response.message.content)
 
 ## Repository File Structure
 
-- **[`python-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/python-sdk)**: Production-grade typed Python SDK with full CLI (`natlas chat`, `natlas transcribe`, `natlas stream-asr`, `natlas eval`).
+- **[`python-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/python-sdk)**: Production-grade typed Python SDK with full CLI (`natlas chat`, `natlas transcribe`, `natlas eval`).
 - **[`js-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/js-sdk)**: Universal typed TypeScript & JavaScript SDK with executable Node CLI (`npx natlas`) and SSE / WebSocket streaming.
 - **[`cookbook/`](file:///c:/Users/USER/Downloads/natlas-toolkit/cookbook)**: Real-world production recipes (WhatsApp voice bot, customer support router, voice translation pipeline).
 - **[`scripts/`](file:///c:/Users/USER/Downloads/natlas-toolkit/scripts)**: Reproducible testing and benchmarking suite measuring WER/CER, TTFT, throughput (tok/s), and latency.

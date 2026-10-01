@@ -62,34 +62,7 @@ for word in result.words:
     print(f"{word.word}: {word.start:.2f}s -> {word.end:.2f}s")
 ```
 
-### Deepgram-Style Real-Time Live Streaming ASR
-```python
-import asyncio
 
-async def live_audio_stream():
-    async with natlas.AsyncClient() as async_client:
-        session = await async_client.audio.transcriptions.connect_live(language="yoruba")
-
-        async def receive_transcripts():
-            async for event in session:
-                transcript = event.channel.alternatives[0].transcript
-                if transcript:
-                    status = "FINAL" if event.is_final else "INTERIM"
-                    print(f"[{status}] {transcript}")
-
-        recv_task = asyncio.create_task(receive_transcripts())
-
-        # Stream raw PCM 16kHz mono audio chunks:
-        with open("sample.wav", "rb") as f:
-            while chunk := f.read(4096):
-                await session.send_audio(chunk)
-                await asyncio.sleep(0.05)
-
-        await session.close()
-        await recv_task
-
-asyncio.run(live_audio_stream())
-```
 
 ---
 

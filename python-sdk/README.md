@@ -272,11 +272,11 @@ result = client.post(
 
 Paths must be relative to the configured hosted origin. The SDK rejects absolute escape-hatch URLs so the API key cannot be redirected to another host.
 
-## Sovereign Speech-to-Text (ASR) & Real-Time Streaming
+## Sovereign Speech-to-Text (ASR)
 
 The SDK provides first-class support for sovereign Nigerian speech recognition across Yoruba, Hausa, Igbo, and Nigerian Accented English using official Whisper Small models:
 
-### 1. Hosted Batch Audio Transcription (`/v1/audio/transcriptions`)
+### Hosted Audio Transcription (`/v1/audio/transcriptions`)
 
 ```python
 import os
@@ -301,41 +301,6 @@ with open("yoruba_sample.wav", "rb") as audio_file:
     )
     print(transcription.text)
     print(transcription.words)
-```
-
-### 2. Deepgram-Style Real-Time Live Streaming ASR (`AsyncLiveTranscriptionSession`)
-
-Stream raw audio chunks (16kHz PCM mono) over WebSocket with real-time transcript events:
-
-```python
-import asyncio
-import natlas
-
-async def stream_live_speech():
-    async with natlas.AsyncClient(
-        asr_url="https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run",
-        api_key="your-api-key",
-    ) as client:
-        session = await client.audio.transcriptions.connect_live(language="hausa")
-
-        async def listen():
-            async for event in session:
-                transcript = event.channel.alternatives[0].transcript
-                if transcript:
-                    print(f"[{'FINAL' if event.is_final else 'INTERIM'}] {transcript}")
-
-        listener_task = asyncio.create_task(listen())
-
-        # Stream audio chunks from microphone or file:
-        with open("hausa_sample.wav", "rb") as f:
-            while chunk := f.read(4096):
-                await session.send_audio(chunk)
-                await asyncio.sleep(0.05)
-
-        await session.close()
-        await listener_task
-
-asyncio.run(stream_live_speech())
 ```
 
 ### 3. Local In-Process Transcription (Pure Offline / On-Premise)

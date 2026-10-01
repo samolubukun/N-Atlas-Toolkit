@@ -69,27 +69,4 @@ console.log("Transcript:", result.text);
 console.log("Words:", result.words);
 ```
 
-### Real-Time Live Streaming ASR (Deepgram Protocol Clone)
-```typescript
-import { NatlasClient } from "natlas";
 
-const client = new NatlasClient();
-
-// Connect to live WebSocket session:
-const live = client.audio.transcriptions.live({ language: "yoruba" });
-
-live.on("transcript", (event) => {
-  const text = event.channel.alternatives[0]?.transcript;
-  if (text) {
-    console.log(`[${event.is_final ? "FINAL" : "INTERIM"}] ${text}`);
-  }
-});
-
-live.on("error", (err) => console.error("Streaming error:", err));
-
-// Send raw 16kHz PCM audio buffers (e.g. from mic stream):
-live.send(audioBufferChunk);
-
-// When finished:
-live.close();
-```
