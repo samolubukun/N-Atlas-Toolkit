@@ -267,11 +267,19 @@ export const LandingPage = ({ onSelectStudio }) => {
         </svg>
       </div>
 
-        <div className="relative max-w-4xl mx-auto px-4">
-          <h1 className="text-4xl sm:text-7xl lg:text-8xl font-extrabold text-stone-900 leading-[1.02] tracking-tight mb-6">
-            AI that understands{' '}
-            <span className="text-federal-600">Nigerian</span>{' '}
-            the way Nigerians do.
+        <div className="relative max-w-6xl mx-auto px-4">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[76px] font-extrabold text-stone-900 leading-[1.08] tracking-tight mb-6">
+            {/* Line 1: AI that understands */}
+            <span className="block">AI that understands</span>
+
+            {/* Line 2: Nigerian the way (desktop) / Nigerian + the way (mobile) */}
+            <span className="block">
+              <span className="text-federal-600 block sm:inline">Nigerian</span>{' '}
+              <span className="block sm:inline">the way</span>
+            </span>
+
+            {/* Line 3: Nigerians do. */}
+            <span className="block">Nigerians do.</span>
           </h1>
 
           <p className="text-base sm:text-xl text-stone-500 max-w-xl mx-auto leading-relaxed mb-8">
