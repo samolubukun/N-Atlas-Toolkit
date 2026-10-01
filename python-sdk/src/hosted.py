@@ -65,9 +65,12 @@ def resolve_asr_url(asr_url: str | None = None, fallback_base_url: str | None = 
     """Resolve the sovereign ASR base URL (split Modal microservice or unified Docker gateway)."""
     configured = asr_url if asr_url is not None else os.getenv("NATLAS_ASR_URL")
     if configured is None:
-        if fallback_base_url is not None and "localhost" in fallback_base_url:
-            # On-premises unified Nginx gateway (e.g. localhost:8000)
-            return fallback_base_url
+        if fallback_base_url is not None:
+            # Use urlsplit hostname comparison — never substring match
+            _fb = urlsplit(fallback_base_url)
+            if _fb.hostname in ("localhost", "127.0.0.1", "::1"):
+                # On-premises unified Nginx gateway (e.g. localhost:8000)
+                return fallback_base_url
         configured = DEFAULT_ASR_URL
     return resolve_base_url(configured)
 
@@ -349,6 +352,40 @@ def _generate_chunk(event: dict[str, Any], fallback_model: str) -> GenerateRespo
         raise StreamProtocolError("Hosted completion stream event is malformed") from exc
 
 
+# ---------------------------------------------------------------------------
+# Retry helpers: back off on Modal cold-start 503s and rate-limit 429s
+# ---------------------------------------------------------------------------
+import time as _time
+
+_RETRYABLE_STATUS = frozenset({429, 502, 503})
+_RETRY_DELAYS = (2.0, 6.0, 18.0)   # 3 attempts: 2 s, 6 s, 18 s total
+
+
+def _post_with_retry(http: httpx.Client, url: str, **kwargs: Any) -> httpx.Response:
+    """POST with exponential backoff on 503/429 (Modal cold starts, rate limits)."""
+    resp: httpx.Response | None = None
+    for delay in (None, *_RETRY_DELAYS):
+        if delay is not None:
+            _time.sleep(delay)
+        resp = http.post(url, **kwargs)
+        if resp.status_code not in _RETRYABLE_STATUS:
+            return resp
+    return resp  # type: ignore[return-value]
+
+
+async def _apost_with_retry(http: httpx.AsyncClient, url: str, **kwargs: Any) -> httpx.Response:
+    """Async POST with exponential backoff on 503/429."""
+    import asyncio
+    resp: httpx.Response | None = None
+    for delay in (None, *_RETRY_DELAYS):
+        if delay is not None:
+            await asyncio.sleep(delay)
+        resp = await http.post(url, **kwargs)
+        if resp.status_code not in _RETRYABLE_STATUS:
+            return resp
+    return resp  # type: ignore[return-value]
+
+
 class HostedBackend:
     """Synchronous thin HTTP wrapper for a hosted vLLM endpoint.
 
@@ -400,7 +437,10 @@ class HostedBackend:
         cast_to: type[T] | None = None,
     ) -> Any:
         try:
-            response = self._http.request(method, _endpoint(path), json=body)
+            if method.upper() == "POST":
+                response = _post_with_retry(self._http, _endpoint(path), json=body)
+            else:
+                response = self._http.request(method, _endpoint(path), json=body)
         except httpx.TimeoutException as exc:
             raise APITimeoutError("Hosted API request timed out") from exc
         except httpx.RequestError as exc:
@@ -530,7 +570,10 @@ class AsyncHostedBackend:
         cast_to: type[T] | None = None,
     ) -> Any:
         try:
-            response = await self._http.request(method, _endpoint(path), json=body)
+            if method.upper() == "POST":
+                response = await _apost_with_retry(self._http, _endpoint(path), json=body)
+            else:
+                response = await self._http.request(method, _endpoint(path), json=body)
         except httpx.TimeoutException as exc:
             raise APITimeoutError("Hosted API request timed out") from exc
         except httpx.RequestError as exc:

@@ -87,8 +87,16 @@ export function resolveASRURL(asrURL?: string, fallbackBaseURL?: string): string
       : undefined);
 
   if (!configured) {
-    if (fallbackBaseURL && fallbackBaseURL.includes("localhost")) {
-      return fallbackBaseURL;
+    if (fallbackBaseURL) {
+      try {
+        const _fb = new URL(fallbackBaseURL);
+        if (["localhost", "127.0.0.1", "[::1]"].includes(_fb.hostname)) {
+          // On-premises unified Nginx gateway (e.g. localhost:8000)
+          return fallbackBaseURL;
+        }
+      } catch {
+        // Malformed URL — fall through to default
+      }
     }
     configured = DEFAULT_ASR_URL;
   }
