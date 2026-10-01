@@ -110,11 +110,12 @@ def cmd_chat(args: argparse.Namespace) -> int:
             prompt_history.append({"role": "user", "content": user_input})
 
             print(f"N-ATLaS [{active_lang or 'general'}] > ", end="", flush=True)
-            assistant_reply = []
+            assistant_reply: list[str] = []
             for chunk in client.chat(prompt_history, stream=True, temperature=args.temperature, max_tokens=args.max_tokens):
                 content = chunk.message.content
-                print(content, end="", flush=True)
-                assistant_reply.append(content)
+                if content:
+                    print(content, end="", flush=True)
+                    assistant_reply.append(content)
             print("\n")
 
             history.append({"role": "user", "content": user_input})
