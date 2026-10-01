@@ -275,8 +275,13 @@ class NATLaSAPI:
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_dir, token=hf_token)
         logger.info(f"[N-ATLaS] Tokenizer loaded. Vocab size: {self.tokenizer.vocab_size}. Ready for inference.")
 
-    def format_chat_prompt(self, messages: List[Dict[str, str]], date_str: Optional[str] = None) -> str:
-        """Format OpenAI chat messages using N-ATLaS Llama-3 instruction chat template."""
+    def format_chat_prompt(
+        self,
+        messages: List[Dict[str, Any]],
+        tools: Optional[List[Dict[str, Any]]] = None,
+        date_str: Optional[str] = None,
+    ) -> str:
+        """Format OpenAI chat messages and optional tools using N-ATLaS Llama-3 instruction chat template."""
         if not date_str:
             now = datetime.now()
             date_str = f"{now.day:02d} {_MONTHS[now.month - 1]} {now.year}"
@@ -295,6 +300,30 @@ class NATLaSAPI:
             })
         formatted_messages.extend(messages)
 
+        # 1. Try applying tools directly through Llama-3.1 native chat template
+        if tools:
+            try:
+                return self.tokenizer.apply_chat_template(
+                    formatted_messages,
+                    tools=tools,
+                    add_generation_prompt=True,
+                    tokenize=False,
+                    date_string=date_str,
+                )
+            except Exception as e:
+                logger.info(f"[N-ATLaS] Tokenizer chat_template tools fallback: {e}")
+                # Fallback: Inject tools definition into system message
+                tools_prompt = (
+                    "\n\n# Tools\n"
+                    "You have access to the following functions. To call a function, respond with a JSON object "
+                    "containing 'name' and 'parameters'.\n"
+                    f"{json.dumps(tools, indent=2)}"
+                )
+                if formatted_messages and formatted_messages[0].get("role") == "system":
+                    formatted_messages[0]["content"] = str(formatted_messages[0]["content"]) + tools_prompt
+                else:
+                    formatted_messages.insert(0, {"role": "system", "content": tools_prompt.strip()})
+
         return self.tokenizer.apply_chat_template(
             formatted_messages,
             add_generation_prompt=True,
@@ -312,6 +341,68 @@ class NATLaSAPI:
             return text, False
         position = min(positions)
         return text[:position], True
+
+    @staticmethod
+    def _parse_llama_tool_calls(text: str) -> Optional[List[Dict[str, Any]]]:
+        """Detect and parse Llama-3.1 native function calls or JSON object tool calls."""
+        import re
+        import uuid
+        cleaned = text.strip()
+        if not cleaned:
+            return None
+
+        # 1. Check for Llama-3.1 python_tag syntax: <|python_tag|>function_name(arg="val")
+        python_tag_pattern = r"(?:<\|python_tag\|>)?([a-zA-Z0-9_]+)\((.*?)\)"
+        match = re.search(python_tag_pattern, cleaned, re.DOTALL)
+        if match and not cleaned.startswith("{"):
+            func_name = match.group(1)
+            raw_args = match.group(2).strip()
+            # Try parsing key=val pairs or raw json
+            args_dict: Dict[str, Any] = {}
+            if raw_args:
+                # Try JSON dict format
+                try:
+                    args_dict = json.loads(f"{{{raw_args}}}")
+                except Exception:
+                    # Parse simple key=val tokens
+                    for kv in re.finditer(r'([a-zA-Z0-9_]+)\s*=\s*(?:"(.*?)"|\'(.*?)\'|([^,\s]+))', raw_args):
+                        k = kv.group(1)
+                        v = kv.group(2) if kv.group(2) is not None else (kv.group(3) if kv.group(3) is not None else kv.group(4))
+                        args_dict[k] = v
+            return [
+                {
+                    "id": f"call_{uuid.uuid4().hex[:9]}",
+                    "type": "function",
+                    "function": {
+                        "name": func_name,
+                        "arguments": json.dumps(args_dict),
+                    },
+                }
+            ]
+
+        # 2. Check for JSON format: {"name": "func_name", "parameters": {...}}
+        if "{" in cleaned and "}" in cleaned:
+            json_candidate = cleaned[cleaned.find("{"):cleaned.rfind("}") + 1]
+            try:
+                payload = json.loads(json_candidate)
+                if isinstance(payload, dict):
+                    name = payload.get("name") or payload.get("function")
+                    args = payload.get("parameters") or payload.get("arguments") or payload.get("args") or {}
+                    if name and isinstance(name, str):
+                        return [
+                            {
+                                "id": f"call_{uuid.uuid4().hex[:9]}",
+                                "type": "function",
+                                "function": {
+                                    "name": name,
+                                    "arguments": json.dumps(args) if isinstance(args, dict) else str(args),
+                                },
+                            }
+                        ]
+            except Exception:
+                pass
+
+        return None
 
     @modal.asgi_app()
     def serve(self):
@@ -343,10 +434,30 @@ class NATLaSAPI:
         # -------------------------------------------------------------------
         # Pydantic Schemas (Strict OpenAI V1 Specification)
         # -------------------------------------------------------------------
+        class FunctionCall(BaseModel):
+            name: str
+            arguments: str
+
+        class ToolCall(BaseModel):
+            id: str = Field(default_factory=lambda: f"call_{uuid.uuid4().hex[:9]}")
+            type: Literal["function"] = "function"
+            function: FunctionCall
+
+        class FunctionDefinition(BaseModel):
+            name: str
+            description: Optional[str] = None
+            parameters: Optional[Dict[str, Any]] = None
+
+        class ToolDefinition(BaseModel):
+            type: Literal["function"] = "function"
+            function: FunctionDefinition
+
         class ChatMessage(BaseModel):
             role: Literal["system", "user", "assistant", "function", "tool"]
-            content: str
+            content: Optional[str] = None
             name: Optional[str] = None
+            tool_calls: Optional[List[ToolCall]] = None
+            tool_call_id: Optional[str] = None
 
         class SamplingRequest(BaseModel):
             @model_validator(mode="before")
@@ -376,6 +487,8 @@ class NATLaSAPI:
         class ChatCompletionRequest(SamplingRequest):
             model: str = Field(default="NCAIR1/N-ATLaS")
             messages: List[ChatMessage]
+            tools: Optional[List[ToolDefinition]] = None
+            tool_choice: Optional[Union[str, Dict[str, Any]]] = None
             temperature: Optional[float] = Field(
                 default=0.7, ge=0.0, le=2.0, allow_inf_nan=False
             )
@@ -471,9 +584,10 @@ class NATLaSAPI:
             created_time = int(time.time())
             request_id = f"chatcmpl-{uuid.uuid4().hex[:12]}"
             
-            # Format prompt using official chat template
-            messages_dicts = [m.model_dump() for m in req.messages]
-            prompt = self.format_chat_prompt(messages_dicts)
+            # Format prompt using official chat template with optional tools
+            messages_dicts = [m.model_dump(exclude_none=True) for m in req.messages]
+            tools_dicts = [t.model_dump(exclude_none=True) for t in req.tools] if req.tools else None
+            prompt = self.format_chat_prompt(messages_dicts, tools=tools_dicts)
             stop_tokens = ["<|eot_id|>", "<|end_of_text|>"]
             if req.stop:
                 if isinstance(req.stop, list):
@@ -599,6 +713,23 @@ class NATLaSAPI:
             if stopped:
                 finish_reason = "stop"
 
+            # Check for Llama-3.1 tool call patterns if tools were provided
+            tool_calls = None
+            clean_content = out_text.strip()
+            if req.tools:
+                parsed_calls = self._parse_llama_tool_calls(clean_content)
+                if parsed_calls:
+                    tool_calls = parsed_calls
+                    finish_reason = "tool_calls"
+                    clean_content = None
+
+            message_payload: Dict[str, Any] = {
+                "role": "assistant",
+                "content": clean_content,
+            }
+            if tool_calls:
+                message_payload["tool_calls"] = tool_calls
+
             return {
                 "id": request_id,
                 "object": "chat.completion",
@@ -607,11 +738,8 @@ class NATLaSAPI:
                 "choices": [
                     {
                         "index": 0,
-                        "message": {
-                            "role": "assistant",
-                            "content": out_text.strip(),
-                        },
-                        "finish_reason": "stop",
+                        "message": message_payload,
+                        "finish_reason": finish_reason,
                     }
                 ],
                 "usage": {

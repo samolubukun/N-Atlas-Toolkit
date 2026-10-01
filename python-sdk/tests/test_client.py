@@ -89,6 +89,72 @@ def test_hosted_chat_typed_response_and_request_contract() -> None:
 
 
 @respx.mock
+def test_hosted_chat_with_tools() -> None:
+    tool_payload = {
+        "id": "chatcmpl-test-tool",
+        "object": "chat.completion",
+        "created": 1720000000,
+        "model": "NCAIR1/N-ATLaS",
+        "choices": [
+            {
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": None,
+                    "tool_calls": [
+                        {
+                            "id": "call_123",
+                            "type": "function",
+                            "function": {
+                                "name": "get_cbn_fx_rate",
+                                "arguments": '{"currency": "USD"}',
+                            },
+                        }
+                    ],
+                },
+                "finish_reason": "tool_calls",
+            }
+        ],
+        "usage": {"prompt_tokens": 15, "completion_tokens": 8, "total_tokens": 23},
+    }
+    route = respx.post("https://example.test/v1/chat/completions").mock(
+        return_value=httpx.Response(200, json=tool_payload)
+    )
+    with Client(base_url="https://example.test", api_key="secret") as client:
+        response = client.chat(
+            [{"role": "user", "content": "What is the dollar rate in Lagos?"}],
+            tools=[
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "get_cbn_fx_rate",
+                        "description": "Fetch official FX rate",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {"currency": {"type": "string"}},
+                            "required": ["currency"],
+                        },
+                    },
+                }
+            ],
+            tool_choice="auto",
+        )
+    assert isinstance(response, ChatResponse)
+    assert response.done_reason == "tool_calls"
+    assert response.message.content is None
+    assert response.message.tool_calls is not None
+    assert len(response.message.tool_calls) == 1
+    assert response.message.tool_calls[0].function.name == "get_cbn_fx_rate"
+    assert response.message.tool_calls[0].function.arguments == '{"currency": "USD"}'
+
+    # Verify request payload serialized tools properly
+    sent_body = json.loads(route.calls.last.request.content)
+    assert "tools" in sent_body
+    assert sent_body["tools"][0]["function"]["name"] == "get_cbn_fx_rate"
+    assert sent_body["tool_choice"] == "auto"
+
+
+@respx.mock
 def test_hosted_generate_and_base_url_normalization() -> None:
     route = respx.post("https://example.test/api/v1/completions").mock(
         return_value=httpx.Response(200, json=completion_payload())

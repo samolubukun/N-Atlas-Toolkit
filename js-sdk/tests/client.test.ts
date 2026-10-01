@@ -7,7 +7,7 @@ import {
   IG,
   EN_NG,
 } from "../src/languages.js";
-import { resolveBaseURL, resolveApiKey, resolveASRURL } from "../src/client.js";
+import { resolveBaseURL, resolveApiKey, resolveASRURL, NatlasClient } from "../src/client.js";
 import { decodeSSEData, SSE_DONE } from "../src/sse.js";
 import { ConfigurationError } from "../src/errors.js";
 
@@ -96,5 +96,82 @@ describe("SSE parser", () => {
   it("handles [DONE]", () => {
     expect(decodeSSEData("[DONE]")).toBe(SSE_DONE);
     expect(decodeSSEData(" [DONE] \n")).toBe(SSE_DONE);
+  });
+});
+
+describe("Tool Calling & Function Execution", () => {
+  it("handles tool_calls in chat response", async () => {
+    const mockToolResponse = {
+      id: "chatcmpl-tool-test",
+      object: "chat.completion",
+      created: 1720000000,
+      model: "NCAIR1/N-ATLaS",
+      choices: [
+        {
+          index: 0,
+          message: {
+            role: "assistant",
+            content: null,
+            tool_calls: [
+              {
+                id: "call_abc",
+                type: "function",
+                function: {
+                  name: "get_market_price",
+                  arguments: JSON.stringify({ item: "rice", market: "Mile 12" }),
+                },
+              },
+            ],
+          },
+          finish_reason: "tool_calls",
+        },
+      ],
+      usage: { prompt_tokens: 20, completion_tokens: 10, total_tokens: 30 },
+    };
+
+    let capturedBody: any = null;
+    const mockFetch = async (_url: any, init: any) => {
+      capturedBody = JSON.parse(init.body);
+      return new Response(JSON.stringify(mockToolResponse), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    };
+
+    const client = new NatlasClient({
+      baseURL: "https://example.com",
+      apiKey: "test-key",
+      fetch: mockFetch,
+    });
+
+    const res = await client.chat(
+      [{ role: "user", content: "How much is rice in Mile 12?" }],
+      {
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "get_market_price",
+              description: "Look up commodity price",
+              parameters: {
+                type: "object",
+                properties: { item: { type: "string" }, market: { type: "string" } },
+              },
+            },
+          },
+        ],
+        tool_choice: "auto",
+      }
+    );
+
+    expect(res.done_reason).toBe("tool_calls");
+    expect(res.message.content).toBeNull();
+    expect(res.message.tool_calls).toHaveLength(1);
+    expect(res.message.tool_calls![0].function.name).toBe("get_market_price");
+
+    // Check payload passed to backend
+    expect(capturedBody.tools).toHaveLength(1);
+    expect(capturedBody.tools[0].function.name).toBe("get_market_price");
+    expect(capturedBody.tool_choice).toBe("auto");
   });
 });

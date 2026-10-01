@@ -98,6 +98,29 @@ response = client.chat(
     max_tokens=256,
 )
 print(response.message.content)
+
+# 1b. Agentic Tool Calling (OpenAI Specification)
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_cbn_fx_rate",
+            "description": "Fetch official Central Bank of Nigeria exchange rate",
+            "parameters": {
+                "type": "object",
+                "properties": {"currency": {"type": "string"}},
+                "required": ["currency"],
+            },
+        },
+    }
+]
+tool_resp = client.chat(
+    [{"role": "user", "content": "How much is USD to Naira right now?"}],
+    tools=tools,
+    tool_choice="auto",
+)
+if tool_resp.done_reason == "tool_calls":
+    print("Tool invoked:", tool_resp.message.tool_calls[0].function.name)
 ```
 
 ### 2. Private On-Premises Server (Docker Compose + vLLM)

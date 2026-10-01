@@ -11,10 +11,34 @@ export type FinishReason = string | null;
 
 export type LanguageValue = "yoruba" | "hausa" | "igbo" | "nigerian_english";
 
+export interface FunctionCall {
+  name: string;
+  arguments: string;
+}
+
+export interface ToolCall {
+  id: string;
+  type: "function";
+  function: FunctionCall;
+}
+
+export interface FunctionDefinition {
+  name: string;
+  description?: string;
+  parameters?: Record<string, unknown>;
+}
+
+export interface ToolDefinition {
+  type: "function";
+  function: FunctionDefinition;
+}
+
 export interface Message {
   role: Role;
-  content: string;
+  content: string | null;
   name?: string;
+  tool_calls?: ToolCall[];
+  tool_call_id?: string;
   [key: string]: unknown;
 }
 
@@ -53,6 +77,8 @@ export interface SamplingOptions {
 
 export interface ChatOptions extends SamplingOptions {
   model?: string;
+  tools?: ToolDefinition[];
+  tool_choice?: string | Record<string, unknown>;
 }
 
 export interface GenerateOptions extends SamplingOptions {
@@ -62,6 +88,8 @@ export interface GenerateOptions extends SamplingOptions {
 export interface ChatRequest extends SamplingOptions {
   model: string;
   messages: Message[];
+  tools?: ToolDefinition[];
+  tool_choice?: string | Record<string, unknown>;
   stream?: boolean;
 }
 

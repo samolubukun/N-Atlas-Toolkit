@@ -77,7 +77,61 @@ For interactive web applications, stream responses token-by-token:
       { role: "user", content: "Kedu uru teknụzụ bara taa?" }
     ], { stream: true });
 
-    for await (const chunk of stream) {
-      process.stdout.write(chunk.message.content);
-    }
+---
+
+## 3. Agentic Tool Calling (Function Calling)
+
+N-ATLaS 8B supports structured tool definition and execution for autonomous agents:
+
+=== "Python"
+    ```python
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "lookup_food_price",
+                "description": "Find current retail food market prices in Nigerian cities",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "commodity": {"type": "string"},
+                        "city": {"type": "string"}
+                    },
+                    "required": ["commodity", "city"]
+                }
+            }
+        }
+    ]
+
+    response = client.chat([
+        {"role": "user", "content": "How much is a bag of rice in Kano today?"}
+    ], tools=tools)
+
+    if response.message.tool_calls:
+        print(response.message.tool_calls[0].function.arguments)
+    ```
+
+=== "TypeScript"
+    ```typescript
+    const response = await client.chat([
+      { role: "user", content: "How much is a bag of rice in Kano today?" }
+    ], {
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: "lookup_food_price",
+            description: "Find current retail food market prices in Nigerian cities",
+            parameters: {
+              type: "object",
+              properties: {
+                commodity: { type: "string" },
+                city: { type: "string" }
+              },
+              required: ["commodity", "city"]
+            }
+          }
+        }
+      ]
+    });
     ```

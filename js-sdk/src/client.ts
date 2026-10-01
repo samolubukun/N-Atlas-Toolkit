@@ -153,7 +153,9 @@ function parseChatResponse(data: unknown, fallbackModel: string): ChatResponse {
     created: typeof obj.created === "number" ? obj.created : Math.floor(Date.now() / 1000),
     message: {
       role: (msg.role as Message["role"]) ?? "assistant",
-      content: typeof msg.content === "string" ? msg.content : "",
+      content: typeof msg.content === "string" ? msg.content : (msg.content === null ? null : ""),
+      tool_calls: Array.isArray(msg.tool_calls) ? (msg.tool_calls as Message["tool_calls"]) : undefined,
+      tool_call_id: typeof msg.tool_call_id === "string" ? msg.tool_call_id : undefined,
     },
     done: true,
     done_reason: typeof choice.finish_reason === "string" ? choice.finish_reason : null,

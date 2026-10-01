@@ -492,6 +492,31 @@ data: {"id":"chat-123","choices":[{"delta":{"content":"like "}}]}
 data: {"id":"chat-123","choices":[{"delta":{"content":"ledger... "}}]}
 data: [DONE]
 \`\`\`
+
+### Tool Calling & Agentic Functions
+N-ATLaS 8B supports OpenAI-compatible function calling:
+
+\`\`\`json
+{
+  "model": "NCAIR1/N-ATLaS",
+  "messages": [{"role": "user", "content": "How much is USD in Naira?"}],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_cbn_fx_rate",
+        "description": "Fetch official Central Bank of Nigeria exchange rate",
+        "parameters": {
+          "type": "object",
+          "properties": {"currency": {"type": "string"}},
+          "required": ["currency"]
+        }
+      }
+    }
+  ],
+  "tool_choice": "auto"
+}
+\`\`\`
     `
   },
 

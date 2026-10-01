@@ -65,8 +65,44 @@ const result = await client.audio.transcriptions.create(audioBuffer, {
   timestamp_granularities: ["word"]
 });
 
-console.log("Transcript:", result.text);
-console.log("Words:", result.words);
+---
+
+## 3. Agentic Tool Calling (Function Calling)
+
+N-ATLaS 8B supports OpenAI-compatible tool calling for building autonomous agents:
+
+```typescript
+import { NatlasClient } from "natlas";
+
+const client = new NatlasClient();
+
+const tools = [
+  {
+    type: "function" as const,
+    function: {
+      name: "get_cbn_fx_rate",
+      description: "Fetch official Central Bank of Nigeria (CBN) FX rate for a currency pair.",
+      parameters: {
+        type: "object",
+        properties: {
+          pair: { type: "string", description: "Currency pair, e.g. USD/NGN, GBP/NGN" }
+        },
+        required: ["pair"]
+      }
+    }
+  }
+];
+
+const response = await client.chat([
+  { role: "user", content: "What is the official CBN rate for USD to NGN?" }
+], { tools });
+
+if (response.message.tool_calls) {
+  for (const call of response.message.tool_calls) {
+    console.log("Execute tool:", call.function.name);
+    console.log("Arguments:", call.function.arguments);
+  }
+}
 ```
 
 

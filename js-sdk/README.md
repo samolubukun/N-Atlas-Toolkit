@@ -98,7 +98,43 @@ async function transcribeDemo() {
 transcribeDemo();
 ```
 
-### 4. Language Detection & System Prompts
+### 4. Tool Calling & Agentic Function Execution
+
+```typescript
+import { NatlasClient } from "natlas";
+
+const client = new NatlasClient();
+
+const response = await client.chat(
+  [{ role: "user", content: "Check rice prices in Mile 12" }],
+  {
+    tools: [
+      {
+        type: "function",
+        function: {
+          name: "get_market_price",
+          description: "Get real-time commodity pricing across Nigerian markets",
+          parameters: {
+            type: "object",
+            properties: {
+              commodity: { type: "string" },
+              market: { type: "string" },
+            },
+            required: ["commodity"],
+          },
+        },
+      },
+    ],
+    tool_choice: "auto",
+  }
+);
+
+if (response.done_reason === "tool_calls") {
+  console.log("Tool Call:", response.message.tool_calls?.[0]);
+}
+```
+
+### 5. Language Detection & System Prompts
 
 ```typescript
 import { detectLanguage, systemPrompt } from "natlas";

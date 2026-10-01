@@ -80,3 +80,43 @@ messages = [
     {"role": "user", "content": phrase}
 ]
 ```
+
+---
+
+## 4. Agentic Tool Calling (Function Calling)
+
+N-ATLaS 8B supports OpenAI-compatible function calling for autonomous multi-turn agents and tool execution:
+
+```python
+import natlas
+
+client = natlas.Client()
+
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_cbn_fx_rate",
+            "description": "Fetch official Central Bank of Nigeria (CBN) foreign exchange rate for a currency pair.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "pair": {"type": "string", "description": "Currency pair, e.g. USD/NGN, GBP/NGN"}
+                },
+                "required": ["pair"]
+            }
+        }
+    }
+]
+
+messages = [
+    {"role": "user", "content": "What is the current official CBN exchange rate for USD to Naira?"}
+]
+
+response = client.chat(messages, tools=tools)
+
+if response.message.tool_calls:
+    for tool_call in response.message.tool_calls:
+        print(f"Tool to execute: {tool_call.function.name}")
+        print(f"Arguments: {tool_call.function.arguments}")
+```

@@ -200,10 +200,17 @@ def _chat_response(data: Any, fallback_model: str) -> ChatResponse:
     if not isinstance(model, str):
         raise APIResponseValidationError("Hosted chat model must be text")
     try:
+        msg_kwargs: dict[str, Any] = {
+            "role": message.get("role", "assistant"),
+            "content": content if content != "" else message.get("content"),
+            "name": message.get("name"),
+            "tool_calls": message.get("tool_calls"),
+            "tool_call_id": message.get("tool_call_id"),
+        }
         return ChatResponse(
             model=model,
             created=_created(data),
-            message=Message(role=message.get("role", "assistant"), content=content),
+            message=Message.model_validate(msg_kwargs),
             done=True,
             done_reason=choice.get("finish_reason"),
             usage=_usage(data.get("usage")),

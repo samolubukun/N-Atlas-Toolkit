@@ -32,7 +32,7 @@ The engine is deployed, live, and fully operational on Modal:
 | :--- | :--- | :--- | :--- | :--- |
 | `GET` | `/healthz` | Both | Container health, active GPU, and engine state | *None (Public)* |
 | `GET` | `/v1/models` | LLM | OpenAI-compatible model catalog discovery | `Bearer <API_KEY>` |
-| `POST` | `/v1/chat/completions` | LLM | Standard OpenAI chat (supports SSE streaming with `stream=true`) | `Bearer <API_KEY>` |
+| `POST` | `/v1/chat/completions` | LLM | Standard OpenAI chat (supports SSE streaming, tools, and function calling) | `Bearer <API_KEY>` |
 | `POST` | `/v1/completions` | LLM | Raw prompt text completion | `Bearer <API_KEY>` |
 | `POST` | `/v1/translate` | LLM | Direct African language translation (Hausa/Igbo/Yoruba/Pidgin/English) | `Bearer <API_KEY>` |
 | `POST` | `/v1/africanize` | LLM | Cultural tone adapter for Nigerian cultural contexts | `Bearer <API_KEY>` |
@@ -76,6 +76,29 @@ stream = client.chat.completions.create(
 )
 for chunk in stream:
     print(chunk.choices[0].delta.content or "", end="", flush=True)
+
+# 3. Agentic Tool Calling (OpenAI Spec)
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_fx_rate",
+            "description": "Fetch official Central Bank of Nigeria (CBN) exchange rates",
+            "parameters": {
+                "type": "object",
+                "properties": {"currency": {"type": "string"}},
+                "required": ["currency"],
+            },
+        },
+    }
+]
+tool_resp = client.chat.completions.create(
+    model="NCAIR1/N-ATLaS",
+    messages=[{"role": "user", "content": "How much is 100 USD in Naira right now?"}],
+    tools=tools,
+    tool_choice="auto",
+)
+print(tool_resp.choices[0].message.tool_calls)
 ```
 
 ---
