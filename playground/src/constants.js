@@ -5,6 +5,10 @@ export const DEFAULT_ENDPOINTS = {
   apiKey: import.meta.env.VITE_NATLAS_API_KEY || import.meta.env.NATLAS_API_KEY || "",
 };
 
+// Returns true when the playground has the minimum config to make API calls
+export const isConfigured = () =>
+  Boolean(DEFAULT_ENDPOINTS.llmUrl && DEFAULT_ENDPOINTS.apiKey);
+
 
 
 // 4 Pretrained Sovereign ASR Models

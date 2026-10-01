@@ -17,6 +17,7 @@ import { ASRStudio } from './ASRStudio';
 import { ChatStream } from './ChatStream';
 import { Africanize } from './Africanize';
 import { Translate } from './Translate';
+import { isConfigured } from '../constants';
 
 const studios = [
   {
@@ -63,7 +64,26 @@ export const PlaygroundView = ({ activeStudio = 'chat', onStudioChange, onBackTo
   const Icon = current.icon;
 
   return (
-    <div className="flex flex-col md:flex-row gap-5 min-h-[calc(100vh-120px)]">
+    <div className="flex flex-col gap-4 md:gap-5">
+
+      {/* Config warning banner — shown when env vars are unset */}
+      {!isConfigured() && (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-300 text-amber-800 px-4 py-3 rounded-xl text-sm">
+          <span className="text-lg leading-none mt-0.5">⚠️</span>
+          <div>
+            <p className="font-semibold">API endpoints not configured</p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              Copy <code className="font-mono bg-amber-100 px-1 rounded">playground/.env.example</code> to{' '}
+              <code className="font-mono bg-amber-100 px-1 rounded">playground/.env</code> and set{' '}
+              <code className="font-mono bg-amber-100 px-1 rounded">VITE_NATLAS_API_URL</code>,{' '}
+              <code className="font-mono bg-amber-100 px-1 rounded">VITE_NATLAS_ASR_URL</code>, and{' '}
+              <code className="font-mono bg-amber-100 px-1 rounded">VITE_NATLAS_API_KEY</code>.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col md:flex-row gap-5 min-h-[calc(100vh-120px)]">
 
       {/* Mobile overlay */}
       {mobileOpen && (
@@ -208,6 +228,7 @@ export const PlaygroundView = ({ activeStudio = 'chat', onStudioChange, onBackTo
           {activeStudio === 'translate'  && <Translate />}
         </div>
       </section>
+    </div>
     </div>
   );
 };

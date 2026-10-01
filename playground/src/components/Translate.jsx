@@ -4,18 +4,18 @@ import { DEFAULT_ENDPOINTS } from '../constants';
 
 export const Translate = () => {
   const [sourceText, setSourceText] = useState('Welcome to Nigeria. We hope you enjoy our culture, food, and hospitality.');
-  const [targetLang, setTargetLang] = useState('yoruba');
-  const [sourceLang, setSourceLang] = useState('english');
+  const [targetLang, setTargetLang] = useState('Yoruba');
+  const [sourceLang, setSourceLang] = useState('English');
   const [translatedText, setTranslatedText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const languages = [
-    { id: 'english', name: 'English' },
-    { id: 'yoruba', name: 'Yorùbá' },
-    { id: 'hausa', name: 'Hausa' },
-    { id: 'igbo', name: 'Asụsụ Igbo' },
-    { id: 'pidgin', name: 'Nigerian Pidgin' },
+    { id: 'English', name: 'English' },
+    { id: 'Yoruba', name: 'Yorùbá' },
+    { id: 'Hausa', name: 'Hausa' },
+    { id: 'Igbo', name: 'Asụsụ Igbo' },
+    { id: 'Nigerian Pidgin', name: 'Nigerian Pidgin' },
   ];
 
   const handleTranslate = async () => {
