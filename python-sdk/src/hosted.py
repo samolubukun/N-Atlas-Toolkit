@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from collections.abc import AsyncIterator, Callable, Iterator
 from typing import Any, TypeVar, cast
 from urllib.parse import urlsplit, urlunsplit
@@ -355,8 +356,6 @@ def _generate_chunk(event: dict[str, Any], fallback_model: str) -> GenerateRespo
 # ---------------------------------------------------------------------------
 # Retry helpers: back off on Modal cold-start 503s and rate-limit 429s
 # ---------------------------------------------------------------------------
-import time as _time
-
 _RETRYABLE_STATUS = frozenset({429, 502, 503})
 _RETRY_DELAYS = (2.0, 6.0, 18.0)   # 3 attempts: 2 s, 6 s, 18 s total
 
@@ -366,7 +365,7 @@ def _post_with_retry(http: httpx.Client, url: str, **kwargs: Any) -> httpx.Respo
     resp: httpx.Response | None = None
     for delay in (None, *_RETRY_DELAYS):
         if delay is not None:
-            _time.sleep(delay)
+            time.sleep(delay)
         resp = http.post(url, **kwargs)
         if resp.status_code not in _RETRYABLE_STATUS:
             return resp
