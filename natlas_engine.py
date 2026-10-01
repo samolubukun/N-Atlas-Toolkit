@@ -419,6 +419,11 @@ class NATLaSAPI:
             culture_context: Literal["Nigerian-General", "Yoruba", "Hausa-Fulani", "Igbo-Eastern", "Lagos-Urban"]
             formality: Optional[str] = "natural"
 
+        class EmbeddingRequest(BaseModel):
+            model: str = Field(default="NCAIR1/N-ATLaS")
+            input: Union[str, List[str]]
+            encoding_format: Optional[Literal["float", "base64"]] = "float"
+
         # -------------------------------------------------------------------
         # Health & Model Discovery
         # -------------------------------------------------------------------
@@ -445,7 +450,7 @@ class NATLaSAPI:
                         "owned_by": "Awarri / NCAIR / NITDA",
                         "root": "Llama-3-8B",
                         "languages": ["English", "Hausa", "Igbo", "Yoruba", "Pidgin"],
-                        "context_window": 8092,
+                        "context_window": 8192,
                     },
                     {
                         "id": "natlas-8b",
@@ -453,7 +458,7 @@ class NATLaSAPI:
                         "created": 1726000000,
                         "owned_by": "Awarri / NCAIR / NITDA",
                         "root": "NCAIR1/N-ATLaS",
-                        "context_window": 8092,
+                        "context_window": 8192,
                     },
                 ],
             }
@@ -812,6 +817,64 @@ class NATLaSAPI:
             }
 
         # -------------------------------------------------------------------
+        # OpenAI-Compatible Embeddings /v1/embeddings
+        # Mean-pools the last hidden state of Llama-3 for semantic vectors.
+        # -------------------------------------------------------------------
+        @web_app.post("/v1/embeddings")
+        async def create_embeddings(req: EmbeddingRequest, auth=Depends(verify_api_key)):
+            """OpenAI-compatible embeddings endpoint (mean-pooled Llama-3 hidden states)."""
+            import torch
+
+            texts = [req.input] if isinstance(req.input, str) else list(req.input)
+            embeddings_out = []
+            total_prompt_tokens = 0
+
+            for i, text in enumerate(texts):
+                inputs = self.tokenizer(
+                    text,
+                    return_tensors="pt",
+                    truncation=True,
+                    max_length=512,
+                )
+                total_prompt_tokens += int(inputs["input_ids"].shape[-1])
+
+                if not hasattr(self, "_embed_model"):
+                    # Lazy-load a lightweight AutoModel for hidden states (shares weights with main model)
+                    from transformers import AutoModel
+                    logger.info("[N-ATLaS Embeddings] Loading hidden-state model for embeddings...")
+                    self._embed_model = AutoModel.from_pretrained(
+                        self.model_dir,
+                        torch_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
+                        device_map="auto",
+                    ).eval()
+
+                device = next(self._embed_model.parameters()).device
+                with torch.no_grad():
+                    out = self._embed_model(
+                        **{k: v.to(device) for k, v in inputs.items()},
+                        output_hidden_states=True,
+                    )
+                    # Mean-pool the last hidden layer over sequence dimension
+                    hidden = out.hidden_states[-1]  # [1, seq_len, dim]
+                    vec = hidden.mean(dim=1).squeeze(0).float().tolist()
+
+                embeddings_out.append({
+                    "object": "embedding",
+                    "index": i,
+                    "embedding": vec,
+                })
+
+            return {
+                "object": "list",
+                "data": embeddings_out,
+                "model": req.model,
+                "usage": {
+                    "prompt_tokens": total_prompt_tokens,
+                    "total_tokens": total_prompt_tokens,
+                },
+            }
+
+        # -------------------------------------------------------------------
         # High-Value Nigerian Domain Endpoints (Translators & Adapters)
         # -------------------------------------------------------------------
         @web_app.post("/v1/translate")
@@ -911,9 +974,11 @@ class NATLaSAPI:
         @web_app.websocket("/ws/realtime")
         async def websocket_realtime_endpoint(websocket: WebSocket):
             """Realtime conversational WebSocket for low-latency streaming interactions."""
-            try:
-                verify_api_key(websocket.headers.get("authorization"))
-            except HTTPException:
+            # Raw HMAC check — HTTPException inside a WS handler bypasses FastAPI middleware
+            _expected = os.environ.get("NATLAS_API_KEY", "")
+            _auth_raw = websocket.headers.get("authorization", "")
+            _token = _auth_raw[7:].strip() if _auth_raw.lower().startswith("bearer ") else _auth_raw.strip()
+            if not _expected or not hmac.compare_digest(_token, _expected):
                 await websocket.close(code=1008, reason="Unauthorized")
                 return
             if not self.use_vllm:
@@ -1008,7 +1073,18 @@ class NATLaSAPI:
                     final_output = output
                 return final_output.outputs[0].text if final_output else ""
 
-            return asyncio.run(_run())
+            try:
+                _loop = asyncio.get_running_loop()
+            except RuntimeError:
+                _loop = None
+
+            if _loop and _loop.is_running():
+                # Already inside a running event loop — run in a dedicated thread
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as _pool:
+                    return _pool.submit(asyncio.run, _run()).result()
+            else:
+                return asyncio.run(_run())
         else:
             inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
             outputs = self.model.generate(
