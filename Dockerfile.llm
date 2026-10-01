@@ -12,20 +12,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install PyTorch & Transformers with CPU optimization
+# Install PyTorch & Transformers with CPU optimization (pinned to match Modal image)
 RUN pip install --no-cache-dir \
     "typing-extensions>=4.12.0" \
-    torch \
-    transformers \
-    accelerate \
-    sentencepiece \
-    protobuf \
-    fastapi \
-    uvicorn \
-    pydantic \
-    python-multipart \
-    websockets \
-    huggingface_hub
+    "torch==2.4.0" \
+    "transformers==4.45.2" \
+    "accelerate>=0.34.0" \
+    "sentencepiece>=0.2.0" \
+    "protobuf" \
+    "safetensors>=0.4.5" \
+    "fastapi[standard]>=0.115.0" \
+    "uvicorn[standard]>=0.30.0" \
+    "pydantic>=2.8.0" \
+    "python-multipart>=0.0.12" \
+    "websockets>=13.0" \
+    "huggingface_hub>=0.28.0" \
+    "hf-transfer>=0.1.8" \
+    "numpy>=1.26.0"
 
 # Copy Python SDK and install
 COPY python-sdk /app/python-sdk

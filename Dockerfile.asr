@@ -13,20 +13,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install PyTorch & core ASR + FastAPI dependencies
+# Install PyTorch & core ASR + FastAPI dependencies (pinned to match Modal image)
 RUN pip install --no-cache-dir \
     "typing-extensions>=4.12.0" \
-    torch \
-    torchaudio \
-    transformers \
-    accelerate \
-    librosa \
-    soundfile \
-    fastapi \
-    uvicorn \
-    pydantic \
-    python-multipart \
-    websockets
+    "torch==2.4.0" \
+    "torchaudio==2.4.0" \
+    "transformers==4.46.0" \
+    "accelerate>=0.34.0" \
+    "librosa>=0.10.0" \
+    "soundfile>=0.12.1" \
+    "fastapi[standard]>=0.115.0" \
+    "uvicorn[standard]>=0.30.0" \
+    "pydantic>=2.8.0" \
+    "python-multipart>=0.0.12" \
+    "websockets>=13.0" \
+    "huggingface_hub>=0.28.0" \
+    "hf-transfer>=0.1.8" \
+    "sentencepiece>=0.2.0" \
+    "numpy>=1.26.0" \
+    "scipy>=1.11.0"
 
 # Copy SDK and install
 COPY python-sdk /app/python-sdk
