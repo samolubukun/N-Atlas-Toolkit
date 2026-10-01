@@ -160,9 +160,9 @@ export const LandingPage = ({ onSelectStudio }) => {
       body: "OpenAI-compatible /v1/audio/transcriptions endpoint with word-level timestamps and duration metadata, ready for instant integration.",
     },
     {
-      icon: Database,
-      title: "Sourced from all six zones",
-      body: "Training data collected via Langeasy with speakers from every Nigerian geopolitical zone. The models don't just know one accent.",
+      icon: Workflow,
+      title: "Full-Stack Developer SDKs",
+      body: "Official Python and TypeScript SDKs with interactive CLI tools, streaming async iterators, exponential backoff retries, and full type safety.",
     },
     {
       icon: ShieldCheck,
