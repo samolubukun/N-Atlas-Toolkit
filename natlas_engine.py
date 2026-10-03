@@ -10,15 +10,9 @@ Engineering & Performance Specifications:
 - Standard OpenAI-Compliant HTTP Endpoints:
     * POST /v1/chat/completions (Full & Server-Sent Events / SSE Streaming)
     * POST /v1/completions
-    * POST /v1/embeddings
     * GET  /v1/models
     * GET  /healthz
     * GET  /benchmark
-- Native Nigerian Language Helper Endpoints:
-    * POST /v1/translate (English <-> Hausa/Igbo/Yoruba/Pidgin)
-    * POST /v1/africanize (Nigerian Cultural Tone Adapting)
-- Real-Time Bidirectional Voice WebSocket:
-    * /ws/realtime (Integrated Speech-to-N-ATLaS-to-Speech loop with low-latency turn-taking)
 - GPU Acceleration: NVIDIA A10G (24GB VRAM) / L40S / A100-40GB / A100-80GB
 - Volume Caching: Dedicated Modal Volume for instant sub-second coldstarts without re-downloading 16GB weights
 - Scale-to-Zero: 300s keep-warm idle timeout (economic, ultra-cost-efficient)
@@ -406,7 +400,7 @@ class NATLaSAPI:
 
     @modal.asgi_app()
     def serve(self):
-        """Standard FastAPI app serving OpenAI-compatible Chat, Completions, Streaming, Tools & Realtime Endpoints."""
+        """Standard FastAPI app serving OpenAI-compatible Chat, Completions, and Streaming Endpoints."""
         import uuid
         from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Response, UploadFile, WebSocket, WebSocketDisconnect
         from fastapi.middleware.cors import CORSMiddleware
@@ -521,21 +515,7 @@ class NATLaSAPI:
             )
             stop: Optional[Union[str, List[str]]] = None
 
-        class TranslateRequest(BaseModel):
-            text: str
-            source_lang: Optional[str] = "Auto-detect"
-            target_lang: Literal["Hausa", "Igbo", "Yoruba", "English", "Nigerian Pidgin"] = "Hausa"
-            tone: Optional[Literal["formal", "casual", "poetic", "scholarly"]] = "casual"
 
-        class CulturalAdapterRequest(BaseModel):
-            content: str
-            culture_context: Literal["Nigerian-General", "Yoruba", "Hausa-Fulani", "Igbo-Eastern", "Lagos-Urban"]
-            formality: Optional[str] = "natural"
-
-        class EmbeddingRequest(BaseModel):
-            model: str = Field(default="NCAIR1/N-ATLaS")
-            input: Union[str, List[str]]
-            encoding_format: Optional[Literal["float", "base64"]] = "float"
 
         # -------------------------------------------------------------------
         # Health & Model Discovery
@@ -944,117 +924,7 @@ class NATLaSAPI:
                 },
             }
 
-        # -------------------------------------------------------------------
-        # OpenAI-Compatible Embeddings /v1/embeddings
-        # Mean-pools the last hidden state of Llama-3 for semantic vectors.
-        # -------------------------------------------------------------------
-        @web_app.post("/v1/embeddings")
-        async def create_embeddings(req: EmbeddingRequest, auth=Depends(verify_api_key)):
-            """OpenAI-compatible embeddings endpoint (mean-pooled Llama-3 hidden states)."""
-            import torch
 
-            texts = [req.input] if isinstance(req.input, str) else list(req.input)
-            embeddings_out = []
-            total_prompt_tokens = 0
-
-            for i, text in enumerate(texts):
-                inputs = self.tokenizer(
-                    text,
-                    return_tensors="pt",
-                    truncation=True,
-                    max_length=512,
-                )
-                total_prompt_tokens += int(inputs["input_ids"].shape[-1])
-
-                if not hasattr(self, "_embed_model"):
-                    # Lazy-load a lightweight AutoModel for hidden states (shares weights with main model)
-                    from transformers import AutoModel
-                    logger.info("[N-ATLaS Embeddings] Loading hidden-state model for embeddings...")
-                    self._embed_model = AutoModel.from_pretrained(
-                        self.model_dir,
-                        torch_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
-                        device_map="auto",
-                    ).eval()
-
-                device = next(self._embed_model.parameters()).device
-                with torch.no_grad():
-                    out = self._embed_model(
-                        **{k: v.to(device) for k, v in inputs.items()},
-                        output_hidden_states=True,
-                    )
-                    # Mean-pool the last hidden layer over sequence dimension
-                    hidden = out.hidden_states[-1]  # [1, seq_len, dim]
-                    vec = hidden.mean(dim=1).squeeze(0).float().tolist()
-
-                embeddings_out.append({
-                    "object": "embedding",
-                    "index": i,
-                    "embedding": vec,
-                })
-
-            return {
-                "object": "list",
-                "data": embeddings_out,
-                "model": req.model,
-                "usage": {
-                    "prompt_tokens": total_prompt_tokens,
-                    "total_tokens": total_prompt_tokens,
-                },
-            }
-
-        # -------------------------------------------------------------------
-        # High-Value Nigerian Domain Endpoints (Translators & Adapters)
-        # -------------------------------------------------------------------
-        @web_app.post("/v1/translate")
-        async def translate_text(req: TranslateRequest, auth=Depends(verify_api_key)):
-            """Direct, highly accurate African Language Translation powered by N-ATLaS."""
-            source_lang = req.source_lang or "the auto-detected source language"
-            tone = req.tone or "natural"
-            system_prompt = (
-                f"You are an expert native linguist in African languages. "
-                f"Translate the provided text directly and accurately from {source_lang} into {req.target_lang}. "
-                f"Maintain the nuances, cultural idioms, and a {tone} tone. Return ONLY the translated text without extra explanation."
-            )
-            chat_payload = ChatCompletionRequest(
-                messages=[
-                    ChatMessage(role="system", content=system_prompt),
-                    ChatMessage(role="user", content=req.text),
-                ],
-                temperature=0.1,  # Low temperature for deterministic translation accuracy
-                max_tokens=1024,
-            )
-            res = await chat_completions(chat_payload, auth=auth)
-            translated = res["choices"][0]["message"]["content"]
-            return {
-                "source_text": req.text,
-                "target_lang": req.target_lang,
-                "translation": translated,
-                "model": MODEL_ID,
-            }
-
-        @web_app.post("/v1/africanize")
-        async def africanize_text(req: CulturalAdapterRequest, auth=Depends(verify_api_key)):
-            """Adapt and localize modern English text with culturally rich African idioms and tone."""
-            formality = req.formality or "natural"
-            system_prompt = (
-                f"You are a cultural communications specialist in Nigerian expressions. "
-                f"Adapt the following text to resonate naturally with a {req.culture_context} audience. "
-                f"Use authentic expressions, respectful proverbs, or contemporary conversational vernacular where appropriate ({formality} formality)."
-            )
-            chat_payload = ChatCompletionRequest(
-                messages=[
-                    ChatMessage(role="system", content=system_prompt),
-                    ChatMessage(role="user", content=req.content),
-                ],
-                temperature=0.7,
-                max_tokens=1024,
-            )
-            res = await chat_completions(chat_payload, auth=auth)
-            return {
-                "original": req.content,
-                "context": req.culture_context,
-                "adapted_text": res["choices"][0]["message"]["content"],
-            }
 
         # -------------------------------------------------------------------
         # Sovereign Speech-to-Text ASR Gateway (/v1/audio/transcriptions)
@@ -1097,80 +967,6 @@ class NATLaSAPI:
             })
 
         # -------------------------------------------------------------------
-        # Real-time WebSocket Protocol (/ws/realtime)
-        # -------------------------------------------------------------------
-        @web_app.websocket("/ws/realtime")
-        async def websocket_realtime_endpoint(websocket: WebSocket):
-            """Realtime conversational WebSocket for low-latency streaming interactions."""
-            # Raw HMAC check — HTTPException inside a WS handler bypasses FastAPI middleware
-            _expected = os.environ.get("NATLAS_API_KEY", "")
-            _auth_raw = websocket.headers.get("authorization", "")
-            _token = _auth_raw[7:].strip() if _auth_raw.lower().startswith("bearer ") else _auth_raw.strip()
-            if not _expected or not hmac.compare_digest(_token, _expected):
-                await websocket.close(code=1008, reason="Unauthorized")
-                return
-            if not self.use_vllm:
-                await websocket.close(code=1013, reason="vLLM backend required")
-                return
-            await websocket.accept()
-            logger.info("[NATLaS WebSocket] Client connected to real-time endpoint.")
-            session_history: List[Dict[str, str]] = []
-
-            try:
-                while True:
-                    data = await websocket.receive_text()
-                    msg = json.loads(data)
-                    msg_type = msg.get("type")
-
-                    if msg_type == "ping":
-                        await websocket.send_text(json.dumps({"type": "pong", "time": time.time()}))
-                        continue
-
-                    if msg_type == "conversation.item.create":
-                        user_content = msg.get("item", {}).get("content", "")
-                        session_history.append({"role": "user", "content": user_content})
-
-                        # Trigger response streaming
-                        prompt = self.format_chat_prompt(session_history)
-                        request_id = f"ws-{uuid.uuid4().hex[:8]}"
-
-                        await websocket.send_text(json.dumps({
-                            "type": "response.created",
-                            "response": {"id": request_id, "status": "in_progress"}
-                        }))
-
-                        if self.use_vllm:
-                            from vllm import SamplingParams
-                            sampling_params = SamplingParams(
-                                temperature=0.7,
-                                max_tokens=300,
-                                stop=["<|eot_id|>", "<|end_of_text|>"],
-                            )
-                            results_generator = self.vllm_engine.generate(prompt, sampling_params, request_id)
-                            accumulated = ""
-                            last_len = 0
-                            async for request_output in results_generator:
-                                full_current = request_output.outputs[0].text
-                                delta = full_current[last_len:]
-                                last_len = len(full_current)
-                                accumulated = full_current
-
-                                await websocket.send_text(json.dumps({
-                                    "type": "response.audio_transcript.delta",
-                                    "delta": delta,
-                                }))
-
-                            session_history.append({"role": "assistant", "content": accumulated})
-                            await websocket.send_text(json.dumps({
-                                "type": "response.done",
-                                "response": {"output": accumulated}
-                            }))
-
-            except WebSocketDisconnect:
-                logger.info("[NATLaS WebSocket] Client disconnected cleanly.")
-            except Exception as e:
-                logger.error(f"[NATLaS WebSocket] Error: {e}", exc_info=True)
-
         return web_app
 
     @modal.method()

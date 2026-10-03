@@ -51,7 +51,7 @@ services:
       - ./:/app
 
   # ---------------------------------------------------------------------------
-  # 3. SOVEREIGN ASR ENGINE (Speech-to-Text & Realtime Streaming)
+  # 3. SOVEREIGN ASR ENGINE (Speech-to-Text)
   # Automatically downloads & serves Nigerian Whisper models on CPU
   # ---------------------------------------------------------------------------
   natlas-asr:

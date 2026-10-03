@@ -51,7 +51,7 @@ services:
       --api-key ${NATLAS_API_KEY:-natlas-super-secret-key-2026}
 
   # =========================================================================
-  # 3. SOVEREIGN ASR ENGINE (Speech-to-Text & Realtime Streaming)
+  # 3. SOVEREIGN ASR ENGINE (Speech-to-Text)
   # Serves official Nigerian Whisper models directly from natlas_engine.py
   # =========================================================================
   natlas-asr:

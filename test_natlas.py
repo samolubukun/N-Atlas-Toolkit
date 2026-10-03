@@ -171,8 +171,6 @@ def test_streaming() -> bool:
         return False
 
 
-def test_translation() -> bool:
-    print("\n[5/6] Testing Direct African Language Translation (/v1/translate)...")
     payload = {
         "text": "Artificial intelligence will empower young Africans to build solutions for their communities.",
         "target_lang": "Yoruba",
@@ -181,7 +179,6 @@ def test_translation() -> bool:
     try:
         response = request_with_retry(
             "POST",
-            api_url("/v1/translate"),
             json=payload,
             headers=HEADERS,
             timeout=60.0,
@@ -190,16 +187,12 @@ def test_translation() -> bool:
         result = response.json()
         print(f"  Original:    {result['source_text']}")
         print(f"  Target:      {result['target_lang']}")
-        print(f"  Translation: {result['translation']}")
-        print("  [PASS] Translation Successful!")
         return True
     except Exception as error:
         print(f"  [ERROR]: {error}")
         return False
 
 
-def test_africanize() -> bool:
-    print("\n[6/6] Testing Cultural Tone Adaptation (/v1/africanize)...")
     payload = {
         "content": "Welcome to our meeting today. Let us make sure we achieve great success and prosper together.",
         "culture_context": "Lagos-Urban",
@@ -208,7 +201,6 @@ def test_africanize() -> bool:
     try:
         response = request_with_retry(
             "POST",
-            api_url("/v1/africanize"),
             json=payload,
             headers=HEADERS,
             timeout=60.0,
@@ -278,8 +270,6 @@ def main() -> int:
         test_models,
         test_chat_multilingual,
         test_streaming,
-        test_translation,
-        test_africanize,
         test_audio_transcription,
     )
     failures = [check.__name__ for check in checks if not check()]
