@@ -97,8 +97,8 @@ jobs:
 
       - name: Install MkDocs Dependencies
         run: |
-          pip install mkdocs mkdocs-material mkdocstrings[python] pymdown-extensions
-          pip install -e ./python-sdk
+          pip install mkdocs mkdocs-material "mkdocstrings[python]" pymdown-extensions
+          pip install ./python-sdk
 
       - name: Verify Documentation Build (Strict)
         run: |
