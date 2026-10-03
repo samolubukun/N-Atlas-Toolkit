@@ -22,6 +22,7 @@ The engine is deployed, live, and fully operational on Modal:
 ### Deployment Architecture & Base URLs
 
 - **Modal Cloud Deployment (2 Dedicated Microservices)**:
+  - **LLM Engine**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run` (Chat Completions, Models Catalog)
   - **Sovereign ASR Engine**: `https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run` (Full-Context Speech-to-Text & Word Alignment)
 - **Local / On-Premise Docker Gateway (100% Unified)**:
   - `http://localhost:8000` (Nginx gateway unified reverse-proxying both LLM and ASR)
@@ -46,7 +47,7 @@ from openai import OpenAI
 
 # Initialize client pointing to your live Modal endpoint
 client = OpenAI(
-    base_url="https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run/v1",
+    base_url=os.environ.get("NATLAS_BASE_URL", "https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1"),
     api_key=os.environ.get("NATLAS_API_KEY", "<YOUR_NATLAS_API_KEY>"),
 )
 
@@ -98,33 +99,27 @@ print(tool_resp.choices[0].message.tool_calls)
 
 ---
 
-## 🌍 Native African Domain Endpoints
+## 🌍 Multilingual Prompting & Translation via Chat
+
+Perform culturally aligned translations or localized tasks using direct prompting with N-ATLaS chat completions:
 
 ```bash
+curl -X POST "https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1/chat/completions" \
   -H "Authorization: Bearer $NATLAS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "text": "Education is the most powerful tool which you can use to change the world.",
-    "target_lang": "Yoruba",
-    "tone": "formal"
-  }'
-```
-**Output:**
-```json
-{
-  "source_text": "Education is the most powerful tool which you can use to change the world.",
-  "target_lang": "Yoruba",
-  "model": "NCAIR1/N-ATLaS"
-}
-```
-
-```bash
-  -H "Authorization: Bearer $NATLAS_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content": "We must work hard and remain resilient in order to achieve our dreams.",
-    "culture_context": "Lagos-Urban",
-    "formality": "natural"
+    "model": "NCAIR1/N-ATLaS",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a professional Yoruba translator. Translate English text accurately with proper tone and diacritics."
+      },
+      {
+        "role": "user",
+        "content": "Translate to Yoruba: Education is the most powerful tool which you can use to change the world."
+      }
+    ],
+    "temperature": 0.3
   }'
 ```
 
@@ -172,7 +167,11 @@ print(transcription.text)
 The repository includes ready-to-run verification scripts and audio samples covering all 4 Nigerian languages:
 
 ```bash
-# Batch Transcription Benchmark Test (evaluates accuracy against ground truth)
+# 1. Real-World E2E Integration Tests (Full Stack: Chat, Streaming, ASR, Agent Tools)
+python tests/e2e_python.py
+node tests/e2e_js.mjs
+
+# 2. Batch ASR Transcription Benchmark (evaluates accuracy against ground truth)
 python tests/test_asr_samples.py
 ```
 
@@ -254,8 +253,9 @@ print(response.message.content)
 
 ## Repository File Structure
 
-- **[`python-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/python-sdk)**: Production-grade typed Python SDK with full CLI (`natlas chat`, `natlas transcribe`, `natlas eval`).
-- **[`js-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/js-sdk)**: Universal typed TypeScript & JavaScript SDK with executable Node CLI (`npx natlas`) and SSE / WebSocket streaming.
+- **[`python-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/python-sdk)**: Production-grade typed Python SDK with full CLI (`natlas chat`, `natlas transcribe`, `natlas eval`), built-in zero-auth agent tools, and MCP stdio server.
+- **[`js-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/js-sdk)**: Universal typed TypeScript & JavaScript SDK with executable Node CLI (`npx natlas`), SSE / WebSocket streaming, and built-in agent tools.
+- **[`tests/`](file:///c:/Users/USER/Downloads/natlas-toolkit/tests)**: End-to-end integration and verification suites (`e2e_python.py`, `e2e_js.mjs`, `test_asr_samples.py`) and sovereign multilingual audio fixtures.
 - **[`scripts/`](file:///c:/Users/USER/Downloads/natlas-toolkit/scripts)**: Reproducible testing and benchmarking suite measuring WER/CER, TTFT, throughput (tok/s), and latency.
 - **[`docs/`](file:///c:/Users/USER/Downloads/natlas-toolkit/docs) & [`mkdocs.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/mkdocs.yml)**: Developer documentation site with auto-generated API reference and trilingual guides (Yoruba, Hausa, Igbo).
 - **[`.github/workflows/`](file:///c:/Users/USER/Downloads/natlas-toolkit/.github/workflows)**: Automated CI workflow testing Python SDK (matrix 3.10-3.12), JS SDK (matrix 18-22), and documentation builds.
