@@ -90,7 +90,8 @@ export function resolveASRURL(asrURL?: string, fallbackBaseURL?: string): string
     if (fallbackBaseURL) {
       try {
         const _fb = new URL(fallbackBaseURL);
-        if (["localhost", "127.0.0.1", "[::1]"].includes(_fb.hostname)) {
+        // NOTE: new URL().hostname strips brackets from IPv6 literals, so ::1 not [::1]
+        if (["localhost", "127.0.0.1", "::1"].includes(_fb.hostname)) {
           // On-premises unified Nginx gateway (e.g. localhost:8000)
           return fallbackBaseURL;
         }
@@ -291,6 +292,14 @@ export class Audio {
     /**
      * Connect to the real-time Deepgram-style streaming ASR WebSocket endpoint.
      * Streams raw audio chunks (PCM 16kHz 16-bit mono) and receives live transcripts.
+     *
+     * Attach .on('open'|'transcript'|'error'|'close') listeners BEFORE calling
+     * session.connect() to avoid missing events.
+     *
+     * @example
+     * const session = client.audio.transcriptions.live({ language: 'yo' });
+     * session.on('transcript', (e) => console.log(e));
+     * session.connect();
      */
     live: (options: LiveTranscriptionOptions = {}): LiveTranscriptionSession => {
       return new LiveTranscriptionSession(this.client, options);
@@ -322,11 +331,12 @@ export class LiveTranscriptionSession {
     if (options.onTranscript) this.listeners.transcript.push(options.onTranscript);
     if (options.onError) this.listeners.error.push(options.onError);
     if (options.onClose) this.listeners.close.push(options.onClose);
-
-    this.connect();
+    // NOTE: connect() is NOT called here so callers can attach on() listeners
+    // before the socket opens. Call session.connect() (or use Audio.live() which
+    // does it automatically) after attaching all event listeners.
   }
 
-  private connect(): void {
+  public connect(): void {
     const rawAsrUrl = this.client.asrBaseURL;
     const wsProto = rawAsrUrl.startsWith("https://") ? "wss://" : "ws://";
     const hostAndPath = rawAsrUrl.replace(/^https?:\/\//, "").replace(/\/+$/, "");
@@ -567,6 +577,9 @@ export class NatlasClient {
     headers.set("Content-Type", "application/json");
     headers.set("Accept", "text/event-stream");
 
+    // The AbortController + timeout remain active for the full stream lifetime
+    // (headers + body). clearTimeout is intentionally deferred to the stream
+    // consumer via the cancel function returned alongside the body.
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
@@ -579,6 +592,7 @@ export class NatlasClient {
       });
 
       if (!response.ok) {
+        clearTimeout(timeoutId);
         const text = await response.text();
         throw new APIStatusError(`Streaming failed with status ${response.status}: ${text}`, {
           statusCode: response.status,
@@ -589,11 +603,18 @@ export class NatlasClient {
       }
 
       if (!response.body) {
+        clearTimeout(timeoutId);
         throw new StreamProtocolError("Response body is null");
       }
 
-      return response.body as ReadableStream<Uint8Array>;
+      // Wrap the body so the timeout is cancelled once the stream is fully consumed
+      const originalBody = response.body as ReadableStream<Uint8Array>;
+      const cleanup = () => clearTimeout(timeoutId);
+      const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
+      originalBody.pipeTo(writable).then(cleanup, cleanup);
+      return readable;
     } catch (err: any) {
+      clearTimeout(timeoutId);
       if (err instanceof NatlasError) {
         throw err;
       }
@@ -601,8 +622,6 @@ export class NatlasClient {
         throw new APITimeoutError(`Stream connection timed out after ${this.timeout}ms`);
       }
       throw new APIConnectionError(`Failed to initiate stream: ${err.message}`, err);
-    } finally {
-      clearTimeout(timeoutId);
     }
   }
 
