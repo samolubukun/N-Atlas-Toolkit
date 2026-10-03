@@ -4,8 +4,7 @@ Command-line interface (CLI) for N-ATLaS Sovereign Multilingual AI.
 Provides full terminal access to:
 - Chat completions with live SSE streaming (`natlas chat`)
 - Speech-to-text audio transcription (`natlas transcribe`)
-- High-accuracy native African translation (`natlas translate`)
-- Cultural tone adaptation (`natlas africanize`)
+
 - Evaluation & benchmarking (`natlas eval`)
 - Healthcheck & model discovery (`natlas health`, `natlas models`)
 
@@ -166,27 +165,6 @@ def cmd_transcribe(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_translate(args: argparse.Namespace) -> int:
-    """Translate text into an African language."""
-    client = Client(base_url=args.base_url, api_key=args.api_key)
-    res = client.post(
-        "translate",
-        body={"text": args.text, "target_lang": args.target, "tone": args.tone},
-    )
-    print(res.get("translation", res))
-    return 0
-
-
-def cmd_africanize(args: argparse.Namespace) -> int:
-    """Adapt tone to Nigerian cultural context."""
-    client = Client(base_url=args.base_url, api_key=args.api_key)
-    res = client.post(
-        "africanize",
-        body={"content": args.text, "culture_context": args.context, "formality": args.formality},
-    )
-    print(res.get("adapted_text", res))
-    return 0
-
 
 def cmd_health(args: argparse.Namespace) -> int:
     """Inspect active health and GPU status."""
@@ -267,17 +245,7 @@ def main(argv: list[str] | None = None) -> int:
     transcribe_p.add_argument("--model", default=None, help="Model ID override")
     transcribe_p.add_argument("--timestamps", action="store_true", help="Include word-level timestamps")
 
-    # 3. Translate
-    translate_p = subparsers.add_parser("translate", help="Translate into an African language")
-    translate_p.add_argument("text", help="Source text to translate")
-    translate_p.add_argument("--target", "-t", default="Yoruba", help="Target language (Yoruba, Hausa, Igbo, Pidgin)")
-    translate_p.add_argument("--tone", default="formal", help="Translation register (formal, conversational)")
 
-    # 4. Africanize
-    africanize_p = subparsers.add_parser("africanize", help="Adapt tone to Nigerian cultural context")
-    africanize_p.add_argument("text", help="Text to adapt")
-    africanize_p.add_argument("--context", "-c", default="Lagos-Urban", help="Context preset (Lagos-Urban, Northern-Formal, etc.)")
-    africanize_p.add_argument("--formality", default="natural", help="Formality level")
 
     # 5. Health & Models
     subparsers.add_parser("health", help="Check server health and active GPU")
@@ -299,8 +267,8 @@ def main(argv: list[str] | None = None) -> int:
     dispatch = {
         "chat": cmd_chat,
         "transcribe": cmd_transcribe,
-        "translate": cmd_translate,
-        "africanize": cmd_africanize,
+
+
         "health": cmd_health,
         "models": cmd_models,
         "eval": cmd_eval,

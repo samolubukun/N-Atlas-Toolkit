@@ -38,6 +38,7 @@ from .exceptions import (
 )
 from .hosted import DEFAULT_ASR_URL, DEFAULT_BASE_URL, DEFAULT_MODEL
 from .languages import EN_NG, HA, IG, SUPPORTED_LANGUAGES, YO, detect_language, system_prompt
+from . import tools
 
 __version__ = "0.1.0"
 ATTRIBUTION = (
@@ -178,5 +179,6 @@ __all__ = [
     "detect_language",
     "generate",
     "system_prompt",
+    "tools",
     "transcribe",
 ]

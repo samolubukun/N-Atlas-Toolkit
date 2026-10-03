@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling>=1.25"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=72", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "natlas"
@@ -39,7 +39,11 @@ dependencies = [
 ]
 
 [project.scripts]
-natlas = "src.cli:main"
+natlas = "natlas.cli:main"
+
+[tool.setuptools]
+package-dir = {"natlas" = "src"}
+packages = ["natlas"]
 
 [project.optional-dependencies]
 local = [
@@ -51,7 +55,8 @@ local = [
 ]
 test = [
   "build>=1.2,<2",
-  "hatchling>=1.25",
+  "setuptools>=72",
+  "wheel",
   "mypy>=1.13,<2",
   "pytest>=8,<9",
   "pytest-asyncio>=0.24,<2",
@@ -59,8 +64,8 @@ test = [
   "ruff>=0.9,<1",
 ]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src"]
+[tool.setuptools.package-data]
+"natlas" = ["tools/data/*.json", "py.typed"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"

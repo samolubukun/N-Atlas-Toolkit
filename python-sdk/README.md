@@ -23,6 +23,8 @@ This `python-sdk/` directory is the complete Python SDK project inside the N-ATL
 - Typed `get()` and `post()` escape hatches for additional hosted endpoints
 - Clear configuration, connection, timeout, response, and stream errors
 - Lazy model loading, so importing `natlas` does not download weights
+- **Built-in agent tools** — 7 free, zero-API-key tools (`web_search`, `weather_lookup`, `fx_rates`, `nigeria_gazetteer`, `wikipedia_lookup`, `fetch_webpage`, `math_eval`) available as `natlas.tools`
+- **MCP server** — standard Model Context Protocol stdio server for Cursor, Claude Desktop, Antigravity, and Windsurf
 
 ## Installation
 
@@ -47,9 +49,11 @@ Install local-inference dependencies as well:
 python -m pip install "./python-sdk[local]"
 ```
 
-For development and verification:
+For development / editable install (also works):
 
 ```bash
+python -m pip install -e ./python-sdk
+# or from inside the sdk directory:
 cd python-sdk
 python -m pip install -e ".[test]"
 ```
@@ -288,7 +292,6 @@ class ModelList(BaseModel):
 models = client.get("models", cast_to=ModelList)
 
 result = client.post(
-    "africanize",
     body={"content": "Let us work together.", "culture_context": "Lagos-Urban"},
 )
 ```
@@ -365,7 +368,78 @@ Available Sovereign ASR Models:
  + date_string   typed responses
 ```
 
-Both public clients validate the same Pydantic request models and return the same response models. The hosted backend translates OpenAI chat/completion envelopes and SSE events into that common contract; the local backend creates the same contract directly.
+
+## Built-in Agent Tools
+
+The `natlas.tools` namespace ships 7 ready-made, **100% free, zero-API-key** tools suitable for use in agent loops with any OpenAI-compatible LLM:
+
+```python
+from natlas import tools
+
+# Offline tools (no network required)
+tools.nigeria_gazetteer("Lagos")        # 36 states, FCT, 774 LGAs
+tools.math_eval("(50000 * 0.075) + 320") # safe AST arithmetic
+
+# Free network tools (no API key)
+tools.web_search("N-ATLaS Nigeria AI")  # DuckDuckGo, no key
+tools.weather_lookup("Abuja")           # Open-Meteo, no key
+tools.fx_rates("USD", "NGN")           # open.er-api.com, no key
+tools.wikipedia_lookup("Yoruba", lang="yo")  # Wikipedia REST API
+tools.fetch_webpage("https://example.com")  # clean text extractor
+```
+
+### OpenAI Function-Calling Schemas
+
+```python
+# Get ready-made schemas for any agent loop
+schemas = tools.get_openai_tools()               # all 7
+schemas = tools.get_openai_tools(["web_search", "fx_rates"])  # subset
+
+# Execute by name (used by agent loops after tool_calls response)
+result = tools.execute_tool("fx_rates", {"base": "USD", "target": "NGN"})
+```
+
+### Register Custom Tools
+
+```python
+# Decorator style
+@tools.tool
+def check_order_status(order_id: str) -> dict:
+    """Check delivery status for an order."""
+    return {"order_id": order_id, "status": "in_transit"}
+
+# Function style
+tools.register_tool(
+    name="send_sms",
+    func=my_sms_fn,
+    description="Send an SMS via local gateway",
+)
+```
+
+Custom tools are automatically added to `TOOL_REGISTRY` and `OPENAI_TOOL_SCHEMAS`, and are callable via `execute_tool()`.
+
+### MCP Server (Cursor, Claude Desktop, Antigravity)
+
+Run the built-in MCP stdio server to expose all N-ATLaS tools directly in any MCP-compatible AI IDE:
+
+```bash
+python python-sdk/src/mcp_server.py
+```
+
+Configure in your `claude_desktop_config.json` or Antigravity MCP config:
+
+```json
+{
+  "mcpServers": {
+    "natlas-tools": {
+      "command": "python",
+      "args": ["/absolute/path/to/python-sdk/src/mcp_server.py"]
+    }
+  }
+}
+```
+
+---
 
 ## Package layout
 
@@ -378,13 +452,20 @@ src/
   hosted.py         HTTPX hosted backend & ASR client
   languages.py      presets, detection, and system prompts
   exceptions.py     SDK exception hierarchy
+  mcp_server.py     MCP stdio server for AI IDE integrations
   py.typed          PEP 561 marker
+  tools/
+    __init__.py     public tools exports
+    core.py         7 built-in zero-key tool implementations
+    registry.py     TOOL_REGISTRY, schemas, execute_tool, register_tool
+    data/
+      nigeria.json  offline gazetteer: 36 states, FCT, 774 LGAs
 examples/
   local_chat.py
   hosted_chat_streaming.py
   language_detect.py
 tests/
-  mocked HTTP, SSE, local backend, typing, ASR, and language tests
+  mocked HTTP, SSE, local backend, typing, ASR, language, and tools tests
 ```
 
 ## Examples
@@ -401,11 +482,12 @@ NATLAS_BASE_URL=... NATLAS_API_KEY=... \
 ## Verification
 
 ```bash
-python -m pytest
+cd python-sdk
+python -m pytest                              # all tests
+python -m pytest tests/test_tools.py -v       # tools-specific tests
 python -m ruff check src tests examples
 python -m ruff format --check src tests examples
 python -m mypy src
-python -m build
 ```
 
 Hosted tests use `respx`; no unit test calls the live Modal deployment or downloads model weights. The monorepo root `test_natlas.py` remains available as an opt-in live server smoke runner.
