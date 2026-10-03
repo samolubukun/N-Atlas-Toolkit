@@ -60,8 +60,8 @@ export const LLM_LANGUAGES = [
 
 
 export const CULTURAL_CONTEXTS = [
-  { id: "pidgin", name: "Nigerian Pidgin", desc: "Warm, energetic, street-smart conversational vernacular" },
-  { id: "yoruba", name: "Yoruba Cultural Respect", desc: "Traditional respect etiquette, honorifics, and proverbs" },
-  { id: "hausa", name: "Hausa Community Tone", desc: "Hospitable, gentle, respectful community phrasing" },
-  { id: "igbo", name: "Igbo Enterprise Tone", desc: "Sharp, enterprising, cordial business relationship framing" },
+  { id: "Nigerian-General", name: "Nigerian Pidgin", desc: "Warm, energetic, street-smart conversational vernacular" },
+  { id: "Yoruba", name: "Yoruba Cultural Respect", desc: "Traditional respect etiquette, honorifics, and proverbs" },
+  { id: "Hausa-Fulani", name: "Hausa Community Tone", desc: "Hospitable, gentle, respectful community phrasing" },
+  { id: "Igbo-Eastern", name: "Igbo Enterprise Tone", desc: "Sharp, enterprising, cordial business relationship framing" },
 ];

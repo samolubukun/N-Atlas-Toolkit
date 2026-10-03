@@ -45,6 +45,7 @@ export const ASRStudio = ({ onSendToLLM }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [audioUrl, setAudioUrl] = useState(null);
 
   const mediaRecorderRef = useRef(null);
   const audioCtxRef = useRef(null);
@@ -174,11 +175,14 @@ export const ASRStudio = ({ onSendToLLM }) => {
   };
 
   // Audio File Upload
-  const handleFileUpload = async (event) => {
+  const handleFileUpload = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    setAudioUrl(URL.createObjectURL(file));
     setSelectedFile(file);
-    await transcribeAudioUtterance(file, file.name);
+    setTranscript('');
+    setWords([]);
   };
 
   // Transcribe full utterance using sovereign ASR endpoint
@@ -214,9 +218,22 @@ export const ASRStudio = ({ onSendToLLM }) => {
     }
   };
 
-  const loadSampleText = () => {
-    setTranscript(currentModelObj.sampleText);
-    setWords(currentModelObj.sampleText.split(' ').map((w, i) => ({ word: w, start: i * 0.4, end: (i + 1) * 0.4 })));
+  const loadSampleAudio = async () => {
+    try {
+      const langMap = { 'ha': 'hausa', 'ig': 'igbo', 'yo': 'yoruba', 'en-ng': 'english' };
+      const lang = langMap[currentModelObj.lang] || 'english';
+      const res = await fetch(`/audio/${lang}.mp3`);
+      const blob = await res.blob();
+      const file = new File([blob], `${lang}_sample.mp3`, { type: 'audio/mp3' });
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+      setSelectedFile(file);
+      setAudioUrl(URL.createObjectURL(file));
+      setTranscript('');
+      setWords([]);
+    } catch (e) {
+      console.error(e);
+      setErrorMsg("Failed to load sample audio.");
+    }
   };
 
   return (
@@ -303,11 +320,23 @@ export const ASRStudio = ({ onSendToLLM }) => {
             </label>
 
             <button
-              onClick={loadSampleText}
+              onClick={loadSampleAudio}
               className="px-3 sm:px-3.5 py-2.5 rounded-xl font-medium text-xs bg-cream-100 hover:bg-cream-200 text-slate-700 border border-cream-300 transition-all shrink-0"
             >
               Load Sample
             </button>
+
+            {audioUrl && !isProcessing && !isRecording && (
+              <>
+                <audio src={audioUrl} controls className="h-10 max-w-[200px]" />
+                <button
+                  onClick={() => transcribeAudioUtterance(selectedFile, selectedFile.name)}
+                  className="px-4 py-2.5 rounded-xl font-bold text-xs bg-federal-600 hover:bg-federal-700 text-white shadow-sm transition-all"
+                >
+                  Transcribe
+                </button>
+              </>
+            )}
 
             {isProcessing && (
               <span className="flex items-center gap-1.5 text-xs font-mono text-federal-700 animate-pulse bg-federal-50 px-2.5 py-1 rounded-lg border border-federal-200">
