@@ -85,12 +85,9 @@ export const CoreCapabilities = () => {
             </div>
             <div>
               <h4 className="text-sm font-bold text-stone-900">Cultural Linguistic APIs</h4>
-              <span className="text-[10px] font-mono text-purple-700 font-semibold">Translate & Tone Transfer</span>
             </div>
           </div>
           <ul className="text-xs text-stone-600 space-y-1.5 leading-relaxed">
-            <li>• <code>/v1/translate</code>: Context-aware indigenous Nigerian translation.</li>
-            <li>• <code>/v1/africanize</code>: 4 cultural tones (formal, colloquial, street, pidgin).</li>
           </ul>
         </div>
       </div>

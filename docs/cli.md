@@ -61,18 +61,14 @@ natlas transcribe speech_yoruba.wav --language yoruba --timestamps
 
 ---
 
-## 4. African Translation (`natlas translate`)
 
 ```bash
-natlas translate "Education is the foundation of national development." --target Yoruba --tone formal
 ```
 
 ---
 
-## 5. Cultural Tone Adaptation (`natlas africanize`)
 
 ```bash
-natlas africanize "We need to work together and be resilient." --context Lagos-Urban
 ```
 
 ---

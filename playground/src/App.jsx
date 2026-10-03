@@ -65,36 +65,36 @@ export function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-stone-200 bg-white mt-auto relative overflow-hidden">
+      <footer className="border-t border-federal-800 bg-federal-950 mt-auto relative overflow-hidden">
         {/* Aso-oke-weave texture on footer */}
-        <AsoOkeWeave className="opacity-30" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-stone-400 text-center sm:text-left leading-relaxed max-w-lg">
+        <AsoOkeWeave className="opacity-15" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
+          <p className="text-xs text-white/90 text-center sm:text-left leading-relaxed max-w-lg font-normal">
             N-ATLaS is a sovereign AI initiative of the Federal Ministry of Communications, Innovation and Digital Economy (FMCIDE), maintained by Awarri Technologies in partnership with NCAIR and NITDA.
           </p>
-          <div className="flex items-center gap-4 text-xs font-medium text-stone-400 shrink-0">
+          <div className="flex items-center gap-4 text-xs font-medium text-white shrink-0">
             <span>
               Engineered by{' '}
               <a
                 href="http://samuelolubukun.com/"
                 target="_blank"
                 rel="noreferrer"
-                className="text-federal-600 hover:text-federal-700 transition-colors underline underline-offset-2"
+                className="text-emerald-300 hover:text-white transition-colors underline underline-offset-2 font-semibold"
               >
                 Samuel Olubukun
               </a>
             </span>
-            <span className="text-stone-200">·</span>
+            <span className="text-emerald-500 font-bold">·</span>
             <a
               href="https://github.com/samolubukun/N-Atlas-Toolkit"
               target="_blank"
               rel="noreferrer"
-              className="text-federal-600 hover:text-federal-700 transition-colors underline underline-offset-2"
+              className="text-emerald-300 hover:text-white transition-colors underline underline-offset-2 font-semibold"
             >
               GitHub
             </a>
-            <span className="text-stone-200">·</span>
-            <span>Nigeria 2026</span>
+            <span className="text-emerald-500 font-bold">·</span>
+            <span className="text-white/80">Nigeria 2026</span>
           </div>
         </div>
       </footer>

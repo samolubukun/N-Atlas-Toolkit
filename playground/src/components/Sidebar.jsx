@@ -142,33 +142,7 @@ export const Sidebar = ({ isOpen, onClose, currentRoute, activeStudio, onNavigat
               </div>
             </button>
 
-            <button
-              onClick={() => { onNavigate('/playground', 'africanize'); onClose(); }}
-              className={`w-full px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-all ${
-                isPlayground && activeStudio === 'africanize'
-                  ? 'bg-federal-700 text-white font-semibold'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-cream-100'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Workflow className="w-3.5 h-3.5" />
-                <span>Africanize Cultural Tone</span>
-              </div>
-            </button>
 
-            <button
-              onClick={() => { onNavigate('/playground', 'translate'); onClose(); }}
-              className={`w-full px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-all ${
-                isPlayground && activeStudio === 'translate'
-                  ? 'bg-federal-700 text-white font-semibold'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-cream-100'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Languages className="w-3.5 h-3.5" />
-                <span>Neural Translation</span>
-              </div>
-            </button>
           </div>
         </div>
 

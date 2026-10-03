@@ -25,8 +25,6 @@ N-ATLaS is a sovereign AI suite engineered specifically for Nigerian linguistic 
                      |                                                         |
        +-------------+-------------+                             +-------------+-------------+
        |             |             |                             |             |             |
-   Chat (SSE)    Translation   Africanize                     Yoruba-ASR   Hausa-ASR     Igbo-ASR
-   Completions    (/translate)  (/africanize)                 (120+ hrs)   (120+ hrs)   (120+ hrs)
 ```
 
 ---
@@ -40,7 +38,6 @@ N-ATLaS is a sovereign AI suite engineered specifically for Nigerian linguistic 
     - **Igbo**: `NCAIR1/Igbo-ASR` (trained on 120+ hours)
     - **Nigerian English**: `NCAIR1/NigerianAccentedEnglish` (trained on 120+ hours)
 3. **High-Accuracy Audio Transcription**: Millisecond word-level timestamps and multi-format audio support (WAV, MP3, WebM, FLAC).
-4. **Cultural Domain APIs**: Direct Nigerian translation (`/v1/translate`) and cultural tone adapter (`/v1/africanize`).
 5. **Flexible Deployment**:
     - **Live Modal Cloud**: Zero-server setup with scale-to-zero economics.
     - **Self-Hosted Docker**: 1-command Docker Compose gateway with NVIDIA vLLM or CPU fallback.

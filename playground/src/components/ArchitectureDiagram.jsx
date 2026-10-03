@@ -215,13 +215,9 @@ export const ArchitectureDiagram = () => {
                     <span className="text-stone-400 text-[10px] shrink-0 ml-1">SSE Stream</span>
                   </div>
                   <div className="bg-stone-50 border border-stone-200/70 rounded-lg px-2.5 py-1.5 flex items-center justify-between text-[10.5px]">
-                    <span className="text-stone-800 font-mono font-semibold truncate">/v1/translate</span>
                     <span className="text-stone-400 text-[10px] shrink-0 ml-1">YO · HA · IG · PCM</span>
                   </div>
-                  <div className="bg-stone-50 border border-stone-200/70 rounded-lg px-2.5 py-1.5 flex items-center justify-between text-[10.5px]">
-                    <span className="text-stone-800 font-mono font-semibold truncate">/v1/africanize</span>
-                    <span className="text-stone-400 text-[10px] shrink-0 ml-1">4 Tones</span>
-                  </div>
+
                 </div>
               </div>
             </div>

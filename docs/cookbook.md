@@ -22,9 +22,7 @@ python cookbook/customer_support_router.py
 
 ---
 
-## 3. Multilingual Speech-to-Speech Translation Pipeline (`cookbook/voice_translation_pipeline.py`)
 Demonstrates a multi-stage AI pipeline:
-$$\text{Spoken Audio (Yoruba)} \xrightarrow{\text{ASR}} \text{Transcript} \xrightarrow{\text{Translation}} \text{English} \xrightarrow{\text{Africanize}} \text{Lagos-Urban Tone}$$
 
 ---
 
@@ -33,4 +31,63 @@ Demonstrates OpenAI-compatible multi-turn tool calling and function resolution w
 
 ```bash
 python cookbook/agentic_tools.py
+```
+
+---
+
+## 5. Built-in Zero-Key Agent Tools
+
+All 7 tools ship inside the SDK — no API key or sign-up required:
+
+=== "Python"
+    ```python
+    from natlas import tools
+
+    # Offline
+    result = tools.nigeria_gazetteer("Ogun")  # state info + LGAs
+    calc   = tools.math_eval("(200000 * 0.075) + 500")  # NGN VAT calc
+
+    # Free live tools
+    news   = tools.web_search("Nigerian AI startup funding 2025")
+    rates  = tools.fx_rates("USD", "NGN")
+    wx     = tools.weather_lookup("Port Harcourt")
+    wiki   = tools.wikipedia_lookup("Igbo people", lang="ig")
+    page   = tools.fetch_webpage("https://ncc.gov.ng")
+
+    # OpenAI-compatible schemas for your agent loop
+    schemas = tools.get_openai_tools()  # all 7 tools
+    result  = tools.execute_tool("fx_rates", {"base": "USD", "target": "NGN"})
+    ```
+
+=== "JavaScript"
+    ```typescript
+    import { getOpenAITools, executeTool, nigeriaGazetteer, fxRates } from "natlas/tools";
+
+    const state = nigeriaGazetteer("Rivers");
+    const rate  = await fxRates("GBP", "NGN");
+    const schemas = getOpenAITools();
+    const result  = await executeTool("weather_lookup", { location: "Enugu" });
+    ```
+
+---
+
+## 6. MCP Server — AI IDE Integration
+
+Expose all N-ATLaS tools to Claude Desktop, Cursor, Antigravity, or Windsurf via the built-in MCP stdio server:
+
+```bash
+# Run from monorepo root
+python python-sdk/src/mcp_server.py
+```
+
+Add to `claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "natlas-tools": {
+      "command": "python",
+      "args": ["/absolute/path/to/N-Atlas-Toolkit/python-sdk/src/mcp_server.py"]
+    }
+  }
+}
 ```

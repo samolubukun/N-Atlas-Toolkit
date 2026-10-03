@@ -13,8 +13,13 @@ import {
   Mic,
   Zap,
   ShieldCheck,
+  CheckCircle2,
+  Terminal,
+  Code2,
+  Layers,
+  Server,
 } from 'lucide-react';
-import { KenteStripe, NsibidiScatter, AnkaraHex, AdireDots } from './SvgPatterns';
+import { KenteStripe, NsibidiScatter, AnkaraHex, AdireDots, AsoOkeWeave } from './SvgPatterns';
 
 // Reusable section label
 const Label = ({ children }) => (
@@ -138,6 +143,39 @@ export const LandingPage = ({ onSelectStudio }) => {
     },
   ];
 
+  const toolkitFeatures = [
+    {
+      icon: Server,
+      title: "Modal & Docker GPU Infra",
+      body: "Instant serverless GPU hosting on Modal or turnkey Docker compose stacks running the NCAIR1/N-ATLaS 8B LLM (vLLM) and sovereign ASR speech engines offline.",
+      color: "bg-federal-50 text-federal-600 border-federal-100",
+      accentColor: "#008751",
+      pattern: "aso-oke",
+      tags: ["NCAIR1/N-ATLaS 8B", "Modal Serverless", "Docker vLLM", "CUDA Ready"],
+      bgClass: "hover:border-federal-400 hover:shadow-card-md"
+    },
+    {
+      icon: Terminal,
+      title: "Python & TypeScript SDKs",
+      body: "Client libraries with CLI pipelines, streaming async iterators, OpenAI drop-in compatibility, and typed browser/Node bindings ready to install directly from the monorepo.",
+      color: "bg-ochre-50 text-ochre-600 border-ochre-100",
+      accentColor: "#D97706",
+      pattern: "adire",
+      tags: ["pip install ./python-sdk", "npm i ./js-sdk", "Interactive CLI", "Full Types"],
+      bgClass: "hover:border-ochre-400 hover:shadow-card-md"
+    },
+    {
+      icon: Layers,
+      title: "Model Fine-Tuning Kit",
+      body: "Unsloth and PEFT/LoRA recipes optimized for consumer GPUs, enabling teams to adapt N-ATLaS to specific custom domains and local datasets.",
+      color: "bg-purple-50 text-purple-600 border-purple-100",
+      accentColor: "#9333EA",
+      pattern: "ankara",
+      tags: ["LoRA / QLoRA", "Unsloth Scripts", "Domain Adaptation", "Hugging Face"],
+      bgClass: "hover:border-purple-400 hover:shadow-card-md"
+    }
+  ];
+
   const capabilities = [
     {
       icon: Bot,
@@ -148,11 +186,6 @@ export const LandingPage = ({ onSelectStudio }) => {
       icon: Mic,
       title: "Speech that actually hears you",
       body: "Four dedicated ASR models built on Whisper, trained on hundreds of hours of real Nigerian voices from every corner of the country.",
-    },
-    {
-      icon: Globe2,
-      title: "Cultural tone, not just translation",
-      body: "The Africanize engine rewrites corporate-stiff English into the warm, respectful register Nigerians actually use with each other.",
     },
     {
       icon: Zap,
@@ -167,7 +200,7 @@ export const LandingPage = ({ onSelectStudio }) => {
     {
       icon: ShieldCheck,
       title: "Sovereign infrastructure",
-      body: "All model weights are licensed for Nigerian government, education, healthcare, and enterprise use. No data leaves under foreign jurisdiction.",
+      body: "All model weights are open for public, educational, healthcare, and research use. No data leaves under foreign jurisdiction.",
     },
   ];
 
@@ -337,26 +370,201 @@ export const LandingPage = ({ onSelectStudio }) => {
 
 
       {/* ─── CONSORTIUM STRIP ─── */}
-      <div className="border-y border-stone-200 bg-white py-6">
-        <div className="max-w-5xl mx-auto px-4">
-          <p className="text-center text-[10px] font-semibold uppercase tracking-widest text-stone-300 mb-4">Built by</p>
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-stone-400 text-xs font-semibold">
-            {[
-              { label: 'FMCIDE', url: 'https://fmcide.gov.ng' },
-              { label: 'Awarri Technologies', url: 'https://awarri.com' },
-              { label: 'NCAIR', url: 'https://ncair.nitda.gov.ng' },
-              { label: 'NITDA', url: 'https://nitda.gov.ng' },
-              { label: 'Langeasy', url: 'https://langeasy.ai' },
-            ].map(p => (
-              <a key={p.label} href={p.url} target="_blank" rel="noreferrer"
-                className="hover:text-stone-700 transition-colors">
-                {p.label}
-              </a>
-            ))}
+      <div className="border-y border-stone-200 bg-white/90 backdrop-blur-sm py-8">
+        <div className="max-w-6xl mx-auto px-4">
+          <p className="text-center text-[11px] font-semibold uppercase tracking-widest text-stone-500 mb-6">
+            Built by
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+            {/* FMCIDE */}
+            <a
+              href="https://fmcide.gov.ng"
+              target="_blank"
+              rel="noreferrer"
+              title="Federal Ministry of Communications, Innovation & Digital Economy"
+              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-emerald-500 hover:shadow-sm transition-all"
+            >
+              <img
+                src="https://fmcide.gov.ng/wp-content/uploads/2023/11/logo.png"
+                alt="FMCIDE Logo"
+                className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="hidden items-center justify-center w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs border border-emerald-300">
+                NG
+              </div>
+              <span className="text-xs font-bold text-stone-800 group-hover:text-emerald-700 transition-colors">
+                FMCIDE
+              </span>
+            </a>
+
+            {/* Awarri Technologies */}
+            <a
+              href="https://awarri.com"
+              target="_blank"
+              rel="noreferrer"
+              title="Awarri Technologies — Africa's AI & Robotics Enabler"
+              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-red-500 hover:shadow-sm transition-all"
+            >
+              <img
+                src="https://framerusercontent.com/images/ICkV3wlOQSxCtBRm6EXFzEne5RE.png"
+                alt="Awarri Logo"
+                className="h-7 w-auto object-contain transition-transform group-hover:scale-105"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="hidden items-center justify-center w-7 h-7 rounded-lg bg-red-100 text-red-600 font-bold text-xs border border-red-300">
+                A
+              </div>
+              <span className="text-xs font-bold text-stone-800 group-hover:text-red-600 transition-colors">
+                Awarri
+              </span>
+            </a>
+
+            {/* NCAIR */}
+            <a
+              href="https://ncair.nitda.gov.ng"
+              target="_blank"
+              rel="noreferrer"
+              title="National Centre for Artificial Intelligence and Robotics"
+              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-emerald-600 hover:shadow-sm transition-all"
+            >
+              <img
+                src="https://lms.ncair.nitda.gov.ng/ncairlogo.jpg"
+                alt="NCAIR Logo"
+                className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="hidden items-center justify-center px-2 py-1 rounded-md bg-emerald-700 text-white font-bold text-[11px] tracking-wider">
+                NCAIR
+              </div>
+              <span className="text-xs font-bold text-stone-800 group-hover:text-emerald-700 transition-colors">
+                NCAIR
+              </span>
+            </a>
+
+            {/* NITDA */}
+            <a
+              href="https://nitda.gov.ng"
+              target="_blank"
+              rel="noreferrer"
+              title="National Information Technology Development Agency"
+              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-emerald-600 hover:shadow-sm transition-all"
+            >
+              <img
+                src="https://nitda.gov.ng/wp-content/uploads/2024/01/NITDA-Logo-770x400.png"
+                alt="NITDA Logo"
+                className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="hidden items-center justify-center w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs border border-emerald-300">
+                NITDA
+              </div>
+              <span className="text-xs font-bold text-stone-800 group-hover:text-emerald-800 transition-colors">
+                NITDA
+              </span>
+            </a>
+
+            {/* Langeasy */}
+            <a
+              href="https://langeasy.ai"
+              target="_blank"
+              rel="noreferrer"
+              title="Langeasy — Multilingual AI Translation & Voice"
+              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-blue-500 hover:shadow-sm transition-all"
+            >
+              <img
+                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAZCAMAAAAVHr4VAAABIFBMVEVHcExIMuxXUfVvYvd2WfdKWPRhR/dpUPaDWviMY/mPZfiMa/iCbvZyUPVnMvpuTvd2Vfh2XPhwZvZNX/OVdPiRcfhdT/ZoXfdDYfWKePd5e/VuXfc/Z/NccfSRfPeMhvd8gfQ0Z/ONh/ZJivFLV/NkY/YWqutfXvVGc/OBhfSNjvVvoPJ/i/KHoPU1sOxSZ/SEnfR4pPVWavM2cfB4lfFPcvN2mPAWrO1cpe9+qvNFe/E3cvB2sfMyp+pjru9ruPIaie1Fh/FDtu1quPA9jvBeuu5Uvu4AhOxBmO85ju5Qwe1YwO5JoPA2retXw+5HqPBDqu43qu44v+tOxe1Wx+5Ise8+u+s2vOtOyO1RyOxGuu5Gve1Hv+1Jxu1Jx+wtueunhKmiAAAAYHRSTlMAARkzTBNdtvDs9bNRDQfW+rVnH/rPp5smohfsQ0riyiMs1x9w9wrohDr0eoD1HbPdgulmn/JtF1b62JXyB721J/FJ/o/aqRHQxsTW5C7hzOt6PrD78pBO1frO9e/y0DbrS+sHAAABDUlEQVR4AY2QA4IDQRAAe717sW3btm37/684xU6Np4YNn4GgGI7jGPFAESRF0zTDfDEsNudacUkeXyDERKgIE7LEEjZy4VApXyY/HI4gmEKsUJ4dpVLDJRqtTg97OFKVAa7R64ymfc9sudq3t0ad9a8V2exwj8Pp2m9E4QFujxcA8fngEXp/AIAIhh5KJOwHEEU08JCoJ/Yr1Y9lPOEFIhJ6LpFk6rF0pa0A9iTxyGWyOQDIFx6eWywV/5pyIX/vvJUq8tfW6g3TnWu2vPtevl3v3JzZbZ1m8r3+wHt+ynA0rp6HYB1M+tN4xxvzdmbT+aI5y1xfMliuVuv1erPZTofW+0jHdrNZcee92PQDjY8jYvYhfecAAAAASUVORK5CYII="
+                alt="Langeasy Logo"
+                className="h-6 w-auto object-contain transition-transform group-hover:scale-105"
+              />
+              <span className="text-xs font-bold text-stone-800 group-hover:text-blue-700 transition-colors">
+                Langeasy
+              </span>
+            </a>
           </div>
         </div>
       </div>
+      {/* ─── TOOLKIT PEEK ─── */}
+      <section className="py-20 sm:py-24 bg-stone-900 text-white relative overflow-hidden">
+        {/* Kente chevron-stripe diagonal background texture */}
+        <KenteStripe style={{ opacity: 0.18 }} />
+        {/* Corner Nsibidi watermark */}
+        <div className="absolute -top-8 -right-8 w-80 h-80 pointer-events-none select-none opacity-15">
+          <NsibidiScatter />
+        </div>
 
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
+          <div className="max-w-3xl mb-12">
+            <p className="text-xs font-mono font-bold tracking-widest uppercase text-emerald-400 mb-3">Toolkit Peek</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight text-white">
+              What's in the box?
+            </h2>
+            <p className="text-stone-300 mt-3 text-base leading-relaxed">
+              GPU infrastructure, developer SDKs, and fine-tuning tools built for sovereign Nigerian AI deployment.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {toolkitFeatures.map((feat, i) => (
+              <div
+                key={i}
+                className="bg-stone-950/80 border border-stone-800 p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl transition-all flex flex-col justify-between gap-5 relative overflow-hidden group hover:border-emerald-500/60"
+              >
+                {/* Cultural pattern watermark */}
+                {feat.pattern === 'aso-oke' && <AsoOkeWeave style={{ opacity: 0.25 }} />}
+                {feat.pattern === 'ankara' && <AnkaraHex style={{ opacity: 0.25 }} />}
+                {feat.pattern === 'kente' && <KenteStripe style={{ opacity: 0.25 }} />}
+                {feat.pattern === 'adire' && <AdireDots style={{ opacity: 0.25 }} />}
+
+                {/* Accent top stripe */}
+                <div
+                  style={{ backgroundColor: feat.accentColor }}
+                  className="h-[3px] w-full rounded-full relative z-10 opacity-70 group-hover:opacity-100 transition-opacity"
+                />
+
+                <div className="relative z-10 space-y-4">
+                  <div className="w-12 h-12 rounded-xl border border-stone-800 bg-stone-900 flex items-center justify-center text-white group-hover:border-emerald-500/50 transition-colors">
+                    <feat.icon className="w-6 h-6" style={{ color: feat.accentColor }} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">
+                      {feat.title}
+                    </h3>
+                    <p className="text-sm text-stone-400 leading-relaxed">{feat.body}</p>
+                  </div>
+                </div>
+
+                {/* Feature tags */}
+                {feat.tags && (
+                  <div className="relative z-10 flex flex-wrap gap-1.5 pt-3 border-t border-stone-800/80">
+                    {feat.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-[11px] px-2 py-0.5 rounded-md bg-stone-900 border border-stone-800 text-stone-300 font-medium font-mono"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
 
       {/* ─── MODELS ─── */}
       <section className="py-20 sm:py-24">
@@ -644,26 +852,31 @@ export const LandingPage = ({ onSelectStudio }) => {
       {/* ─── CTA STRIP ─── */}
       <section className="py-20 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          <div className="bg-federal-950 rounded-3xl p-8 sm:p-14 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-            <div className="max-w-lg">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
+          <div className="rounded-3xl p-8 sm:p-14 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 bg-stone-950 border border-stone-800 shadow-2xl relative overflow-hidden">
+            {/* Kente subtle overlay matching dark sections */}
+            <KenteStripe style={{ opacity: 0.15 }} />
+            {/* Corner Aso-Oke flourish */}
+            <AsoOkeWeave className="opacity-20" />
+
+            <div className="max-w-lg relative z-10">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
                 Trained on Nigerian voices. Built for Nigerian words.
               </h2>
-              <p className="text-federal-300 mt-3 text-base leading-relaxed">
+              <p className="text-stone-300 mt-3 text-base leading-relaxed">
                 Jump into the playground and interact with all five models live. No setup, no API key required to explore.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0 relative z-10">
               <button
                 onClick={() => onSelectStudio('chat')}
-                className="px-6 py-3 rounded-xl bg-white hover:bg-stone-100 text-stone-900 font-semibold text-sm flex items-center justify-center gap-2 transition-all"
+                className="px-6 py-3 rounded-xl bg-white hover:bg-stone-100 text-stone-900 font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
               >
-                <Bot className="w-4 h-4 text-federal-600" />
+                <Bot className="w-4 h-4 text-emerald-600" />
                 Open Chat
               </button>
               <button
                 onClick={() => onSelectStudio('asr')}
-                className="px-6 py-3 rounded-xl bg-federal-700 hover:bg-federal-600 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all"
+                className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
               >
                 <Radio className="w-4 h-4" />
                 Try Speech

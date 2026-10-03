@@ -15,8 +15,8 @@ import {
 } from 'lucide-react';
 import { ASRStudio } from './ASRStudio';
 import { ChatStream } from './ChatStream';
-import { Africanize } from './Africanize';
-import { Translate } from './Translate';
+
+
 import { isConfigured } from '../constants';
 
 const studios = [
@@ -34,20 +34,8 @@ const studios = [
     sub: 'Batch audio transcription',
     icon: Radio,
   },
-  {
-    id: 'africanize',
-    name: 'Tone',
-    full: 'Africanize',
-    sub: 'Cultural phrasing adapter',
-    icon: Workflow,
-  },
-  {
-    id: 'translate',
-    name: 'Translate',
-    full: 'Translation',
-    sub: 'Dialect-aware NMT',
-    icon: Languages,
-  },
+
+
 ];
 
 export const PlaygroundView = ({ activeStudio = 'chat', onStudioChange, onBackToLanding, onSelectDocs }) => {
@@ -224,8 +212,6 @@ export const PlaygroundView = ({ activeStudio = 'chat', onStudioChange, onBackTo
         <div className="animate-fade-up">
           {activeStudio === 'chat'       && <ChatStream initialPrompt={transferredPrompt} />}
           {activeStudio === 'asr'        && <ASRStudio onSendToLLM={handleSendToLLM} />}
-          {activeStudio === 'africanize' && <Africanize />}
-          {activeStudio === 'translate'  && <Translate />}
         </div>
       </section>
     </div>

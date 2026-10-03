@@ -41,7 +41,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [python-sdk]
+
           options:
             docstring_style: google
             show_root_heading: true
@@ -68,6 +68,7 @@ nav:
   - SDK & CLI Guides:
       - Python SDK: sdk/python.md
       - JavaScript / TypeScript SDK: sdk/javascript.md
+      - Built-in Agent Tools: sdk/tools.md
       - Unified CLI Reference: cli.md
       - Developer Cookbook: cookbook.md
   - ASR (Speech-to-Text):
@@ -75,8 +76,6 @@ nav:
       - ASR Benchmarks & WER/CER: asr/benchmarks.md
   - LLM Capabilities:
       - Chat & SSE Streaming: llm/chat.md
-      - Native Cultural Translation: llm/translation.md
-      - Cultural Tone Adapter: llm/africanize.md
   - Fine-Tuning Starter Kit:
       - Overview & LoRA Pipeline: finetuning/overview.md
       - Dataset Preparation: finetuning/data-prep.md

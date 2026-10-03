@@ -10,7 +10,6 @@ The engine is deployed, live, and fully operational on Modal:
 
 - **App Status**: `deployed` (Live on Modal)
 - **Base API URL**: `https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run`
-- **Realtime LLM Voice WebSocket**: `wss://samuelolubukun--natlas-engine-natlasapi-serve.modal.run/ws/realtime`
 - **Hardware Acceleration**: NVIDIA A10G (24GB VRAM)
 - **Engine**: PyTorch / Transformers bfloat16 + SDPA with native vLLM Continuous Batching support
 - **Scale-to-Zero Economics**: 300-second idle keep-warm lifecycle
@@ -23,7 +22,6 @@ The engine is deployed, live, and fully operational on Modal:
 ### Deployment Architecture & Base URLs
 
 - **Modal Cloud Deployment (2 Dedicated Microservices)**:
-  - **LLM Engine**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run` (Chat, Completions, Translation, Africanize)
   - **Sovereign ASR Engine**: `https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run` (Full-Context Speech-to-Text & Word Alignment)
 - **Local / On-Premise Docker Gateway (100% Unified)**:
   - `http://localhost:8000` (Nginx gateway unified reverse-proxying both LLM and ASR)
@@ -34,10 +32,7 @@ The engine is deployed, live, and fully operational on Modal:
 | `GET` | `/v1/models` | LLM | OpenAI-compatible model catalog discovery | `Bearer <API_KEY>` |
 | `POST` | `/v1/chat/completions` | LLM | Standard OpenAI chat (supports SSE streaming, tools, and function calling) | `Bearer <API_KEY>` |
 | `POST` | `/v1/completions` | LLM | Raw prompt text completion | `Bearer <API_KEY>` |
-| `POST` | `/v1/translate` | LLM | Direct African language translation (Hausa/Igbo/Yoruba/Pidgin/English) | `Bearer <API_KEY>` |
-| `POST` | `/v1/africanize` | LLM | Cultural tone adapter for Nigerian cultural contexts | `Bearer <API_KEY>` |
 | `POST` | `/v1/audio/transcriptions` | ASR | OpenAI-compliant Sovereign ASR speech-to-text with word alignment | `Bearer <API_KEY>` |
-| `WSS` | `/ws/realtime` | LLM | Bidirectional real-time conversational voice token streaming | WebSocket |
 
 ---
 
@@ -105,9 +100,7 @@ print(tool_resp.choices[0].message.tool_calls)
 
 ## 🌍 Native African Domain Endpoints
 
-### 1. High-Accuracy Translation (`POST /v1/translate`)
 ```bash
-curl -X POST https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run/v1/translate \
   -H "Authorization: Bearer $NATLAS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -121,14 +114,11 @@ curl -X POST https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run/v1/
 {
   "source_text": "Education is the most powerful tool which you can use to change the world.",
   "target_lang": "Yoruba",
-  "translation": "Ẹ̀kọ́ jẹ́ irinṣẹ́ tó lágbára jù lọ tí o lè lo láti yí ayé padà.",
   "model": "NCAIR1/N-ATLaS"
 }
 ```
 
-### 2. Cultural Tone Adaptation (`POST /v1/africanize`)
 ```bash
-curl -X POST https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run/v1/africanize \
   -H "Authorization: Bearer $NATLAS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -266,7 +256,6 @@ print(response.message.content)
 
 - **[`python-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/python-sdk)**: Production-grade typed Python SDK with full CLI (`natlas chat`, `natlas transcribe`, `natlas eval`).
 - **[`js-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/js-sdk)**: Universal typed TypeScript & JavaScript SDK with executable Node CLI (`npx natlas`) and SSE / WebSocket streaming.
-- **[`cookbook/`](file:///c:/Users/USER/Downloads/natlas-toolkit/cookbook)**: Real-world production recipes (WhatsApp voice bot, customer support router, voice translation pipeline).
 - **[`scripts/`](file:///c:/Users/USER/Downloads/natlas-toolkit/scripts)**: Reproducible testing and benchmarking suite measuring WER/CER, TTFT, throughput (tok/s), and latency.
 - **[`docs/`](file:///c:/Users/USER/Downloads/natlas-toolkit/docs) & [`mkdocs.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/mkdocs.yml)**: Developer documentation site with auto-generated API reference and trilingual guides (Yoruba, Hausa, Igbo).
 - **[`.github/workflows/`](file:///c:/Users/USER/Downloads/natlas-toolkit/.github/workflows)**: Automated CI workflow testing Python SDK (matrix 3.10-3.12), JS SDK (matrix 18-22), and documentation builds.

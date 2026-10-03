@@ -12,6 +12,7 @@ export const DOCS_NAV = [
     items: [
       { id: "sdk-python", title: "Python SDK", icon: "Code2" },
       { id: "sdk-js", title: "JavaScript / TypeScript SDK", icon: "FileCode" },
+      { id: "sdk-tools", title: "Built-in Agent Tools", icon: "Wrench" },
       { id: "cli", title: "Unified CLI Reference", icon: "Terminal" },
       { id: "cookbook", title: "Developer Cookbook", icon: "Compass" },
     ]
@@ -27,7 +28,6 @@ export const DOCS_NAV = [
     items: [
       { id: "llm-chat", title: "Chat & SSE Streaming", icon: "MessageSquare" },
       { id: "llm-translation", title: "Native Cultural Translation", icon: "Globe" },
-      { id: "llm-africanize", title: "Cultural Tone Adapter", icon: "Wand2" },
     ]
   },
   {
@@ -122,6 +122,9 @@ pip install ./python-sdk
 
 # Or install with local PyTorch/GPU support
 pip install "./python-sdk[local]"
+
+# Editable / development install (also supported)
+pip install -e ./python-sdk
 \`\`\`
 
 #### Your First Python Chat:
@@ -136,6 +139,17 @@ response = client.chat([
 ])
 
 print(response.message.content)
+\`\`\`
+
+#### Built-in Zero-Key Tools (no API key needed):
+\`\`\`python
+from natlas import tools
+
+tools.nigeria_gazetteer("Lagos")       # offline state/LGA lookup
+tools.math_eval("50000 * 0.075")       # safe arithmetic
+tools.fx_rates("USD", "NGN")           # live FX, no key
+tools.weather_lookup("Abuja")          # live weather, no key
+tools.web_search("Nigerian AI news")   # DuckDuckGo, no key
 \`\`\`
 
 ### 3. JavaScript / TypeScript SDK Installation
@@ -161,6 +175,16 @@ const response = await client.chat([
 ]);
 
 console.log(response.message.content);
+\`\`\`
+
+#### Built-in Zero-Key Tools:
+\`\`\`typescript
+import { nigeriaGazetteer, fxRates, webSearch, mathEval } from "natlas/tools";
+
+nigeriaGazetteer("Kano");              // offline, instant
+mathEval("(200000 * 0.075) + 500");   // offline, instant
+await fxRates("USD", "NGN");          // free, no key
+await webSearch("Lagos tech news");    // free, no key
 \`\`\`
     `
   },
@@ -247,23 +271,29 @@ for w in result.words:
     print(f"[{w.start:.2f}s -> {w.end:.2f}s] {w.word}")
 \`\`\`
 
-### 3. Africanize & Cultural Translation
+### 3. Built-in Agent Tools (Zero-Key)
+
+All 7 tools work immediately after \`pip install ./python-sdk\` — no API keys:
 
 \`\`\`python
-# Africanize (Tone Adapter)
-res = client.africanize(
-    text="I am extremely surprised and astonished by this news.",
-    tone="pidgin" # options: formal, colloquial, street, pidgin
-)
-print(res.text) # "Chai! You mean dis thing dey happen for real?!"
+from natlas import tools
 
-# Translation
-trans = client.translate(
-    text="Good morning, how did you sleep?",
-    target_lang="yo"
-)
-print(trans.text) # "Ẹ káàárọ̀, báwo ni ẹ ṣe sùn?"
+# Offline tools
+tools.nigeria_gazetteer("Oyo")            # capital: Ibadan, LGAs list
+tools.math_eval("(200000 * 0.075) + 500") # safe AST arithmetic
+
+# Free live tools
+tools.web_search("Nigerian tech news")
+tools.weather_lookup("Lagos")
+tools.fx_rates("USD", "NGN")
+tools.wikipedia_lookup("Yoruba", lang="yo")
+tools.fetch_webpage("https://example.com")
+
+# Get OpenAI schemas + execute tool by name
+schemas = tools.get_openai_tools()  # all 7
+result  = tools.execute_tool("fx_rates", {"base": "USD", "target": "NGN"})
 \`\`\`
+
     `
   },
 
@@ -326,21 +356,31 @@ const result = await client.audio.transcriptions.create(audioBuffer, {
 console.log("Transcribed Text:", result.text);
 \`\`\`
 
-### 3. Africanize & Cultural Translation
+### 3. Built-in Agent Tools (Zero-Key)
+
+All 7 tools work immediately after \`npm install ./js-sdk\` — no API keys:
 
 \`\`\`typescript
-// Africanize (Tone Adapter)
-const res = await client.africanize("I am extremely surprised by this news.", {
-  tone: "pidgin"
-});
-console.log(res.text);
+import { nigeriaGazetteer, mathEval, webSearch, fxRates,
+         weatherLookup, wikipediaLookup, fetchWebpage,
+         getOpenAITools, executeTool, registerTool } from "natlas/tools";
 
-// Translation
-const trans = await client.translate("Good morning, how did you sleep?", {
-  target_lang: "yo"
-});
-console.log(trans.text); // "Ẹ káàárọ̀, báwo ni ẹ ṣe sùn?"
+// Offline tools
+nigeriaGazetteer("Rivers");           // state info + LGAs
+mathEval("(200000 * 0.075) + 500");  // safe arithmetic
+
+// Free live tools
+await webSearch("Nigerian startup news");
+await weatherLookup("Kano");
+await fxRates("GBP", "NGN");
+await wikipediaLookup("Igbo", "ig");
+await fetchWebpage("https://example.com");
+
+// OpenAI schemas + execute
+const schemas = getOpenAITools();
+const result  = await executeTool("fx_rates", { base: "USD", target: "NGN" });
 \`\`\`
+
     `
   },
 
@@ -386,17 +426,13 @@ natlas chat --lang yo
 natlas transcribe speech.wav --model NCAIR1/Yoruba-ASR --timestamps
 
 # 4. Quick Cultural Tone Adapter
-natlas africanize "That is unbelievable" --tone street
 
-# 5. Native Cultural Translation
-natlas translate "Good morning" --target-lang yo
-\`\`\`
     `
   },
 
   "cookbook": {
     title: "Developer Cookbook & Recipes",
-    subtitle: "End-to-end practical recipes: WhatsApp bots, voice pipelines, and Next.js integrations.",
+    subtitle: "End-to-end practical recipes: WhatsApp bots, voice pipelines, agent tools, and Next.js integrations.",
     badge: "Cookbook",
     content: `
 ### Production Recipes in the Repository
@@ -410,6 +446,57 @@ Check out the [\`cookbook/\`](https://github.com/samolubukun/N-Atlas-Toolkit/tre
    - End-to-end voice-to-voice translation: Audio input → Multilingual ASR → N-ATLaS Translation → Nigerian TTS synthesis.
 3. **[\`openai_sdk_quickstart.py\`](https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/cookbook/openai_sdk_quickstart.py)**:
    - Drop-in compatibility with the official \`openai\` Python library via \`base_url="https://.../v1"\`.
+
+### Built-in Zero-Key Tools Recipes
+
+\`\`\`python
+from natlas import tools
+
+# Nigerian admin lookup — offline, instant
+state = tools.nigeria_gazetteer("Ogun")
+# → {capital: "Abeokuta", zone: "South West", total_lgas: 20, lgas: [...]}
+
+# Safe arithmetic — no LLM hallucination
+vat = tools.math_eval("200000 * 0.075")
+# → {result: 15000.0}
+
+# Live FX rates — no API key
+rate = tools.fx_rates("USD", "NGN")
+# → {rate: 1620.5, last_update: "..."}
+
+# Web search — DuckDuckGo, no key
+news = tools.web_search("latest Nigerian startup funding")
+
+# Full agent loop with built-in tools
+import natlas
+client = natlas.Client()
+schemas = tools.get_openai_tools(["web_search", "fx_rates", "nigeria_gazetteer"])
+response = client.chat(
+    [{"role": "user", "content": "USD to Naira rate and Lagos weather?"}],
+    tools=schemas, tool_choice="auto"
+)
+if response.done_reason == "tool_calls":
+    for tc in response.message.tool_calls:
+        result = tools.execute_tool(tc.function.name, tc.function.arguments)
+        print(result)
+\`\`\`
+
+### MCP Server — Use Tools in Claude Desktop / Cursor / Antigravity
+
+\`\`\`bash
+python python-sdk/src/mcp_server.py
+\`\`\`
+
+\`\`\`json
+{
+  "mcpServers": {
+    "natlas-tools": {
+      "command": "python",
+      "args": ["/absolute/path/to/N-Atlas-Toolkit/python-sdk/src/mcp_server.py"]
+    }
+  }
+}
+\`\`\`
     `
   },
 
@@ -519,69 +606,9 @@ N-ATLaS 8B supports OpenAI-compatible function calling:
 \`\`\`
     `
   },
-
-  "llm-translation": {
-    title: "Native Cultural Translation (/v1/translate)",
-    subtitle: "Direct African language machine translation with dialect sensitivity.",
-    badge: "NMT Engine",
-    studioLink: "translate",
-    content: `
-### Endpoint: \`POST /v1/translate\`
-
-\`\`\`json
-{
-  "text": "The harvest was plentiful this year, and all the villagers celebrated.",
-  "source_lang": "en",
-  "target_lang": "yo"
-}
-\`\`\`
-
-### Response:
-\`\`\`json
-{
-  "source_text": "The harvest was plentiful this year, and all the villagers celebrated.",
-  "target_text": "Ìkórè pọ̀ púpọ̀ ní ọdún yìí, gbogbo àwọn ará abúlé sì ṣe ayẹyẹ.",
-  "source_lang": "en",
-  "target_lang": "yo"
-}
-\`\`\`
-    `
-  },
-
-  "llm-africanize": {
-    title: "Cultural Tone Adapter (/v1/africanize)",
-    subtitle: "Transform standard English prompts and responses into culturally natural Nigerian expressions.",
-    badge: "Tone Adapter",
-    studioLink: "africanize",
-    content: `
-### Available Tones
-
-- **\`formal\`**: Professional Nigerian business context (respectful honorifics, boardroom standard).
-- **\`colloquial\`**: Casual everyday Nigerian English conversation.
-- **\`street\`**: Lagos street slang, high energy, urban vernacular.
-- **\`pidgin\`**: Authentic Nigerian Pidgin English (Waffi/Lagos cadence).
-
-### Example Request:
-\`\`\`json
-{
-  "text": "Please confirm if you received the document I sent earlier.",
-  "tone": "pidgin"
-}
-\`\`\`
-
-### Example Output:
-\`\`\`json
-{
-  "original": "Please confirm if you received the document I sent earlier.",
-  "africanized": "Abeg confirm say you see that document wey I send earlier o.",
-  "tone": "pidgin"
-}
-\`\`\`
-    `
-  },
-
+  
   "finetune-overview": {
-    title: "Fine-Tuning Starter Kit: LoRA Pipeline",
+    title: "Fine-Tuning Architecture Overview",
     subtitle: "Adapt N-ATLaS or Llama-3 checkpoints to specific enterprise domains and dialects.",
     badge: "LoRA & Unsloth",
     content: `
@@ -682,10 +709,8 @@ python eval/report.py --compare eval/comparison.json
 | \`GET\` | \`/v1/models\` | LLM | Model catalog discovery | \`Bearer <API_KEY>\` |
 | \`POST\` | \`/v1/chat/completions\` | LLM | Chat completion (SSE streaming supported) | \`Bearer <API_KEY>\` |
 | \`POST\` | \`/v1/completions\` | LLM | Raw prompt text completion | \`Bearer <API_KEY>\` |
-| \`POST\` | \`/v1/translate\` | LLM | Direct African language translation | \`Bearer <API_KEY>\` |
-| \`POST\` | \`/v1/africanize\` | LLM | Nigerian cultural tone adapter | \`Bearer <API_KEY>\` |
+
 | \`POST\` | \`/v1/audio/transcriptions\` | ASR | Sovereign audio speech-to-text with word alignment | \`Bearer <API_KEY>\` |
-| \`WSS\` | \`/ws/realtime\` | LLM | Conversational voice token streaming | WebSocket |
     `
   },
 
@@ -828,6 +853,153 @@ response = client.chat([
 ])
 
 print(response.message.content)
+\`\`\`
+    `
+  },
+
+  "sdk-tools": {
+    title: "Built-in Agent Tools (Zero-Key)",
+    subtitle: "7 free, zero-API-key tools for web search, FX rates, weather, Nigerian gazetteer, Wikipedia, math, and web fetching — ship inside both SDKs.",
+    badge: "Zero-Key Tools",
+    content: `
+### Tool Reference
+
+| Tool | Description | Network? | Key? |
+| :--- | :--- | :--- | :--- |
+| \`web_search\` / \`webSearch\` | DuckDuckGo web search | ✅ | ❌ |
+| \`fetch_webpage\` / \`fetchWebpage\` | Clean text from any URL | ✅ | ❌ |
+| \`weather_lookup\` / \`weatherLookup\` | Live weather via Open-Meteo | ✅ | ❌ |
+| \`fx_rates\` / \`fxRates\` | Live FX rates via open.er-api.com | ✅ | ❌ |
+| \`wikipedia_lookup\` / \`wikipediaLookup\` | Wikipedia REST API (en/ha/yo/ig) | ✅ | ❌ |
+| \`nigeria_gazetteer\` / \`nigeriaGazetteer\` | Offline 36 states + FCT + 774 LGAs | ❌ | ❌ |
+| \`math_eval\` / \`mathEval\` | Safe AST arithmetic evaluator | ❌ | ❌ |
+
+---
+
+### Python SDK
+
+\`\`\`python
+from natlas import tools
+
+# Offline tools — instant, zero network
+state = tools.nigeria_gazetteer("Lagos")
+# {"found": True, "capital": "Ikeja", "total_lgas": 20, "lgas": [...]}
+
+calc = tools.math_eval("(200000 * 0.075) + 500")
+# {"result": 15500.0}
+
+# Free live tools — no API key needed
+news   = tools.web_search("Nigerian AI startups 2025", max_results=5)
+wx     = tools.weather_lookup("Abuja")
+rate   = tools.fx_rates("USD", "NGN")
+wiki   = tools.wikipedia_lookup("Hausa people", lang="ha")
+page   = tools.fetch_webpage("https://ncc.gov.ng", max_chars=3000)
+
+# Get OpenAI-compatible schemas
+schemas = tools.get_openai_tools()          # all 7 tools
+schemas = tools.get_openai_tools(["web_search", "fx_rates"])
+
+# Execute any tool by name
+result = tools.execute_tool("fx_rates", {"base": "USD", "target": "NGN"})
+\`\`\`
+
+### Python — Full Agent Loop
+
+\`\`\`python
+import natlas
+from natlas import tools
+
+client = natlas.Client()
+schemas = tools.get_openai_tools(["web_search", "fx_rates", "weather_lookup"])
+messages = [{"role": "user", "content": "USD to Naira rate and weather in Lagos?"}]
+
+response = client.chat(messages, tools=schemas, tool_choice="auto")
+
+while response.done_reason == "tool_calls":
+    messages.append(response.message.model_dump())
+    for tc in response.message.tool_calls:
+        result = tools.execute_tool(tc.function.name, tc.function.arguments)
+        messages.append({"role": "tool", "tool_call_id": tc.id, "content": str(result)})
+    response = client.chat(messages, tools=schemas, tool_choice="auto")
+
+print(response.message.content)
+\`\`\`
+
+### Python — Custom Tool Registration
+
+\`\`\`python
+@tools.tool
+def get_commodity_price(commodity: str, market: str = "Mile 12") -> dict:
+    """Get current price for a commodity in a Nigerian market."""
+    return {"commodity": commodity, "market": market, "price_ngn": 4500}
+
+# Immediately available in schemas and dispatcher
+schemas = tools.get_openai_tools()  # includes get_commodity_price
+\`\`\`
+
+---
+
+### JavaScript / TypeScript SDK
+
+\`\`\`typescript
+// Tree-shakeable subpath import (recommended)
+import {
+  nigeriaGazetteer, mathEval, webSearch, weatherLookup,
+  fxRates, wikipediaLookup, fetchWebpage,
+  getOpenAITools, executeTool, registerTool,
+} from "natlas/tools";
+
+// Or from main barrel
+import { tools } from "natlas";
+
+// Offline tools
+const state = nigeriaGazetteer("Kano");   // {capital: "Kano", total_lgas: 44, ...}
+const calc  = mathEval("50000 * 0.075");  // {result: 3750}
+
+// Free live tools
+const results = await webSearch("Lagos fintech");
+const weather = await weatherLookup("Port Harcourt");
+const rate    = await fxRates("USD", "NGN");
+const wiki    = await wikipediaLookup("Igbo people", "ig");
+const page    = await fetchWebpage("https://example.com");
+
+// OpenAI schemas and dispatcher
+const schemas = getOpenAITools();
+const result  = await executeTool("nigeria_gazetteer", { query: "Ogun" });
+\`\`\`
+
+### JavaScript — Custom Tool Registration
+
+\`\`\`typescript
+registerTool({
+  name: "check_order",
+  description: "Check delivery status for an order.",
+  parameters: {
+    type: "object",
+    properties: { order_id: { type: "string" } },
+    required: ["order_id"],
+  },
+  execute: async ({ order_id }) => ({ order_id, status: "in_transit" }),
+});
+\`\`\`
+
+---
+
+### MCP Server (Claude Desktop / Cursor / Antigravity)
+
+\`\`\`bash
+python python-sdk/src/mcp_server.py
+\`\`\`
+
+\`\`\`json
+{
+  "mcpServers": {
+    "natlas-tools": {
+      "command": "python",
+      "args": ["/absolute/path/to/N-Atlas-Toolkit/python-sdk/src/mcp_server.py"]
+    }
+  }
+}
 \`\`\`
     `
   }
