@@ -65,6 +65,10 @@ const result = await client.audio.transcriptions.create(audioBuffer, {
   timestamp_granularities: ["word"]
 });
 
+console.log("Transcribed text:", result.text);
+console.log("Word timestamps:", result.words);
+```
+
 ---
 
 ## 3. Agentic Tool Calling (Function Calling)
@@ -105,4 +109,68 @@ if (response.message.tool_calls) {
 }
 ```
 
+---
+
+## 4. Built-in Agent Tools (Zero-Key)
+
+All 7 tools are available immediately after `npm install ./js-sdk` — no external API keys needed:
+
+```typescript
+import { tools } from "natlas";
+// or tree-shakeable subpath import:
+import {
+  nigeriaGazetteer, mathEval, webSearch, weatherLookup,
+  fxRates, wikipediaLookup, fetchWebpage,
+  getOpenAITools, executeTool, registerTool,
+} from "natlas/tools";
+
+// Offline (no network required)
+nigeriaGazetteer("Lagos");           // 36 states, FCT, 774 LGAs
+mathEval("(50000 * 0.075) + 320");   // safe arithmetic evaluator
+
+// Free live tools (no API key)
+await webSearch("N-ATLaS Nigeria AI");   // DuckDuckGo, no key
+await weatherLookup("Abuja");            // Open-Meteo, no key
+await fxRates("USD", "NGN");            // open.er-api.com, no key
+await wikipediaLookup("Hausa", "ha");    // Wikipedia REST API
+await fetchWebpage("https://example.com"); // clean text extractor
+```
+
+### Use with the N-ATLaS Agent Loop
+
+```typescript
+import { NatlasClient } from "natlas";
+import { getOpenAITools, executeTool } from "natlas/tools";
+
+const client = new NatlasClient();
+
+const response = await client.chat(
+  [{ role: "user", content: "What's USD to Naira today and weather in Lagos?" }],
+  { tools: getOpenAITools(["fx_rates", "weather_lookup"]), tool_choice: "auto" }
+);
+
+if (response.message.tool_calls) {
+  for (const tc of response.message.tool_calls) {
+    const result = await executeTool(tc.function.name, JSON.parse(tc.function.arguments));
+    console.log(result);
+  }
+}
+```
+
+### Register Custom Tools
+
+```typescript
+registerTool({
+  name: "check_order",
+  description: "Check delivery status for an order.",
+  parameters: {
+    type: "object",
+    properties: { order_id: { type: "string" } },
+    required: ["order_id"],
+  },
+  execute: async ({ order_id }) => ({ order_id, status: "in_transit" }),
+});
+
+// Custom tool is now in getOpenAITools() and executeTool()
+```
 

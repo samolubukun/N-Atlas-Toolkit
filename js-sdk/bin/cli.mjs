@@ -7,8 +7,7 @@
  * - `natlas chat [prompt]`
  * - `natlas transcribe <file>`
  * - `natlas stream-asr <file>`
- * - `natlas translate <text>`
- * - `natlas africanize <text>`
+
  * - `natlas models`
  */
 
@@ -65,8 +64,7 @@ Usage: natlas <command> [options]
 Commands:
   chat [prompt]         Chat with N-ATLaS (interactive REPL or one-shot SSE streaming)
   transcribe <file>     Speech-to-text audio transcription
-  translate <text>      Translate text into an African language
-  africanize <text>     Adapt tone to Nigerian cultural context
+
   models                List available models
   help                  Show this help message
 
@@ -175,35 +173,7 @@ async function handleTranscribe(client, args) {
   console.log("=================================================");
 }
 
-async function handleTranslate(client, args) {
-  const text = args._.slice(1).join(" ");
-  if (!text) {
-    console.error("Error: Please provide text to translate.");
-    process.exit(1);
-  }
 
-  const res = await client.post("translate", {
-    text,
-    target_lang: args.target || "Yoruba",
-    tone: args.tone || "formal",
-  });
-  console.log(res.translation || res);
-}
-
-async function handleAfricanize(client, args) {
-  const text = args._.slice(1).join(" ");
-  if (!text) {
-    console.error("Error: Please provide text to adapt.");
-    process.exit(1);
-  }
-
-  const res = await client.post("africanize", {
-    content: text,
-    culture_context: args.context || "Lagos-Urban",
-    formality: args.formality || "natural",
-  });
-  console.log(res.adapted_text || res);
-}
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
@@ -227,12 +197,7 @@ async function main() {
     case "transcribe":
       await handleTranscribe(client, args);
       break;
-    case "translate":
-      await handleTranslate(client, args);
-      break;
-    case "africanize":
-      await handleAfricanize(client, args);
-      break;
+
     case "models": {
       const models = await client.get("models");
       console.log("Available Models:", models);

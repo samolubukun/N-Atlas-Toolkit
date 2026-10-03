@@ -12,6 +12,7 @@ export * from "./errors.js";
 export * from "./languages.js";
 export * from "./client.js";
 export * from "./sse.js";
+export * as tools from "./tools/index.js";
 
 // Convenience default export
 import { NatlasClient } from "./client.js";

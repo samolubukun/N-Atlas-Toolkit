@@ -14,6 +14,7 @@ N-ATLaS is an initiative of the Federal Ministry of Communications, Innovation a
 - **Audio Speech-to-Text (ASR)**: Sovereign multilingual audio transcription endpoint (`client.audio.transcriptions.create`) for Yoruba, Hausa, Igbo, and Nigerian English.
 - **Language Detection & System Prompts**: Built-in deterministic language detection heuristics and culturally aligned sovereign system prompts (`YO`, `HA`, `IG`, `EN_NG`).
 - **Flexible Deployment**: Connects to the hosted cloud endpoint on Modal or any self-hosted private on-premises vLLM / Docker instance.
+- **Built-in Agent Tools**: 7 free, zero-API-key tools (`web_search`, `weather_lookup`, `fx_rates`, `nigeria_gazetteer`, `wikipedia_lookup`, `fetch_webpage`, `math_eval`) — no external credentials required.
 
 ---
 
@@ -162,10 +163,64 @@ console.log("Sovereign prompt:", systemPrompt(lang));
 
 ---
 
+## 4. Built-in Agent Tools (Zero-Key)
+
+The `tools` namespace ships 7 built-in tools — **no API key or external account required**:
+
+```typescript
+import { tools } from "natlas";
+// or tree-shakeable subpath:
+import {
+  nigeriaGazetteer, mathEval, webSearch, weatherLookup,
+  fxRates, wikipediaLookup, fetchWebpage,
+  getOpenAITools, executeTool, registerTool,
+} from "natlas/tools";
+
+// Offline (no network)
+nigeriaGazetteer("Lagos");           // states, capitals, 774 LGAs
+mathEval("(50000 * 0.075) + 320");   // safe arithmetic
+
+// Free network tools
+await webSearch("N-ATLaS Nigeria AI");   // DuckDuckGo, no key
+await weatherLookup("Abuja");            // Open-Meteo, no key
+await fxRates("USD", "NGN");            // open.er-api.com, no key
+await wikipediaLookup("Hausa", "ha");    // Wikipedia REST API
+await fetchWebpage("https://example.com"); // clean text extractor
+```
+
+### OpenAI Function-Calling Schemas
+
+```typescript
+// Ready-made schemas for any agent loop
+const schemas = getOpenAITools();                         // all 7
+const subset  = getOpenAITools(["web_search", "fx_rates"]); // subset
+
+// Execute by name (after model returns tool_calls)
+const result = await executeTool("fx_rates", { base: "USD", target: "NGN" });
+```
+
+### Register Custom Tools
+
+```typescript
+registerTool({
+  name: "check_order",
+  description: "Check delivery status for an order.",
+  parameters: {
+    type: "object",
+    properties: { order_id: { type: "string" } },
+    required: ["order_id"],
+  },
+  execute: async ({ order_id }) => ({ order_id, status: "in_transit" }),
+});
+```
+
+Custom tools are added to `OPENAI_TOOL_SCHEMAS` and callable via `executeTool()`.
+
+---
+
 ## License & Attribution
 
 The SDK source is licensed under the Apache-2.0 License.
 
 Required sovereign attribution:
 > *"N-ATLaS is an initiative of the Federal Ministry of Communications, Innovation and Digital Economy, and powered by Awarri Technologies."*
-
