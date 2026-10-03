@@ -48,7 +48,6 @@ services:
       - "8000"
     volumes:
       - ~/.cache/huggingface:/root/.cache/huggingface
-      - ./:/app
 
   # ---------------------------------------------------------------------------
   # 3. SOVEREIGN ASR ENGINE (Speech-to-Text)
@@ -72,4 +71,3 @@ services:
       - "8001"
     volumes:
       - ~/.cache/huggingface:/root/.cache/huggingface
-      - ./:/app
