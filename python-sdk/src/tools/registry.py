@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 from .core import (
     fetch_webpage,
@@ -15,7 +16,7 @@ from .core import (
     wikipedia_lookup,
 )
 
-TOOL_REGISTRY: Dict[str, Callable[..., Any]] = {
+TOOL_REGISTRY: dict[str, Callable[..., Any]] = {
     "web_search": web_search,
     "fetch_webpage": fetch_webpage,
     "fx_rates": fx_rates,
@@ -25,7 +26,7 @@ TOOL_REGISTRY: Dict[str, Callable[..., Any]] = {
     "math_eval": math_eval,
 }
 
-OPENAI_TOOL_SCHEMAS: Dict[str, Dict[str, Any]] = {
+OPENAI_TOOL_SCHEMAS: dict[str, dict[str, Any]] = {
     "web_search": {
         "type": "function",
         "function": {
@@ -170,10 +171,10 @@ OPENAI_TOOL_SCHEMAS: Dict[str, Dict[str, Any]] = {
 
 
 def register_tool(
-    name: Optional[str] = None,
-    func: Optional[Callable[..., Any]] = None,
-    description: Optional[str] = None,
-    schema: Optional[Dict[str, Any]] = None,
+    name: str | None = None,
+    func: Callable[..., Any] | None = None,
+    description: str | None = None,
+    schema: dict[str, Any] | None = None,
 ) -> Callable[..., Any]:
     """Register a custom tool into the N-ATLaS tool ecosystem.
 
@@ -196,8 +197,8 @@ def register_tool(
         else:
             # Auto-generate OpenAI schema from function signature
             sig = inspect.signature(fn)
-            properties: Dict[str, Any] = {}
-            required: List[str] = []
+            properties: dict[str, Any] = {}
+            required: list[str] = []
 
             type_map = {
                 str: "string",
@@ -213,7 +214,7 @@ def register_tool(
                     continue
 
                 param_type = type_map.get(param.annotation, "string")
-                prop: Dict[str, Any] = {"type": param_type}
+                prop: dict[str, Any] = {"type": param_type}
                 if param.default is not inspect.Parameter.empty:
                     prop["default"] = param.default
                 else:
@@ -251,7 +252,7 @@ def register_tool(
 tool = register_tool
 
 
-def get_openai_tools(tool_names: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+def get_openai_tools(tool_names: list[str] | None = None) -> list[dict[str, Any]]:
     """Return OpenAI-compliant tool schemas for function calling.
 
     Args:

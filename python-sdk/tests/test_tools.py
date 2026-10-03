@@ -1,14 +1,8 @@
-import pytest
 from natlas.tools.core import (
-    fetch_webpage,
-    fx_rates,
     math_eval,
     nigeria_gazetteer,
-    weather_lookup,
-    web_search,
-    wikipedia_lookup,
 )
-from natlas.tools.registry import OPENAI_TOOL_SCHEMAS, execute_tool, get_openai_tools
+from natlas.tools.registry import execute_tool, get_openai_tools
 
 
 def test_gazetteer_state_lookup():

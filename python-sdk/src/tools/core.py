@@ -16,8 +16,9 @@ import ast
 import json
 import operator
 import re
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from urllib.parse import quote_plus
 
 import httpx
@@ -27,21 +28,21 @@ import httpx
 # ---------------------------------------------------------------------------
 _DATA_DIR = Path(__file__).resolve().parent / "data"
 _NIGERIA_DATA_FILE = _DATA_DIR / "nigeria.json"
-_GAZETTEER_CACHE: Optional[Dict[str, Any]] = None
+_GAZETTEER_CACHE: dict[str, Any] | None = None
 
 
-def _load_gazetteer() -> Dict[str, Any]:
+def _load_gazetteer() -> dict[str, Any]:
     global _GAZETTEER_CACHE
     if _GAZETTEER_CACHE is None:
         if _NIGERIA_DATA_FILE.exists():
-            with open(_NIGERIA_DATA_FILE, "r", encoding="utf-8") as f:
+            with open(_NIGERIA_DATA_FILE, encoding="utf-8") as f:
                 _GAZETTEER_CACHE = json.load(f)
         else:
             _GAZETTEER_CACHE = {"states": {}}
     return _GAZETTEER_CACHE
 
 
-def nigeria_gazetteer(query: str) -> Dict[str, Any]:
+def nigeria_gazetteer(query: str) -> dict[str, Any]:
     """Look up authoritative administrative details for Nigerian States or LGAs (100% offline).
 
     Args:
@@ -68,7 +69,7 @@ def nigeria_gazetteer(query: str) -> Dict[str, Any]:
             }
 
     # 2. LGA match
-    matched_lgas: List[Dict[str, str]] = []
+    matched_lgas: list[dict[str, str]] = []
     for state_name, info in states.items():
         for lga in info.get("lgas", []):
             if clean_query in lga.lower():
@@ -98,7 +99,7 @@ def nigeria_gazetteer(query: str) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 # 2. Web Search (DuckDuckGo Lite Engine - Zero Key)
 # ---------------------------------------------------------------------------
-def web_search(query: str, max_results: int = 5) -> List[Dict[str, str]]:
+def web_search(query: str, max_results: int = 5) -> list[dict[str, str]]:
     """Perform a free web search via DuckDuckGo without any API key or subscription.
 
     Args:
@@ -126,7 +127,7 @@ def web_search(query: str, max_results: int = 5) -> List[Dict[str, str]]:
             resp.raise_for_status()
             html = resp.text
 
-        results: List[Dict[str, str]] = []
+        results: list[dict[str, str]] = []
         titles = re.findall(r'<h2[^>]*class="result__title"[^>]*>\s*<a[^>]*>(.*?)</a>', html, re.DOTALL)
         snippets = re.findall(r'<a[^>]+class="result__snippet[^"]*"[^>]*>(.*?)</a>', html, re.DOTALL)
         links = re.findall(r'<a[^>]+class="result__url"[^>]*href="([^"]+)"', html)
@@ -184,7 +185,7 @@ def web_search(query: str, max_results: int = 5) -> List[Dict[str, str]]:
 # ---------------------------------------------------------------------------
 # 3. Web Page Reader / Fetcher (Clean text extraction - Zero Key)
 # ---------------------------------------------------------------------------
-def fetch_webpage(url: str, max_chars: int = 4000) -> Dict[str, Any]:
+def fetch_webpage(url: str, max_chars: int = 4000) -> dict[str, Any]:
     """Fetch an open webpage and extract its clean readable text/markdown (Zero Key).
 
     Args:
@@ -225,7 +226,7 @@ def fetch_webpage(url: str, max_chars: int = 4000) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 # 4. FX Rates (Open Public API - Zero Key)
 # ---------------------------------------------------------------------------
-def fx_rates(base: str = "USD", target: str = "NGN") -> Dict[str, Any]:
+def fx_rates(base: str = "USD", target: str = "NGN") -> dict[str, Any]:
     """Get live foreign exchange rates (e.g. USD to NGN) using open public feeds (Zero Key).
 
     Args:
@@ -267,7 +268,7 @@ def fx_rates(base: str = "USD", target: str = "NGN") -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 # 5. Weather Lookup (Open-Meteo - Zero Key)
 # ---------------------------------------------------------------------------
-def weather_lookup(location: str) -> Dict[str, Any]:
+def weather_lookup(location: str) -> dict[str, Any]:
     """Get current weather forecast for any city or region via Open-Meteo (100% Free, Zero Key).
 
     Args:
@@ -322,7 +323,7 @@ def weather_lookup(location: str) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 # 6. Wikipedia Lookup (Public MediaWiki API - Zero Key)
 # ---------------------------------------------------------------------------
-def wikipedia_lookup(query: str, lang: str = "en") -> Dict[str, Any]:
+def wikipedia_lookup(query: str, lang: str = "en") -> dict[str, Any]:
     """Look up Wikipedia encyclopedic summaries in English, Hausa (ha), Yoruba (yo), or Igbo (ig).
 
     Args:
@@ -359,18 +360,21 @@ def wikipedia_lookup(query: str, lang: str = "en") -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 # 7. Math Evaluator (Safe AST Arithmetic - Zero Key)
 # ---------------------------------------------------------------------------
-_SAFE_OPERATORS = {
+_SAFE_BINARY_OPS: dict[type[ast.operator], Callable[[Any, Any], Any]] = {
     ast.Add: operator.add,
     ast.Sub: operator.sub,
     ast.Mult: operator.mul,
     ast.Div: operator.truediv,
     ast.Pow: operator.pow,
-    ast.USub: operator.neg,
     ast.Mod: operator.mod,
 }
 
+_SAFE_UNARY_OPS: dict[type[ast.unaryop], Callable[[Any], Any]] = {
+    ast.USub: operator.neg,
+}
 
-def math_eval(expression: str) -> Dict[str, Any]:
+
+def math_eval(expression: str) -> dict[str, Any]:
     """Safely calculate mathematical expressions using AST (Zero LLM hallucination, 100% offline).
 
     Args:
@@ -387,15 +391,15 @@ def math_eval(expression: str) -> Dict[str, Any]:
                 return node.value
             raise ValueError("Constants must be numeric")
         elif isinstance(node, ast.BinOp):
-            op_type = type(node.op)
-            if op_type in _SAFE_OPERATORS:
-                return _SAFE_OPERATORS[op_type](_eval(node.left), _eval(node.right))
-            raise ValueError(f"Unsupported binary operator: {op_type}")
+            bin_op_type = type(node.op)
+            if bin_op_type in _SAFE_BINARY_OPS:
+                return _SAFE_BINARY_OPS[bin_op_type](_eval(node.left), _eval(node.right))
+            raise ValueError(f"Unsupported binary operator: {bin_op_type}")
         elif isinstance(node, ast.UnaryOp):
-            op_type = type(node.op)
-            if op_type in _SAFE_OPERATORS:
-                return _SAFE_OPERATORS[op_type](_eval(node.operand))
-            raise ValueError(f"Unsupported unary operator: {op_type}")
+            unary_op_type = type(node.op)
+            if unary_op_type in _SAFE_UNARY_OPS:
+                return _SAFE_UNARY_OPS[unary_op_type](_eval(node.operand))
+            raise ValueError(f"Unsupported unary operator: {unary_op_type}")
         raise ValueError(f"Unsupported expression node: {type(node)}")
 
     try:

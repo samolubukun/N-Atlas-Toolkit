@@ -41,7 +41,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-
+          paths: [python-sdk/src]
           options:
             docstring_style: google
             show_root_heading: true
@@ -73,6 +73,7 @@ nav:
       - Developer Cookbook: cookbook.md
   - ASR (Speech-to-Text):
       - Audio Transcriptions: asr/transcriptions.md
+      - Real-Time & Streaming: asr/streaming.md
       - ASR Benchmarks & WER/CER: asr/benchmarks.md
   - LLM Capabilities:
       - Chat & SSE Streaming: llm/chat.md

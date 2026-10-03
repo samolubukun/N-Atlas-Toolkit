@@ -43,7 +43,7 @@ natlas = "natlas.cli:main"
 
 [tool.setuptools]
 package-dir = {"natlas" = "src"}
-packages = ["natlas"]
+packages = ["natlas", "natlas.tools", "natlas.tools.data"]
 
 [project.optional-dependencies]
 local = [

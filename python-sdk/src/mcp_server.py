@@ -10,29 +10,20 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 # Ensure local repo imports work when executed directly
 _REPO_SRC = Path(__file__).resolve().parent
 if str(_REPO_SRC) not in sys.path:
     sys.path.insert(0, str(_REPO_SRC))
 
-from tools.core import (
-    fetch_webpage,
-    fx_rates,
-    math_eval,
-    nigeria_gazetteer,
-    weather_lookup,
-    web_search,
-    wikipedia_lookup,
-)
-from tools.registry import OPENAI_TOOL_SCHEMAS, execute_tool
+from tools.registry import OPENAI_TOOL_SCHEMAS, execute_tool  # noqa: E402
 
 SERVER_NAME = "natlas-tools-mcp"
 SERVER_VERSION = "0.1.0"
 
 
-def _format_mcp_tools() -> list[Dict[str, Any]]:
+def _format_mcp_tools() -> list[dict[str, Any]]:
     """Format tools according to MCP ListTools protocol."""
     mcp_tools = []
     for name, schema in OPENAI_TOOL_SCHEMAS.items():
@@ -45,7 +36,7 @@ def _format_mcp_tools() -> list[Dict[str, Any]]:
     return mcp_tools
 
 
-def handle_request(req: Dict[str, Any]) -> Dict[str, Any] | None:
+def handle_request(req: dict[str, Any]) -> dict[str, Any] | None:
     method = req.get("method")
     req_id = req.get("id")
 
