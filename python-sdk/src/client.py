@@ -593,8 +593,8 @@ class AsyncTranscriptions:
         elif isinstance(file, (bytes, bytearray)):
             content = bytes(file)
         elif isinstance(file, (str, Path)):
-            with open(file, "rb") as f:
-                content = f.read()
+            # Use a thread so large audio reads don't block the event loop
+            content = await asyncio.to_thread(Path(file).read_bytes)
         else:
             raise ValueError("file must be bytes, a file-like object, or a path")
 
