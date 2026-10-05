@@ -41,7 +41,7 @@ export const ASR_MODELS = [
     id: "NCAIR1/NigerianAccentedEnglish",
     name: "Nigerian Accented English",
     lang: "en-ng",
-    description: "Trained on authentic Nigerian English cadence, stress, and Pidgin blends.",
+    description: "Trained on authentic Nigerian English cadence, stress, and accent patterns.",
     badge: "Nigerian English",
     sampleText: "Good morning! How is everything going today? Hope there is no problem.",
   },

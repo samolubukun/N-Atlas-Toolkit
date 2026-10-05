@@ -37,11 +37,13 @@ This Space replicates the full **N-ATLaS Engine** developed under the Nigerian L
 
 1. Create a new Space on [Hugging Face](https://huggingface.co/new-space).
 2. Set SDK to **Gradio**.
-3. (Recommended) Select hardware: **T4 Small (16GB GPU)** or **A10G**.
+3. Select hardware: **ZeroGPU** (the app is built for it; models load at startup and run on the GPU only during requests).
 4. Clone your Space repo and push these files (`app.py`, `requirements.txt`, `README.md`).
-5. (Optional) Set Space Secrets:
-   - `HF_TOKEN`: Your Hugging Face read access token.
-   - `NATLAS_API_KEY`: Custom API Key if you want to require Bearer authentication.
+5. Set Space Secrets:
+   - `HF_TOKEN`: Your Hugging Face read access token (required, `NCAIR1/N-ATLaS` is a gated model and you must have been granted access).
+   - `NATLAS_API_KEY`: (Optional) Custom API key if you want to require Bearer authentication.
+
+> **Note:** Models are downloaded at startup using `HF_TOKEN`. ZeroGPU shares a free GPU quota, so heavy API usage may be rate-limited.
 
 ---
 
