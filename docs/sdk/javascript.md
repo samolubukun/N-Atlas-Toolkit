@@ -40,7 +40,7 @@ import { NatlasClient } from "natlas";
 const client = new NatlasClient();
 
 const stream = await client.chat([
-  { role: "user", content: "Write a poem in Nigerian Pidgin." }
+  { role: "user", content: "Write a poem in English." }
 ], { stream: true });
 
 for await (const chunk of stream) {

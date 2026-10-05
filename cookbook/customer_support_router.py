@@ -1,7 +1,7 @@
 """
 Recipe 2: Customer Support & Banking Dispute Classifier.
 
-Demonstrates routing customer queries in Hausa, Igbo, Yoruba, and Nigerian Pidgin
+Demonstrates routing customer queries in Hausa, Igbo, Yoruba
 for Nigerian banking, fintech, or telco support:
 1. Categorizes dispute type (ATM dispensing error, POS decline, transfer delay).
 2. Performs sentiment & urgency analysis.
@@ -17,7 +17,7 @@ You are a banking dispute resolver for a Nigerian fintech.
 Classify the following customer complaint into JSON with keys:
 - "issue_type": (POS_DECLINE, DISPENSE_ERROR, FAILED_TRANSFER, ACCOUNT_INQUIRY)
 - "urgency": (HIGH, MEDIUM, LOW)
-- "customer_language": (Hausa, Yoruba, Igbo, Nigerian_English, Pidgin)
+- "customer_language": (Hausa, Yoruba, Igbo, Nigerian_English)
 - "suggested_reply": localized, empathetic reply in the customer's language.
 """
 

@@ -209,7 +209,7 @@ await webSearch("Lagos tech news");    // free, no key
 - \`yo\` - Yorùbá
 - \`ha\` - Hausa
 - \`ig\` - Igbo
-- \`pcm\` - Nigerian Pidgin
+- \`en\` - English
 - \`en\` - Nigerian English
     `
   },
@@ -330,7 +330,7 @@ console.log(response.message.content);
 
 // Server-Sent Events (SSE) Streaming
 const stream = await client.chat([
-  { role: "user", content: "Write a poem in Nigerian Pidgin." }
+  { role: "user", content: "Write a poem in English." }
 ], { stream: true });
 
 for await (const chunk of stream) {
@@ -561,7 +561,7 @@ curl -X POST "https://<NATLAS_ASR_URL>/v1/audio/transcriptions" \\
   "model": "NCAIR1/N-ATLaS",
   "messages": [
     {"role": "system", "content": "You are N-ATLaS, an AI assistant fluent in Nigerian languages."},
-    {"role": "user", "content": "Explain blockchain technology in Nigerian Pidgin."}
+    {"role": "user", "content": "Explain blockchain technology in English."}
   ],
   "stream": true,
   "temperature": 0.7,

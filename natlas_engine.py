@@ -1,7 +1,7 @@
 """Production-Grade Serverless Hosting & Toolkit for N-ATLaS LLM on Modal.
 
 Model: NCAIR1/N-ATLaS (Nigerian Languages AI Initiative / Awarri Technologies / NITDA)
-Base: Fine-tuned Llama-3 8B (Multilingual: Hausa, Igbo, Yoruba, Nigerian Pidgin, English)
+Base: Fine-tuned Llama-3 8B (Multilingual: Hausa, Igbo, Yoruba, English)
 Architecture: LlamaForCausalLM (32 layers, GQA 8 KV heads, RoPE 128k context)
 
 Engineering & Performance Specifications:
@@ -289,7 +289,7 @@ class NATLaSAPI:
                 "content": (
                     f"Your name is AwaGPT. {ATTRIBUTION} "
                     "You are a friendly, highly intelligent multilingual assistant with deep fluency "
-                    "in English, Hausa, Igbo, Yoruba, and Nigerian Pidgin."
+                    "in English, Hausa, Igbo, Yoruba, "
                 )
             })
         formatted_messages.extend(messages)
@@ -542,7 +542,7 @@ class NATLaSAPI:
                         "created": 1726000000,
                         "owned_by": "Awarri / NCAIR / NITDA",
                         "root": "Llama-3-8B",
-                        "languages": ["English", "Hausa", "Igbo", "Yoruba", "Pidgin"],
+                        "languages": ["English", "Hausa", "Igbo", "Yoruba", ],
                         "context_window": 8192,
                     },
                     {

@@ -81,7 +81,7 @@ def test_chat_multilingual() -> bool:
         ("Hausa", "Sannu! Menene amfanin fasahar zamani wajen bunkasa ilimi a Najeriya?"),
         ("Yoruba", "Bawo ni! Ki ni pataki imo-ero ayelujara si idagbasoke eto-eko?"),
         ("Igbo", "Kedu otu teknụzụ nwere ike isi nyere ụmụ akwụkwọ aka ịmụta ihe ọhụrụ?"),
-        ("Pidgin", "How far! Wetin be the best way make person start tech journey for Nigeria?"),
+        ("English", "Hello! What is the best way for someone to start a career in tech in Nigeria?"),
     )
     all_passed = True
     for language, prompt in test_queries:

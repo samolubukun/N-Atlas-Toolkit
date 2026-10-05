@@ -6,7 +6,7 @@ Cikakken bayani kan ƙirar fasahohin hankali na wucin-gadi da ke cikin tsarin N-
 
 ## 1. Ƙirar Harshe Mai Faɗi (LLM): `NCAIR1/N-ATLaS`
 * **Girman Ƙira**: Ma'auni biliyan 8.03 (Llama-3-8B)
-* **Harsunan da ta ƙware**: Hausa, Yarbanci, Inyamuranci (Igbo), Turancin Najeriya (Nigerian English), da Turancin Pidgin.
+* **Harsunan da ta ƙware**: Hausa, Yarbanci, Inyamuranci (Igbo), Turancin Najeriya (Nigerian English), .
 * **Bambanci na musamman**: Tana fahimtar karin magana, al'adu, da kuma salon maganar mutanen Najeriya dalla-dalla.
 
 ---

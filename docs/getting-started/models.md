@@ -10,7 +10,7 @@ Detailed architecture, training data, and intended use cases for all models in t
 * **Base Architecture**: Meta-Llama-3-8B-Instruct
 * **Parameters**: 8.03 Billion
 * **Context Length**: 8,192 tokens
-* **Primary Languages**: Yoruba (`yo`), Hausa (`ha`), Igbo (`ig`), Nigerian English (`en_ng`), and Nigerian Pidgin.
+* **Primary Languages**: Yoruba (`yo`), Hausa (`ha`), Igbo (`ig`), Nigerian English (`en_ng`), 
 * **Special Features**:
     - **Date-Aware Chat Template**: Accepts dynamic `date_string` for temporal grounding.
     - **Cultural Alignment**: Trained on authentic Nigerian literature, proverbs, idioms, news, and conversational dialogues.

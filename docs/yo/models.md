@@ -6,7 +6,7 @@
 
 ## 1. Ẹ̀rọ Ọ̀rọ̀ Púpọ̀ (LLM): `NCAIR1/N-ATLaS`
 * **Iwọn Ẹ̀rọ**: 8.03 Billion parameters (Llama-3-8B)
-* **Àwọn Èdè tí ó gbọ́**: Yorùbá, Hausa, Igbo, Gẹ̀ẹ́sì Nàìjíríà (Nigerian English), àti Píjíìnì (Pidgin).
+* **Àwọn Èdè tí ó gbọ́**: Yorùbá, Hausa, Igbo, Gẹ̀ẹ́sì Nàìjíríà (Nigerian English), .
 * **Àǹfààní pàtàkì**: Ó mọ àwọn òwe, àṣà, àti ìṣe ilẹ̀ Nàìjíríà dunjú.
 
 ---

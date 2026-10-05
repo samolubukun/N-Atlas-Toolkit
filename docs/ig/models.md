@@ -6,7 +6,7 @@ Nkọwa zuru oke banyere ụdị ọgụgụ isi dị n'ime N-ATLaS.
 
 ## 1. Nnukwu Ụdị Asụsụ (LLM): `NCAIR1/N-ATLaS`
 * **Ọnụ Ọgụgụ**: 8.03 Billion parameters (Llama-3-8B)
-* **Asụsụ Ọ Na-asụ**: Igbo, Hausa, Yoruba, Nigerian English, na Pidgin.
+* **Asụsụ Ọ Na-asụ**: Igbo, Hausa, Yoruba, Nigerian English.
 * **Uru Pụrụ Iche**: Ọ maara ilu, omenala, na usoro mkparịta ụka ndị Naịjirịa nke ọma.
 
 ---

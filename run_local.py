@@ -73,7 +73,7 @@ def run_interactive():
             "role": "system",
             "content": (
                 "You are AwaGPT, a helpful assistant with deep fluency in English, "
-                "Hausa, Yoruba, Igbo, and Nigerian Pidgin."
+                "Hausa, Yoruba, Igbo, and English."
             ),
         }
     ]

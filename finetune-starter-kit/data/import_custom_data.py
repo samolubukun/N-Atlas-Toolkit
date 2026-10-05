@@ -74,7 +74,7 @@ def main():
     parser.add_argument("--output", default="data/raw_custom", help="Output directory for HuggingFace Dataset")
     parser.add_argument("--prompt-col", default="prompt", help="Column name for user prompt/instruction")
     parser.add_argument("--response-col", default="response", help="Column name for assistant answer/response")
-    parser.add_argument("--language", default="Hausa", help="Default language (Hausa, Igbo, Yoruba, English, or Pidgin)")
+    parser.add_argument("--language", default="Hausa", help="Default language (Hausa, Igbo, Yoruba, English)")
     args = parser.parse_args()
 
     print(f"[import] Reading {args.input}...")

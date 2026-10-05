@@ -14,7 +14,7 @@ python cookbook/whatsapp_bot.py
 ---
 
 ## 2. Customer Support & Dispute Classifier (`cookbook/customer_support_router.py`)
-Demonstrates automating bank ticket resolution (POS decline, transfer delays, account queries) across Hausa, Igbo, Yoruba, and Nigerian Pidgin.
+Demonstrates automating bank ticket resolution (POS decline, transfer delays, account queries) across Hausa, Igbo, Yoruba, 
 
 ```bash
 python cookbook/customer_support_router.py

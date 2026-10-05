@@ -257,12 +257,13 @@ print(response.message.content)
 - **[`js-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/js-sdk)**: Universal typed TypeScript & JavaScript SDK with executable Node CLI (`npx natlas`), SSE / WebSocket streaming, and built-in agent tools.
 - **[`tests/`](file:///c:/Users/USER/Downloads/natlas-toolkit/tests)**: End-to-end integration and verification suites (`e2e_python.py`, `e2e_js.mjs`, `test_asr_samples.py`) and sovereign multilingual audio fixtures.
 - **[`scripts/`](file:///c:/Users/USER/Downloads/natlas-toolkit/scripts)**: Reproducible testing and benchmarking suite measuring WER/CER, TTFT, throughput (tok/s), and latency.
+- **[`notebooks/`](file:///c:/Users/USER/Downloads/natlas-toolkit/notebooks)**: Contains `natlas_engine_colab.ipynb` - a ready-to-run Google Colab Notebook that deploys the N-ATLaS Engine (LLM + API + Cloudflare Tunnel).
 - **[`docs/`](file:///c:/Users/USER/Downloads/natlas-toolkit/docs) & [`mkdocs.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/mkdocs.yml)**: Developer documentation site with auto-generated API reference and trilingual guides (Yoruba, Hausa, Igbo).
 - **[`.github/workflows/`](file:///c:/Users/USER/Downloads/natlas-toolkit/.github/workflows)**: Automated CI workflow testing Python SDK (matrix 3.10-3.12), JS SDK (matrix 18-22), and documentation builds.
 - **[`natlas_engine.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/natlas_engine.py)**: The complete Modal serverless engine definition with container build, volume mounting, authentication, FastAPI ASGI application, and WebSocket server.
 - **[`docker-compose.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/docker-compose.yml)**: Instant 1-command private on-premise container deployment with vLLM PagedAttention.
 - **[`run_local.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/run_local.py)**: Hardware diagnostics and interactive CLI chat runner for local in-process execution.
-- **[`test_natlas.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/test_natlas.py)**: Automated end-to-end test runner exercising all endpoints across Hausa, Yoruba, Igbo, and Pidgin.
+- **[`test_natlas.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/test_natlas.py)**: Automated end-to-end test runner exercising all endpoints across Hausa, Yoruba, Igbo.
 - **[`openai_sdk_quickstart.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/openai_sdk_quickstart.py)**: Minimal drop-in script for the OpenAI Python SDK.
 - **[`.env.example`](file:///c:/Users/USER/Downloads/natlas-toolkit/.env.example)**: Environment variable template for API keys and deployment URLs.
 - **[`.env`](file:///c:/Users/USER/Downloads/natlas-toolkit/.env)**: Local environment configuration with API keys and live endpoints.

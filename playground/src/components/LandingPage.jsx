@@ -95,7 +95,7 @@ export const LandingPage = ({ onSelectStudio }) => {
       id: "NCAIR1/N-ATLaS",
       name: "N-ATLaS LLM",
       subtitle: "Llama 3 · 8B parameters",
-      description: "Fine-tuned on 392 million tokens of instruction data across Nigeria's six geopolitical zones. Speaks Hausa, Yoruba, Igbo, Pidgin, and English fluently.",
+      description: "Fine-tuned on 392 million tokens of instruction data across Nigeria's six geopolitical zones. Speaks Hausa, Yoruba, Igbo, and English fluently.",
       hfUrl: "https://huggingface.co/NCAIR1/N-ATLaS",
       action: "chat",
       accentColor: "#008751",
@@ -180,7 +180,7 @@ export const LandingPage = ({ onSelectStudio }) => {
     {
       icon: Bot,
       title: "Talks your language, naturally",
-      body: "Switch between Hausa, Yoruba, Igbo, Pidgin, and English mid-conversation. The model follows you, not the other way around.",
+      body: "Switch between Hausa, Yoruba, Igbo, and English mid-conversation. The model follows you, not the other way around.",
     },
     {
       icon: Mic,
@@ -735,7 +735,7 @@ export const LandingPage = ({ onSelectStudio }) => {
                     Multilingual Language Model
                   </h3>
                   <p className="text-xs sm:text-sm text-stone-400 leading-relaxed">
-                    Trained across Nigeria's six geopolitical zones. Understands context, local idioms, news, and informal conversations in Hausa, Yoruba, Igbo, Pidgin, and English.
+                    Trained across Nigeria's six geopolitical zones. Understands context, local idioms, news, and informal conversations in Hausa, Yoruba, Igbo, and English.
                   </p>
                 </div>
               </div>
