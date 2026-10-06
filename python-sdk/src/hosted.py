@@ -25,8 +25,8 @@ from .exceptions import (
     StreamProtocolError,
 )
 
-DEFAULT_BASE_URL = "https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run"
-DEFAULT_ASR_URL = "https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run"
+DEFAULT_BASE_URL = "http://localhost:8000/v1"
+DEFAULT_ASR_URL = "http://localhost:8000/v1"
 DEFAULT_MODEL = "NCAIR1/N-ATLaS"
 T = TypeVar("T")
 ModelT = TypeVar("ModelT", bound=BaseModel)

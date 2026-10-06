@@ -77,8 +77,8 @@ describe("Client URL and Key Resolution", () => {
     // 2. Localhost fallback adopts localhost unified gateway
     expect(resolveASRURL(undefined, "http://localhost:8000/v1/")).toBe("http://localhost:8000/v1/");
 
-    // 3. Cloud fallback uses default modal ASR endpoint
-    expect(resolveASRURL(undefined, "https://api.example.com/v1/")).toContain("natlasasrengine-serve.modal.run/v1/");
+    // 3. Fallback uses default ASR endpoint (http://localhost:8000/v1/)
+    expect(resolveASRURL(undefined, "https://api.example.com/v1/")).toBe("http://localhost:8000/v1/");
   });
 });
 

@@ -34,8 +34,8 @@ import {
   Usage,
 } from "./types.js";
 
-export const DEFAULT_BASE_URL = "https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run";
-export const DEFAULT_ASR_URL = "https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run";
+export const DEFAULT_BASE_URL = "http://localhost:8000/v1";
+export const DEFAULT_ASR_URL = "http://localhost:8000/v1";
 export const DEFAULT_MODEL = "NCAIR1/N-ATLaS";
 
 export function resolveBaseURL(baseURL?: string): string {
