@@ -17,6 +17,7 @@ import os
 import threading
 import time
 import uuid
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 import gradio as gr
@@ -80,11 +81,10 @@ ASR_ATTRIBUTION = (
     "Awarri Technologies in partnership with the Federal Government of Nigeria / NCAIR / NITDA."
 )
 
+# Same wording as the official model card example.
 SYSTEM_PROMPT_DEFAULT = (
-    f"Your name is AwaGPT. {ATTRIBUTION} "
-    "You are a friendly, highly intelligent multilingual assistant with deep fluency "
-    "in English, Hausa, Igbo, and Yoruba. Always communicate clearly, "
-    "respectfully, and authentically in the language or dialect used by the user."
+    "your name is AwaGPT, you are a large language model trained by Awarri AI technologies. "
+    "You are a friendly assistant and you are here to help."
 )
 
 NATLAS_API_KEY = os.environ.get("NATLAS_API_KEY", "").strip()
@@ -138,13 +138,25 @@ def format_messages_to_prompt(messages: List[Dict[str, Any]]) -> str:
         formatted.append({"role": "system", "content": SYSTEM_PROMPT_DEFAULT})
     formatted.extend(messages)
     try:
-        return tokenizer.apply_chat_template(formatted, tokenize=False, add_generation_prompt=True)
+        return tokenizer.apply_chat_template(
+            formatted,
+            tokenize=False,
+            add_generation_prompt=True,
+            date_string=datetime.now().strftime("%d %b %Y"),
+        )
     except Exception:
         prompt = ""
         for m in formatted:
             prompt += f"<|start_header_id|>{m['role']}<|end_header_id|>\n\n{m.get('content', '')}<|eot_id|>"
         prompt += "<|start_header_id|>assistant<|end_header_id|>\n\n"
         return prompt
+
+
+def encode_prompt(prompt: str):
+    """Tokenize without adding a second BOS when the chat template already included one."""
+    bos = tokenizer.bos_token or ""
+    add_special = not (bos and prompt.startswith(bos))
+    return tokenizer(prompt, return_tensors="pt", add_special_tokens=add_special)
 
 
 def decode_audio(audio_bytes: bytes):
@@ -175,7 +187,7 @@ def gpu_generate(
     repetition_penalty: float,
 ):
     """Non-streaming generation. Returns (text, prompt_tokens, completion_tokens)."""
-    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+    inputs = encode_prompt(prompt).to("cuda")
     prompt_tokens = inputs.input_ids.shape[-1]
     with torch.inference_mode():
         outputs = llm.generate(
@@ -201,7 +213,7 @@ def gpu_stream(
     repetition_penalty: float,
 ):
     """Streaming generation. Yields text pieces."""
-    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+    inputs = encode_prompt(prompt).to("cuda")
     streamer = TextIteratorStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
     gen_kwargs = dict(
         **inputs,
@@ -541,7 +553,7 @@ with gr.Blocks(title="N-ATLaS Engine") as demo:
                 with gr.Column(scale=1):
                     gr.Markdown("### ⚙️ Generation Controls")
                     system_input = gr.Textbox(label="System Prompt", value=SYSTEM_PROMPT_DEFAULT, lines=4)
-                    temp = gr.Slider(0.0, 1.5, value=0.7, step=0.05, label="Temperature")
+                    temp = gr.Slider(0.0, 1.5, value=0.3, step=0.05, label="Temperature")
                     max_tok = gr.Slider(64, 4096, value=1024, step=64, label="Max New Tokens")
                     rep_pen = gr.Slider(1.0, 1.5, value=1.12, step=0.02, label="Repetition Penalty")
                     clear_btn = gr.Button("Clear Chat 🧹")
