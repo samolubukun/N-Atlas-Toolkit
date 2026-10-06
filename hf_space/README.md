@@ -39,45 +39,77 @@ This Space replicates the full **N-ATLaS Engine** developed under the Nigerian L
 2. Set SDK to **Gradio**.
 3. Select hardware: **ZeroGPU** (the app is built for it; models load at startup and run on the GPU only during requests).
 4. Clone your Space repo and push these files (`app.py`, `requirements.txt`, `README.md`).
-5. Set Space Secrets:
-   - `HF_TOKEN`: Your Hugging Face read access token (required, `NCAIR1/N-ATLaS` is a gated model and you must have been granted access).
-   - `NATLAS_API_KEY`: (Optional) Custom API key if you want to require Bearer authentication.
+5. Set Space Secrets (in Space Settings > Variables and secrets):
+   - `HF_TOKEN`: Your Hugging Face read access token (**Required**; `NCAIR1/N-ATLaS` is a gated repository).
+   - `NATLAS_API_KEY`: Custom API key to protect your `/v1/*` endpoints. (Required for API access; requests must pass `Authorization: Bearer <NATLAS_API_KEY>`).
 
-> **Note:** Models are downloaded at startup using `HF_TOKEN`. ZeroGPU shares a free GPU quota, so heavy API usage may be rate-limited.
+> **Note:** Models are downloaded at startup into the ZeroGPU environment. ZeroGPU shares a free GPU quota, so heavy API usage may be rate-limited by Hugging Face.
 
 ---
 
-### 💻 Using as an API via OpenAI SDK
+### 💻 Using with N-ATLaS SDKs
 
-You can point the official `openai` SDK directly to this Space:
+Both the Python and JavaScript SDKs work out of the box with this Space:
+
+#### Python SDK (`natlas`)
+```python
+from natlas import Client
+
+client = Client(
+    base_url="https://<YOUR-USERNAME>-<YOUR-SPACE-NAME>.hf.space/v1",
+    api_key="your-natlas-api-key",
+)
+
+# Multilingual Chat
+response = client.chat(
+    messages=[{"role": "user", "content": "Bawo ni se n lo? Se daadaa ni?"}]
+)
+print(response.message.content)
+
+# Sovereign Speech-to-Text
+transcription = client.audio.transcribe(
+    file="sample_yoruba.wav",
+    language="yo"
+)
+print(transcription.text)
+```
+
+#### TypeScript / JavaScript SDK (`natlas`)
+```typescript
+import { NatlasClient } from "natlas";
+
+const client = new NatlasClient({
+  baseURL: "https://<YOUR-USERNAME>-<YOUR-SPACE-NAME>.hf.space/v1",
+  apiKey: "your-natlas-api-key",
+});
+
+const response = await client.chat([
+  { role: "user", content: "Sannu! Me zan iya taimaka muku da shi?" }
+]);
+console.log(response.message.content);
+```
+
+---
+
+### 🔌 Using via Official OpenAI SDK
+
+The API conforms to OpenAI's specification (`/v1/chat/completions` and `/v1/audio/transcriptions`):
 
 ```python
 from openai import OpenAI
 
 client = OpenAI(
     base_url="https://<YOUR-USERNAME>-<YOUR-SPACE-NAME>.hf.space/v1",
-    api_key="your-api-key-if-configured"  # or leave dummy string if unauthenticated
+    api_key="your-natlas-api-key",
 )
 
 completion = client.chat.completions.create(
     model="NCAIR1/N-ATLaS",
-    messages=[
-        {"role": "user", "content": "Bawo ni se n lo? Se daadaa ni?"}
-    ]
+    messages=[{"role": "user", "content": "Bawo ni se n lo? Se daadaa ni?"}],
 )
 print(completion.choices[0].message.content)
-```
 
-### 🎙️ Using Audio Transcription API
-
-```python
-from openai import OpenAI
-
-client = OpenAI(
-    base_url="https://<YOUR-USERNAME>-<YOUR-SPACE-NAME>.hf.space/v1",
-    api_key="your-api-key"
-)
-
+# Audio Transcription
 with open("sample_yoruba.wav", "rb") as audio:
     transcription = client.audio.transcriptions.create(
         model="NCAIR1/Yoruba-ASR",
