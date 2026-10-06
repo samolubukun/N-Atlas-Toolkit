@@ -21,11 +21,24 @@ The engine is deployed, live, and fully operational on Modal:
 
 ### Deployment Architecture & Base URLs
 
-- **Modal Cloud Deployment (2 Dedicated Microservices)**:
-  - **LLM Engine**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run` (Chat Completions, Models Catalog)
-  - **Sovereign ASR Engine**: `https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run` (Full-Context Speech-to-Text & Word Alignment)
-- **Local / On-Premise Docker Gateway (100% Unified)**:
-  - `http://localhost:8000` (Nginx gateway unified reverse-proxying both LLM and ASR)
+N-ATLaS supports four production deployment targets:
+
+1. **Hugging Face Spaces (ZeroGPU Free Tier)**:
+   - **Gradio Web UI + API**: `https://<workspace>-natlas-sovereign-engine.hf.space/v1`
+   - ZeroGPU hardware acceleration, zero infrastructure cost, native `/v1/*` OpenAI endpoints.
+   - Code & setup instructions located in [`hf_space/`](hf_space).
+
+2. **Google Colab Notebook (Zero-Setup GPU Engine)**:
+   - Run in 1 click via [`notebooks/natlas_engine_colab.ipynb`](notebooks/natlas_engine_colab.ipynb).
+   - Serves the LLM and creates a secure public URL via Cloudflare Tunnel.
+
+3. **Modal Cloud Deployment (2 Dedicated Microservices)**:
+   - **LLM Engine**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1`
+   - **Sovereign ASR Engine**: `https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1`
+   - Dedicated NVIDIA A10G (24GB VRAM) with continuous batching and sub-second cold starts.
+
+4. **Local / On-Premise Docker Gateway (100% Unified)**:
+   - `http://localhost:8000/v1` (Nginx reverse-proxy gateway unifying both LLM and ASR).
 
 | Method | Endpoint | Service | Description | Auth Header |
 | :--- | :--- | :--- | :--- | :--- |
@@ -257,6 +270,7 @@ print(response.message.content)
 - **[`js-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/js-sdk)**: Universal typed TypeScript & JavaScript SDK with executable Node CLI (`npx natlas`), SSE / WebSocket streaming, and built-in agent tools.
 - **[`tests/`](file:///c:/Users/USER/Downloads/natlas-toolkit/tests)**: End-to-end integration and verification suites (`e2e_python.py`, `e2e_js.mjs`, `test_asr_samples.py`) and sovereign multilingual audio fixtures.
 - **[`scripts/`](file:///c:/Users/USER/Downloads/natlas-toolkit/scripts)**: Reproducible testing and benchmarking suite measuring WER/CER, TTFT, throughput (tok/s), and latency.
+- **[`hf_space/`](file:///c:/Users/USER/Downloads/natlas-toolkit/hf_space)**: Hugging Face Spaces deployment package for free ZeroGPU hosting, including Gradio Web UI and embedded `/v1/*` OpenAI endpoints.
 - **[`notebooks/`](file:///c:/Users/USER/Downloads/natlas-toolkit/notebooks)**: Contains `natlas_engine_colab.ipynb` - a ready-to-run Google Colab Notebook that deploys the N-ATLaS Engine (LLM + API + Cloudflare Tunnel).
 - **[`docs/`](file:///c:/Users/USER/Downloads/natlas-toolkit/docs) & [`mkdocs.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/mkdocs.yml)**: Developer documentation site with auto-generated API reference and trilingual guides (Yoruba, Hausa, Igbo).
 - **[`.github/workflows/`](file:///c:/Users/USER/Downloads/natlas-toolkit/.github/workflows)**: Automated CI workflow testing Python SDK (matrix 3.10-3.12), JS SDK (matrix 18-22), and documentation builds.
