@@ -106,20 +106,32 @@ export function resolveASRURL(asrURL?: string, fallbackBaseURL?: string): string
 }
 
 
-export function resolveApiKey(apiKey?: string): string {
+export function resolveApiKey(apiKey?: string, baseURL?: string): string {
   const resolved =
     apiKey ??
     (typeof process !== "undefined" && process.env
       ? process.env.NATLAS_API_KEY
       : undefined);
 
-  if (!resolved || !resolved.trim()) {
-    throw new ConfigurationError(
-      "Hosted mode requires a non-empty API key. Pass apiKey: '...' or set the NATLAS_API_KEY environment variable."
-    );
+  if (resolved && resolved.trim()) {
+    return resolved.trim();
   }
 
-  return resolved.trim();
+  // If targeting local/self-hosted gateway, API key is optional
+  if (baseURL) {
+    try {
+      const url = new URL(baseURL);
+      if (["localhost", "127.0.0.1", "::1"].includes(url.hostname)) {
+        return "";
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  throw new ConfigurationError(
+    "Hosted mode requires an API key for remote endpoints. Pass apiKey: '...' or set the NATLAS_API_KEY environment variable."
+  );
 }
 
 function parseUsage(raw: unknown): Usage {
@@ -466,7 +478,7 @@ export class NatlasClient {
     const rawUrl = options.baseURL ?? options.host;
     this.baseURL = resolveBaseURL(rawUrl);
     this.asrBaseURL = resolveASRURL(options.asrBaseURL, this.baseURL);
-    this.apiKey = resolveApiKey(options.apiKey);
+    this.apiKey = resolveApiKey(options.apiKey, this.baseURL);
     this.model = options.model ?? DEFAULT_MODEL;
     this.timeout = options.timeout ?? 120_000;
     this.customHeaders = options.headers ?? {};
@@ -493,7 +505,7 @@ export class NatlasClient {
     const url = new URL(endpoint.replace(/^\/+/, ""), root);
 
     const headers = new Headers(this.customHeaders);
-    if (!headers.has("Authorization")) {
+    if (!headers.has("Authorization") && this.apiKey) {
       headers.set("Authorization", `Bearer ${this.apiKey}`);
     }
 
@@ -555,9 +567,12 @@ export class NatlasClient {
         throw err;
       }
       if (err.name === "AbortError" || controller.signal.aborted) {
-        throw new APITimeoutError(`Request timed out after ${this.timeout}ms`);
+        throw new APITimeoutError(`Request timed out after ${this.timeout}ms (${url.toString()})`);
       }
-      throw new APIConnectionError(`Failed to connect to N-ATLaS API: ${err.message}`, err);
+      throw new APIConnectionError(
+        `Failed to connect to N-ATLaS at ${root}: ${err.message}. Ensure your engine or Docker container is running, or set NATLAS_BASE_URL to your remote endpoint.`,
+        err
+      );
     } finally {
       clearTimeout(timeoutId);
     }

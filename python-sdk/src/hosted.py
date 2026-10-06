@@ -76,24 +76,36 @@ def resolve_asr_url(asr_url: str | None = None, fallback_base_url: str | None = 
     return resolve_base_url(configured)
 
 
-def resolve_api_key(api_key: str | None) -> str:
-    """Resolve the hosted API key and fail before a request when absent."""
+def resolve_api_key(api_key: str | None, base_url: str | None = None) -> str:
+    """Resolve the hosted API key.
+    
+    If targeting localhost/127.0.0.1, API key is optional and defaults to empty string.
+    Otherwise, fails before a request if neither api_key nor NATLAS_API_KEY is provided.
+    """
     resolved = api_key if api_key is not None else os.getenv("NATLAS_API_KEY")
-    if not isinstance(resolved, str) or not resolved.strip():
-        raise ConfigurationError(
-            "Hosted mode requires a non-empty API key. Pass api_key=... or set NATLAS_API_KEY."
-        )
-    return resolved.strip()
+    if resolved is not None and resolved.strip():
+        return resolved.strip()
+    
+    # Check if this is a local/self-hosted deployment (no auth required)
+    if base_url:
+        parsed = urlsplit(base_url)
+        if parsed.hostname in ("localhost", "127.0.0.1", "::1"):
+            return ""
+            
+    raise ConfigurationError(
+        "Hosted mode requires an API key for remote endpoints. Pass api_key=... or set NATLAS_API_KEY."
+    )
 
 
 def _headers(api_key: str, supplied: Any) -> httpx.Headers:
     headers = httpx.Headers({"Accept": "application/json"})
     if supplied:
         headers.update(supplied)
-    authorization = f"Bearer {api_key}"
-    if "authorization" in headers and headers["authorization"] != authorization:
-        raise ConfigurationError("A custom Authorization header conflicts with api_key")
-    headers["Authorization"] = authorization
+    if api_key:
+        authorization = f"Bearer {api_key}"
+        if "authorization" in headers and headers["authorization"] != authorization:
+            raise ConfigurationError("A custom Authorization header conflicts with api_key")
+        headers["Authorization"] = authorization
     return headers
 
 
@@ -407,7 +419,7 @@ class HostedBackend:
         **client_kwargs: Any,
     ) -> None:
         self.base_url = resolve_base_url(base_url)
-        self.api_key = resolve_api_key(api_key)
+        self.api_key = resolve_api_key(api_key, base_url=self.base_url)
         self.model = model
         supplied_headers = client_kwargs.pop("headers", None)
         self._http = httpx.Client(
@@ -448,9 +460,12 @@ class HostedBackend:
             else:
                 response = self._http.request(method, _endpoint(path), json=body)
         except httpx.TimeoutException as exc:
-            raise APITimeoutError("Hosted API request timed out") from exc
+            raise APITimeoutError(f"Hosted API request timed out ({self.base_url})") from exc
         except httpx.RequestError as exc:
-            raise APIConnectionError("Could not connect to the hosted N-ATLaS API") from exc
+            raise APIConnectionError(
+                f"Could not connect to N-ATLaS at {self.base_url}. "
+                "Ensure your engine or Docker container is running, or set NATLAS_BASE_URL to your remote endpoint."
+            ) from exc
         if not response.is_success:
             raise _status_error(response)
         return self._parse(response, cast_to)
@@ -540,7 +555,7 @@ class AsyncHostedBackend:
         **client_kwargs: Any,
     ) -> None:
         self.base_url = resolve_base_url(base_url)
-        self.api_key = resolve_api_key(api_key)
+        self.api_key = resolve_api_key(api_key, base_url=self.base_url)
         self.model = model
         supplied_headers = client_kwargs.pop("headers", None)
         self._http = httpx.AsyncClient(
@@ -581,9 +596,12 @@ class AsyncHostedBackend:
             else:
                 response = await self._http.request(method, _endpoint(path), json=body)
         except httpx.TimeoutException as exc:
-            raise APITimeoutError("Hosted API request timed out") from exc
+            raise APITimeoutError(f"Hosted API request timed out ({self.base_url})") from exc
         except httpx.RequestError as exc:
-            raise APIConnectionError("Could not connect to the hosted N-ATLaS API") from exc
+            raise APIConnectionError(
+                f"Could not connect to N-ATLaS at {self.base_url}. "
+                "Ensure your engine or Docker container is running, or set NATLAS_BASE_URL to your remote endpoint."
+            ) from exc
         if not response.is_success:
             raise _status_error(response)
         return self._parse(response, cast_to)
