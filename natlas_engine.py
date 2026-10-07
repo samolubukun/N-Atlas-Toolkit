@@ -111,42 +111,11 @@ natlas_image = (
         "tiktoken>=0.7.0",
         "torchaudio>=2.4.0",
         "librosa>=0.10.0",
+        "bitsandbytes>=0.43.0",
     )
 )
 
-# ---------------------------------------------------------------------------
-# Dedicated ASR Container Image (Whisper Small + Silero VAD)
-# ---------------------------------------------------------------------------
-asr_image = (
-    modal.Image.debian_slim(python_version="3.11")
-    .env({
-        "HF_HUB_ENABLE_HF_TRANSFER": "1",
-        "HF_HOME": ASR_CACHE_DIR,
-    })
-    .apt_install(
-        "git",
-        "ffmpeg",
-        "libsndfile1",
-    )
-    .pip_install(
-        "torch>=2.4.0",
-        "torchaudio>=2.4.0",
-        "transformers>=4.46.0",
-        "accelerate>=0.34.0",
-        "librosa>=0.10.0",
-        "soundfile>=0.12.1",
-        "fastapi[standard]>=0.115.0",
-        "uvicorn[standard]>=0.30.0",
-        "websockets>=13.0",
-        "pydantic>=2.8.0",
-        "huggingface_hub>=0.28.0",
-        "hf-transfer>=0.1.8",
-        "numpy>=1.26.0",
-        "scipy>=1.11.0",
-        "python-multipart>=0.0.12",
-        "onnxruntime>=1.18.0",
-    )
-)
+
 
 # ---------------------------------------------------------------------------
 # Authentication Verifier
@@ -245,20 +214,22 @@ class NATLaSAPI:
                 enforce_eager=False,
                 tensor_parallel_size=1,
                 disable_log_requests=True,
+                quantization="bitsandbytes",
+                load_format="bitsandbytes",
             )
             self.vllm_engine = AsyncLLMEngine.from_engine_args(engine_args)
             self.use_vllm = True
             logger.info("[N-ATLaS] vLLM AsyncLLMEngine loaded successfully! Continuous batching enabled.")
         except Exception as e:
             logger.warning(f"[N-ATLaS] vLLM initialization fell back due to: {e}. Loading Transformers fallback pipeline...")
-            from transformers import AutoModelForCausalLM, AutoTokenizer
+            from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_dir, token=hf_token)
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_dir,
-                torch_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
                 device_map="auto",
                 token=hf_token,
+                quantization_config=BitsAndBytesConfig(load_in_4bit=True),
             )
             self.model.eval()
             self.use_vllm = False
@@ -268,6 +239,135 @@ class NATLaSAPI:
         from transformers import AutoTokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_dir, token=hf_token)
         logger.info(f"[N-ATLaS] Tokenizer loaded. Vocab size: {self.tokenizer.vocab_size}. Ready for inference.")
+        # --- ASR Engine Initialization ---
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+        self.loaded_asr_models = {}
+        self.loaded_asr_processors = {}
+        logger.info(f"[N-ATLaS ASR] Pre-warming default ASR model: {DEFAULT_ASR_MODEL} on {self.device}...")
+        self._get_asr_model(DEFAULT_ASR_MODEL)
+
+
+
+
+    def _get_asr_model(self, model_id: str):
+        import torch
+        from transformers import WhisperForConditionalGeneration, WhisperProcessor
+        hf_token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
+
+        if model_id not in self.loaded_asr_models:
+            logger.info(f"[N-ATLaS ASR] Loading ASR weights for {model_id}...")
+            processor = WhisperProcessor.from_pretrained(
+                model_id,
+                token=hf_token,
+                cache_dir=ASR_CACHE_DIR,
+            )
+            model = WhisperForConditionalGeneration.from_pretrained(
+                model_id,
+                token=hf_token,
+                torch_dtype=self.dtype,
+                cache_dir=ASR_CACHE_DIR,
+            ).to(self.device)
+            model.eval()
+            self.loaded_asr_processors[model_id] = processor
+            self.loaded_asr_models[model_id] = model
+
+        return self.loaded_asr_models[model_id], self.loaded_asr_processors[model_id]
+
+    def _resolve_asr_model_id(self, requested: str | None, language: str | None) -> str:
+        if requested and requested in ASR_MODELS.values():
+            return requested
+        if language:
+            lang_key = language.strip().lower()
+            if lang_key in ASR_MODELS:
+                return ASR_MODELS[lang_key]
+        return DEFAULT_ASR_MODEL
+
+    def transcribe_audio(
+        self,
+        audio_bytes: bytes,
+        model_id: str,
+        language: str | None = None,
+        return_timestamps: bool = False,
+    ) -> dict:
+        import io
+        import librosa
+        import numpy as np
+        import soundfile as sf
+        import torch
+
+        model, processor = self._get_asr_model(model_id)
+
+        try:
+            audio_array, sampling_rate = sf.read(io.BytesIO(audio_bytes))
+        except Exception:
+            try:
+                audio_array, sampling_rate = librosa.load(io.BytesIO(audio_bytes), sr=16000)
+            except Exception:
+                audio_array = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
+                sampling_rate = 16000
+
+        if audio_array.ndim > 1:
+            audio_array = np.mean(audio_array, axis=1)
+
+        if sampling_rate != 16000:
+            audio_array = librosa.resample(audio_array.astype(np.float32), orig_sr=sampling_rate, target_sr=16000)
+            sampling_rate = 16000
+
+        duration_sec = float(len(audio_array)) / 16000.0
+
+        rms_energy = float(np.sqrt(np.mean(audio_array ** 2))) if len(audio_array) > 0 else 0.0
+        if rms_energy < 0.005 or duration_sec < 0.4:
+            return {
+                "text": "",
+                "duration": round(duration_sec, 2),
+                "model": model_id,
+                "language": language or "auto",
+                "words": [],
+            }
+
+        input_features = processor(
+            audio_array,
+            sampling_rate=16000,
+            return_tensors="pt"
+        ).input_features.to(self.device).to(self.dtype)
+
+        with torch.inference_mode():
+            gen_kwargs = {
+                "return_timestamps": return_timestamps,
+                "no_repeat_ngram_size": 3,
+            }
+            if hasattr(model.generation_config, "no_speech_threshold"):
+                gen_kwargs["no_speech_threshold"] = 0.6
+            predicted_ids = model.generate(input_features, **gen_kwargs)
+
+        transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)[0].strip()
+
+        words_list = transcription.split()
+        if len(words_list) >= 4:
+            most_frequent = max(set(words_list), key=words_list.count)
+            if words_list.count(most_frequent) / len(words_list) > 0.45:
+                transcription = ""
+                words_list = []
+
+        words = []
+        if return_timestamps and transcription:
+            try:
+                step = duration_sec / max(1, len(words_list))
+                words = [
+                    {"word": w, "start": round(i * step, 2), "end": round((i + 1) * step, 2), "confidence": 0.95}
+                    for i, w in enumerate(words_list)
+                ]
+            except Exception:
+                pass
+
+        return {
+            "text": transcription,
+            "duration": round(duration_sec, 2),
+            "model": model_id,
+            "language": language or "auto",
+            "words": words,
+        }
 
     def format_chat_prompt(
         self,
@@ -939,20 +1039,27 @@ class NATLaSAPI:
             auth=Depends(verify_api_key),
         ):
             """Unified OpenAI Whisper compatible audio transcription endpoint."""
+            from fastapi.responses import PlainTextResponse
+            import asyncio
+            import concurrent.futures
+            
             content = await file.read()
             if not content:
                 raise HTTPException(status_code=400, detail="Empty audio file provided.")
 
-            asr_engine = NATLaSASREngine()
-            model_id = asr_engine._resolve_model_id(model, language)
+            model_id = self._resolve_asr_model_id(model, language)
             return_words = bool(timestamp_granularities and "word" in timestamp_granularities)
 
-            result = await asr_engine.transcribe_remote.aio(
-                content,
-                model_id=model_id,
-                language=language,
-                return_timestamps=return_words,
-            )
+            def run_transcription():
+                return self.transcribe_audio(
+                    content,
+                    model_id=model_id,
+                    language=language,
+                    return_timestamps=return_words,
+                )
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                result = await asyncio.get_running_loop().run_in_executor(pool, run_transcription)
 
             if response_format == "text":
                 return PlainTextResponse(result["text"])
@@ -1019,270 +1126,6 @@ class NATLaSAPI:
             )
             return self.tokenizer.decode(outputs[0][inputs.input_ids.shape[-1]:], skip_special_tokens=True)
 
-
-# ===========================================================================
-# N-ATLaS Sovereign ASR Engine (Whisper Small: Yoruba, Hausa, Igbo, Naija Eng)
-# ===========================================================================
-@app.cls(
-    image=asr_image,
-    gpu="A10G",              # Or T4 for cost optimization
-    scaledown_window=300,
-    timeout=600,
-    secrets=[
-        modal.Secret.from_name("natlas-secrets"),
-        modal.Secret.from_name("hf-token"),
-    ],
-    volumes={
-        CACHE_DIR: models_volume,
-    },
-)
-@modal.concurrent(max_inputs=16)
-class NATLaSASREngine:
-    """Sovereign Automatic Speech Recognition Engine for Nigerian Languages.
-    Powered by Whisper Small fine-tunes: Yoruba-ASR, Hausa-ASR, Igbo-ASR, and NigerianAccentedEnglish.
-    """
-
-    @modal.enter()
-    def load_asr_models(self):
-        """Warm up ASR model pipelines and caching."""
-        import torch
-        from transformers import WhisperForConditionalGeneration, WhisperProcessor
-
-        self.hf_token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-
-        self.loaded_models: Dict[str, Any] = {}
-        self.loaded_processors: Dict[str, Any] = {}
-
-        logger.info(f"[N-ATLaS ASR] Pre-warming default ASR model: {DEFAULT_ASR_MODEL} on {self.device}...")
-        self._get_model(DEFAULT_ASR_MODEL)
-        logger.info("[N-ATLaS ASR] Engine ready for batch and real-time streaming speech recognition.")
-
-    def _get_model(self, model_id: str):
-        import torch
-        from transformers import WhisperForConditionalGeneration, WhisperProcessor
-
-        if model_id not in self.loaded_models:
-            logger.info(f"[N-ATLaS ASR] Loading ASR weights for {model_id}...")
-            processor = WhisperProcessor.from_pretrained(
-                model_id,
-                token=self.hf_token,
-                cache_dir=CACHE_DIR,
-            )
-            model = WhisperForConditionalGeneration.from_pretrained(
-                model_id,
-                token=self.hf_token,
-                torch_dtype=self.dtype,
-                cache_dir=CACHE_DIR,
-            ).to(self.device)
-            model.eval()
-            self.loaded_processors[model_id] = processor
-            self.loaded_models[model_id] = model
-
-        return self.loaded_models[model_id], self.loaded_processors[model_id]
-
-    def _resolve_model_id(self, requested: Optional[str], language: Optional[str]) -> str:
-        if requested and requested in ASR_MODELS.values():
-            return requested
-        if language:
-            lang_key = language.strip().lower()
-            if lang_key in ASR_MODELS:
-                return ASR_MODELS[lang_key]
-        return DEFAULT_ASR_MODEL
-
-    @modal.method()
-    def transcribe_remote(
-        self,
-        audio_bytes: bytes,
-        model_id: str,
-        language: Optional[str] = None,
-        return_timestamps: bool = False,
-    ) -> Dict[str, Any]:
-        """Modal programmatic invocation method for ASR."""
-        return self.transcribe_audio(
-            audio_bytes=audio_bytes,
-            model_id=model_id,
-            language=language,
-            return_timestamps=return_timestamps,
-        )
-
-    def transcribe_audio(
-        self,
-        audio_bytes: bytes,
-        model_id: str,
-        language: Optional[str] = None,
-        return_timestamps: bool = False,
-    ) -> Dict[str, Any]:
-        """Transcribe an audio buffer (WAV/MP3/FLAC/OGG) with the selected ASR model."""
-        import io
-        import librosa
-        import numpy as np
-        import soundfile as sf
-        import torch
-
-        model, processor = self._get_model(model_id)
-
-        # 1. Load audio: support WebM/OGG from browser MediaRecorder, WAV, MP3, FLAC, or raw PCM
-        try:
-            # First try standard soundfile (WAV, FLAC, OGG)
-            audio_array, sampling_rate = sf.read(io.BytesIO(audio_bytes))
-        except Exception:
-            try:
-                # Use librosa/ffmpeg fallback for WebM, MP3, AAC browser audio blobs
-                audio_array, sampling_rate = librosa.load(io.BytesIO(audio_bytes), sr=16000)
-            except Exception:
-                # Raw 16kHz 16-bit Mono PCM buffer fallback
-                audio_array = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
-                sampling_rate = 16000
-
-        if audio_array.ndim > 1:
-            audio_array = np.mean(audio_array, axis=1)
-
-        if sampling_rate != 16000:
-            audio_array = librosa.resample(audio_array.astype(np.float32), orig_sr=sampling_rate, target_sr=16000)
-            sampling_rate = 16000
-
-        duration_sec = float(len(audio_array)) / 16000.0
-
-        # Silence / low-energy gate to completely eliminate Whisper hallucinations on silence
-        rms_energy = float(np.sqrt(np.mean(audio_array ** 2))) if len(audio_array) > 0 else 0.0
-        if rms_energy < 0.005 or duration_sec < 0.4:
-            return {
-                "text": "",
-                "duration": round(duration_sec, 2),
-                "model": model_id,
-                "language": language or "auto",
-                "words": [],
-            }
-
-        # 2. Extract Mel features
-        input_features = processor(
-            audio_array,
-            sampling_rate=16000,
-            return_tensors="pt"
-        ).input_features.to(self.device).to(self.dtype)
-
-        # 3. Generate tokens with anti-hallucination parameters
-        with torch.inference_mode():
-            gen_kwargs = {
-                "return_timestamps": return_timestamps,
-                "no_repeat_ngram_size": 3,
-            }
-            if hasattr(model.generation_config, "no_speech_threshold"):
-                gen_kwargs["no_speech_threshold"] = 0.6
-            predicted_ids = model.generate(
-                input_features,
-                **gen_kwargs
-            )
-
-        transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)[0].strip()
-
-        # Sanity check: detect degenerate repeating word loops
-        words_list = transcription.split()
-        if len(words_list) >= 4:
-            most_frequent = max(set(words_list), key=words_list.count)
-            if words_list.count(most_frequent) / len(words_list) > 0.45:
-                transcription = ""
-                words_list = []
-
-        words = []
-        if return_timestamps and transcription:
-            try:
-                # Word-level fallback with clean time offsets
-                step = duration_sec / max(1, len(words_list))
-                words = [
-                    {
-                        "word": w,
-                        "start": round(i * step, 2),
-                        "end": round((i + 1) * step, 2),
-                        "confidence": 0.95
-                    }
-                    for i, w in enumerate(words_list)
-                ]
-            except Exception:
-                words = []
-
-        return {
-            "text": transcription,
-            "duration": round(duration_sec, 2),
-            "model": model_id,
-            "language": language or "auto",
-            "words": words,
-        }
-
-    @modal.asgi_app()
-    def serve(self):
-        """OpenAI-compliant Sovereign ASR REST API for Nigerian Accents and Indigenous Languages."""
-        import io
-        from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
-        from fastapi.middleware.cors import CORSMiddleware
-        from fastapi.responses import JSONResponse, PlainTextResponse
-
-        verify_api_key = get_auth_verifier()
-
-        asr_app = FastAPI(
-            title="N-ATLaS Sovereign ASR & Speech-to-Text API",
-            description="High-performance, OpenAI-compliant speech recognition for Yoruba, Hausa, Igbo, and Nigerian English.",
-            version="1.0.0",
-        )
-
-        asr_app.add_middleware(
-            CORSMiddleware,
-            allow_origins=["*"],
-            allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
-        )
-
-        @asr_app.get("/healthz")
-        async def asr_health():
-            import torch
-            return {
-                "status": "healthy",
-                "service": "natlas-asr",
-                "attribution": ASR_ATTRIBUTION,
-                "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU",
-                "supported_models": list(set(ASR_MODELS.values())),
-            }
-
-        @asr_app.post("/v1/audio/transcriptions")
-        async def create_transcription(
-            file: UploadFile = File(...),
-            model: Optional[str] = Form(None),
-            language: Optional[str] = Form(None),
-            response_format: Optional[str] = Form("json"),
-            timestamp_granularities: Optional[List[str]] = Form(None),
-            auth=Depends(verify_api_key),
-        ):
-            """Drop-in OpenAI Whisper compatible audio transcription endpoint."""
-            content = await file.read()
-            if not content:
-                raise HTTPException(status_code=400, detail="Empty audio file provided.")
-
-            model_id = self._resolve_model_id(model, language)
-            return_words = bool(timestamp_granularities and "word" in timestamp_granularities)
-
-            result = self.transcribe_audio(
-                content,
-                model_id=model_id,
-                language=language,
-                return_timestamps=return_words,
-            )
-
-            if response_format == "text":
-                return PlainTextResponse(result["text"])
-
-            return JSONResponse({
-                "text": result["text"],
-                "duration": result["duration"],
-                "model": result["model"],
-                "language": result["language"],
-                "words": result["words"],
-                "attribution": ASR_ATTRIBUTION,
-            })
-
-        return asr_app
 
 
 # ---------------------------------------------------------------------------
