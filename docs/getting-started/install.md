@@ -21,7 +21,7 @@ Set your API key and endpoint URLs:
 # Set in terminal or your project's .env file:
 export NATLAS_API_KEY="your-api-key"
 export NATLAS_BASE_URL="https://<workspace>--natlas-engine-natlasapi-serve.modal.run"
-export NATLAS_ASR_URL="https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run"
+export NATLAS_API_URL="https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run"
 ```
 
 ---

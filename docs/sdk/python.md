@@ -9,7 +9,7 @@ The official typed Python SDK (`natlas`) provides synchronous and asynchronous c
 ```python
 import natlas
 
-# Reads NATLAS_BASE_URL, NATLAS_ASR_URL, and NATLAS_API_KEY from environment
+# Reads NATLAS_BASE_URL, NATLAS_API_URL, and NATLAS_API_KEY from environment
 client = natlas.Client()
 
 # Or configure explicitly:

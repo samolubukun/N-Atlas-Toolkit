@@ -154,7 +154,7 @@ export interface ClientOptions {
   /** Alias for baseURL */
   host?: string;
   /** Dedicated Base URL for the sovereign ASR engine (Speech-to-Text) */
-  asrBaseURL?: string;
+  
   /** N-ATLaS API key (defaults to NATLAS_API_KEY environment variable) */
   apiKey?: string;
   /** Model identifier (defaults to "NCAIR1/N-ATLaS") */

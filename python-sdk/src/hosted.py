@@ -26,7 +26,6 @@ from .exceptions import (
 )
 
 DEFAULT_BASE_URL = "http://localhost:8000/v1"
-DEFAULT_ASR_URL = "http://localhost:8000/v1"
 DEFAULT_MODEL = "NCAIR1/N-ATLaS"
 T = TypeVar("T")
 ModelT = TypeVar("ModelT", bound=BaseModel)
@@ -60,20 +59,6 @@ def resolve_base_url(base_url: str | None = None) -> str:
     if not path.endswith("/v1"):
         path = f"{path}/v1"
     return urlunsplit((parsed.scheme, parsed.netloc, f"{path}/", "", ""))
-
-
-def resolve_asr_url(asr_url: str | None = None, fallback_base_url: str | None = None) -> str:
-    """Resolve the sovereign ASR base URL (split Modal microservice or unified Docker gateway)."""
-    configured = asr_url if asr_url is not None else os.getenv("NATLAS_ASR_URL")
-    if configured is None:
-        if fallback_base_url is not None:
-            # Use urlsplit hostname comparison — never substring match
-            _fb = urlsplit(fallback_base_url)
-            if _fb.hostname in ("localhost", "127.0.0.1", "::1"):
-                # On-premises unified Nginx gateway (e.g. localhost:8000)
-                return fallback_base_url
-        configured = DEFAULT_ASR_URL
-    return resolve_base_url(configured)
 
 
 def resolve_api_key(api_key: str | None, base_url: str | None = None) -> str:

@@ -154,7 +154,7 @@ console.log("Sovereign prompt:", systemPrompt(lang));
 | Option | Environment Variable | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `baseURL` / `host` | `NATLAS_BASE_URL` | Modal Live LLM Endpoint | Target OpenAI-compatible server URL |
-| `asrBaseURL` | `NATLAS_ASR_URL` | Modal Live ASR Endpoint | Dedicated Sovereign ASR server URL (auto-resolves for Docker localhost) |
+| `baseURL` | `NATLAS_API_URL` | Modal Live ASR Endpoint | Dedicated Sovereign ASR server URL (auto-resolves for Docker localhost) |
 | `apiKey` | `NATLAS_API_KEY` | None | API key for authentication |
 | `model` | - | `NCAIR1/N-ATLaS` | Default model identifier |
 | `timeout` | - | `120000` (2 min) | Request timeout in milliseconds |

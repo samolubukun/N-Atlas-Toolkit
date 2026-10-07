@@ -64,7 +64,7 @@ export const PlaygroundView = ({ activeStudio = 'chat', onStudioChange, onBackTo
               Copy <code className="font-mono bg-amber-100 px-1 rounded">playground/.env.example</code> to{' '}
               <code className="font-mono bg-amber-100 px-1 rounded">playground/.env</code> and set{' '}
               <code className="font-mono bg-amber-100 px-1 rounded">VITE_NATLAS_API_URL</code>,{' '}
-              <code className="font-mono bg-amber-100 px-1 rounded">VITE_NATLAS_ASR_URL</code>, and{' '}
+              <code className="font-mono bg-amber-100 px-1 rounded">VITE_NATLAS_API_URL</code>, and{' '}
               <code className="font-mono bg-amber-100 px-1 rounded">VITE_NATLAS_API_KEY</code>.
             </p>
           </div>

@@ -1,7 +1,7 @@
 // N-ATLaS Endpoints strictly loaded from environment variables (.env)
 export const DEFAULT_ENDPOINTS = {
   llmUrl: import.meta.env.VITE_NATLAS_API_URL || import.meta.env.NATLAS_API_URL || "",
-  asrUrl: import.meta.env.VITE_NATLAS_ASR_URL || import.meta.env.NATLAS_ASR_URL || "",
+  asrUrl: import.meta.env.VITE_NATLAS_API_URL || import.meta.env.NATLAS_API_URL || "",
   apiKey: import.meta.env.VITE_NATLAS_API_KEY || import.meta.env.NATLAS_API_KEY || "",
 };
 

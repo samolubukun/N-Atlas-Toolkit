@@ -16,7 +16,7 @@
  *
  * Optional env vars (if different from SDK defaults):
  *   NATLAS_BASE_URL  — LLM endpoint
- *   NATLAS_ASR_URL   — ASR endpoint
+ *   NATLAS_API_URL   — ASR endpoint
  *
  * Requires Node.js >= 18 (native fetch + ReadableStream).
  */
@@ -61,7 +61,7 @@ import {
 // ── Configuration ─────────────────────────────────────────────────────────
 const API_KEY  = process.env.NATLAS_API_KEY  || "";
 const BASE_URL = process.env.NATLAS_BASE_URL || undefined;
-const ASR_URL  = process.env.NATLAS_ASR_URL  || undefined;
+const ASR_URL  = process.env.NATLAS_API_URL  || undefined;
 const AUDIO_DIR = path.join(__dirname, "audio");
 
 const AUDIO_SAMPLES = [

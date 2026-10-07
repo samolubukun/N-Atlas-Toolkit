@@ -111,7 +111,7 @@ Set your API key and endpoint URLs:
 # Set in terminal or your project's .env file:
 export NATLAS_API_KEY="your-api-key"
 export NATLAS_BASE_URL="https://<workspace>--natlas-engine-natlasapi-serve.modal.run"
-export NATLAS_ASR_URL="https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run"
+export NATLAS_API_URL="https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run"
 \`\`\`
 
 ### 2. Python SDK Installation
@@ -225,7 +225,7 @@ await webSearch("Lagos tech news");    // free, no key
 \`\`\`python
 import natlas
 
-# Reads NATLAS_BASE_URL, NATLAS_ASR_URL, and NATLAS_API_KEY from environment
+# Reads NATLAS_BASE_URL, NATLAS_API_URL, and NATLAS_API_KEY from environment
 client = natlas.Client()
 
 # Or configure explicitly:
@@ -516,7 +516,7 @@ python python-sdk/src/mcp_server.py
 ### REST API Example (cURL)
 
 \`\`\`bash
-curl -X POST "https://<NATLAS_ASR_URL>/v1/audio/transcriptions" \\
+curl -X POST "https://<NATLAS_API_URL>/v1/audio/transcriptions" \\
   -H "Authorization: Bearer $NATLAS_API_KEY" \\
   -F "file=@sample_yo.wav" \\
   -F "model=NCAIR1/Yoruba-ASR" \\

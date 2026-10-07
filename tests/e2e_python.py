@@ -15,7 +15,7 @@ Usage:
 
 Optional env vars (if different from SDK defaults):
     NATLAS_BASE_URL  — LLM endpoint
-    NATLAS_ASR_URL   — ASR endpoint
+    NATLAS_API_URL   — ASR endpoint
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ from natlas import tools
 # ── Configuration ────────────────────────────────────────────────────────────
 API_KEY   = os.environ.get("NATLAS_API_KEY", "")
 BASE_URL  = os.environ.get("NATLAS_BASE_URL", natlas.DEFAULT_BASE_URL)
-ASR_URL   = os.environ.get("NATLAS_ASR_URL",  natlas.DEFAULT_ASR_URL)
+ASR_URL   = os.environ.get("NATLAS_API_URL",  natlas.DEFAULT_ASR_URL)
 AUDIO_DIR = Path(__file__).parent / "audio"
 
 AUDIO_SAMPLES = [

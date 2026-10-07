@@ -153,10 +153,10 @@ The toolkit natively incorporates the four official sovereign **Whisper Small (2
 import os
 import natlas
 
-# On Modal: Point client directly to the dedicated ASR URL (or use NATLAS_ASR_URL env var)
+# On Modal: Point client directly to the dedicated ASR URL (or use NATLAS_API_URL env var)
 # On Docker: Point client to the unified gateway "http://localhost:8000"
 asr_base_url = os.environ.get(
-    "NATLAS_ASR_URL",
+    "NATLAS_API_URL",
     "https://<your-workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1",
 )
 

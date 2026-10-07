@@ -21,7 +21,7 @@ except ImportError:
 BASE_DIR = Path(__file__).resolve().parent
 
 ASR_ENDPOINT = os.environ.get(
-    "NATLAS_ASR_URL",
+    "NATLAS_API_URL",
     "https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run/v1/audio/transcriptions",
 )
 if not ASR_ENDPOINT.endswith("/v1/audio/transcriptions"):

@@ -43,7 +43,7 @@ DEFAULT_BASE_URL = os.environ.get(
 ).rstrip("/")
 
 DEFAULT_ASR_URL = os.environ.get(
-    "NATLAS_ASR_URL",
+    "NATLAS_API_URL",
     "https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run",
 ).rstrip("/")
 

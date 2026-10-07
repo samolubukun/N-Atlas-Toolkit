@@ -131,7 +131,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
 
 def cmd_transcribe(args: argparse.Namespace) -> int:
     """Run batch speech-to-text on an audio file."""
-    client = Client(asr_url=args.asr_url, api_key=args.api_key)
+    client = Client(api_key=args.api_key)
     file_path = Path(args.file)
     if not file_path.exists():
         print(f"Error: Audio file not found at '{file_path}'", file=sys.stderr)
@@ -168,7 +168,7 @@ def cmd_transcribe(args: argparse.Namespace) -> int:
 
 def cmd_health(args: argparse.Namespace) -> int:
     """Inspect active health and GPU status."""
-    client = Client(base_url=args.base_url, asr_url=args.asr_url, api_key=args.api_key)
+    client = Client(base_url=args.base_url, api_key=args.api_key)
     print("Checking LLM Engine Health...")
     try:
         llm_health = client.get("healthz")
@@ -210,7 +210,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
     from finetune_starter_kit.eval.eval_asr import run_benchmark
     default_asr = "https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1/audio/transcriptions"
     run_benchmark(
-        endpoint=args.endpoint or os.environ.get("NATLAS_ASR_URL", default_asr),
+        endpoint=args.endpoint or os.environ.get("NATLAS_API_URL", default_asr),
         api_key=args.api_key or os.environ.get("NATLAS_API_KEY"),
         languages=args.languages,
         samples_per_language=args.num_samples,
@@ -225,7 +225,7 @@ def main(argv: list[str] | None = None) -> int:
         description="N-ATLaS CLI: Sovereign Nigerian Multilingual AI & Speech Recognition.",
     )
     parser.add_argument("--base-url", default=None, help="Target LLM API URL")
-    parser.add_argument("--asr-url", default=None, help="Target ASR API URL")
+    parser.add_argument("--api-url", default=None, help="Target ASR API URL")
     parser.add_argument("--api-key", default=None, help="N-ATLaS API Key")
 
     subparsers = parser.add_subparsers(dest="subcommand", help="Available subcommands")

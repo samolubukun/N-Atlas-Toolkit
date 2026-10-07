@@ -35,7 +35,6 @@ import {
 } from "./types.js";
 
 export const DEFAULT_BASE_URL = "http://localhost:8000/v1";
-export const DEFAULT_ASR_URL = "http://localhost:8000/v1";
 export const DEFAULT_MODEL = "NCAIR1/N-ATLaS";
 
 export function resolveBaseURL(baseURL?: string): string {
@@ -78,33 +77,6 @@ export function resolveBaseURL(baseURL?: string): string {
 
   return `${url.origin}${pathname}/`;
 }
-
-export function resolveASRURL(asrURL?: string, fallbackBaseURL?: string): string {
-  let configured =
-    asrURL ??
-    (typeof process !== "undefined" && process.env
-      ? process.env.NATLAS_ASR_URL
-      : undefined);
-
-  if (!configured) {
-    if (fallbackBaseURL) {
-      try {
-        const _fb = new URL(fallbackBaseURL);
-        // NOTE: new URL().hostname strips brackets from IPv6 literals, so ::1 not [::1]
-        if (["localhost", "127.0.0.1", "::1"].includes(_fb.hostname)) {
-          // On-premises unified Nginx gateway (e.g. localhost:8000)
-          return fallbackBaseURL;
-        }
-      } catch {
-        // Malformed URL — fall through to default
-      }
-    }
-    configured = DEFAULT_ASR_URL;
-  }
-
-  return resolveBaseURL(configured);
-}
-
 
 export function resolveApiKey(apiKey?: string, baseURL?: string): string {
   const resolved =
@@ -297,7 +269,7 @@ export class Audio {
           method: "POST",
           body: formData,
         },
-        this.client.asrBaseURL
+        this.client.baseURL
       );
     },
 
@@ -349,7 +321,7 @@ export class LiveTranscriptionSession {
   }
 
   public connect(): void {
-    const rawAsrUrl = this.client.asrBaseURL;
+    const rawAsrUrl = this.client.baseURL;
     const wsProto = rawAsrUrl.startsWith("https://") ? "wss://" : "ws://";
     const hostAndPath = rawAsrUrl.replace(/^https?:\/\//, "").replace(/\/+$/, "");
 
@@ -465,7 +437,6 @@ export class LiveTranscriptionSession {
  */
 export class NatlasClient {
   public readonly baseURL: string;
-  public readonly asrBaseURL: string;
   public readonly apiKey: string;
   public readonly model: string;
   public readonly timeout: number;
@@ -477,7 +448,6 @@ export class NatlasClient {
   constructor(options: ClientOptions = {}) {
     const rawUrl = options.baseURL ?? options.host;
     this.baseURL = resolveBaseURL(rawUrl);
-    this.asrBaseURL = resolveASRURL(options.asrBaseURL, this.baseURL);
     this.apiKey = resolveApiKey(options.apiKey, this.baseURL);
     this.model = options.model ?? DEFAULT_MODEL;
     this.timeout = options.timeout ?? 120_000;

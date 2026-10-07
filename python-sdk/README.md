@@ -310,10 +310,10 @@ import natlas
 
 # Supports deterministic dual URL routing:
 # base_url -> LLM endpoint
-# asr_url  -> Sovereign ASR endpoint (or defaults to NATLAS_ASR_URL)
+# asr_url  -> Sovereign ASR endpoint (or defaults to NATLAS_API_URL)
 client = natlas.Client(
     base_url=os.environ.get("NATLAS_BASE_URL", "https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run"),
-    asr_url=os.environ.get("NATLAS_ASR_URL", "https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run"),
+    asr_url=os.environ.get("NATLAS_API_URL", "https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run"),
     api_key=os.environ.get("NATLAS_API_KEY", "<YOUR_API_KEY>"),
 )
 

@@ -72,7 +72,6 @@ class Client:
         model: str = DEFAULT_MODEL,
         timeout: Any = 120.0,
         host: str | None = None,
-        asr_url: str | None = None,
         **client_kwargs: Any,
     ) -> None:
         if mode not in {"local", "hosted"}:
@@ -285,7 +284,6 @@ class AsyncClient:
         model: str = DEFAULT_MODEL,
         timeout: Any = 120.0,
         host: str | None = None,
-        asr_url: str | None = None,
         **client_kwargs: Any,
     ) -> None:
         if mode not in {"local", "hosted"}:
