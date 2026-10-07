@@ -7,7 +7,7 @@ import {
   IG,
   EN_NG,
 } from "../src/languages.js";
-import { resolveBaseURL, resolveApiKey, resolveASRURL, NatlasClient } from "../src/client.js";
+import { resolveBaseURL, resolveApiKey, NatlasClient } from "../src/client.js";
 import { decodeSSEData, SSE_DONE } from "../src/sse.js";
 import { ConfigurationError } from "../src/errors.js";
 
@@ -70,16 +70,7 @@ describe("Client URL and Key Resolution", () => {
     expect(() => resolveApiKey(undefined)).toThrow(ConfigurationError);
   });
 
-  it("resolves ASR base URL deterministically", () => {
-    // 1. Explicit ASR URL
-    expect(resolveASRURL("https://asr.example.com")).toBe("https://asr.example.com/v1/");
 
-    // 2. Localhost fallback adopts localhost unified gateway
-    expect(resolveASRURL(undefined, "http://localhost:8000/v1/")).toBe("http://localhost:8000/v1/");
-
-    // 3. Fallback uses default ASR endpoint (http://localhost:8000/v1/)
-    expect(resolveASRURL(undefined, "https://api.example.com/v1/")).toBe("http://localhost:8000/v1/");
-  });
 });
 
 describe("SSE parser", () => {

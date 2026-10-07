@@ -33,7 +33,6 @@ from .hosted import (
     DEFAULT_MODEL,
     AsyncHostedBackend,
     HostedBackend,
-    resolve_asr_url,
 )
 from .local import LocalASRBackend, LocalBackend
 
@@ -96,7 +95,6 @@ class Client:
                 **client_kwargs,
             )
             self.base_url = self._hosted.base_url
-            self.asr_url = resolve_asr_url(asr_url, fallback_base_url=self.base_url)
         self.audio = Audio(self)
 
     @overload
@@ -291,7 +289,6 @@ class AsyncClient:
         self.mode = mode
         self.model = model
         self.base_url: str | None
-        self.asr_url: str | None = None
         self._local: LocalBackend | None
         self._hosted: AsyncHostedBackend | None
         if mode == "local":
@@ -308,7 +305,6 @@ class AsyncClient:
                 **client_kwargs,
             )
             self.base_url = self._hosted.base_url
-            self.asr_url = resolve_asr_url(asr_url, fallback_base_url=self.base_url)
         self.audio = AsyncAudio(self)
 
     @overload
@@ -546,7 +542,7 @@ class Transcriptions:
         req_headers = dict(self._client._hosted._http.headers)
         req_headers.pop("content-type", None)
 
-        target_url = f"{self._client.asr_url}audio/transcriptions" if self._client.asr_url else "audio/transcriptions"
+        target_url = "audio/transcriptions"
 
         raw_res = self._client._hosted._http.post(
             target_url,
@@ -624,7 +620,7 @@ class AsyncTranscriptions:
         req_headers = dict(self._client._hosted._http.headers)
         req_headers.pop("content-type", None)
 
-        target_url = f"{self._client.asr_url}audio/transcriptions" if self._client.asr_url else "audio/transcriptions"
+        target_url = "audio/transcriptions"
 
         raw_res = await self._client._hosted._http.post(
             target_url,
@@ -675,7 +671,7 @@ class AsyncLiveTranscriptionSession:
                 "Install with: pip install websockets"
             ) from err
 
-        raw_url = self._client.asr_url or "https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1/"
+        raw_url = self._client.base_url or "https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1/"
         ws_proto = "wss://" if raw_url.startswith("https://") else "ws://"
         host_path = raw_url.split("://", 1)[-1].rstrip("/")
         ws_url = f"{ws_proto}{host_path}/audio/transcriptions/streaming"

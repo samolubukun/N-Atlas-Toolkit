@@ -131,7 +131,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
 
 def cmd_transcribe(args: argparse.Namespace) -> int:
     """Run batch speech-to-text on an audio file."""
-    client = Client(api_key=args.api_key)
+    client = Client(, api_key=args.api_key)
     file_path = Path(args.file)
     if not file_path.exists():
         print(f"Error: Audio file not found at '{file_path}'", file=sys.stderr)
@@ -168,7 +168,7 @@ def cmd_transcribe(args: argparse.Namespace) -> int:
 
 def cmd_health(args: argparse.Namespace) -> int:
     """Inspect active health and GPU status."""
-    client = Client(base_url=args.base_url, api_key=args.api_key)
+    client = Client(base_url=args.base_url, , api_key=args.api_key)
     print("Checking LLM Engine Health...")
     try:
         llm_health = client.get("healthz")

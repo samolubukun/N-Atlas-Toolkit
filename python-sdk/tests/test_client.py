@@ -331,7 +331,7 @@ def test_transcribe_routes_to_asr_endpoint(tmp_path: Path) -> None:
     audio_file = tmp_path / "audio.wav"
     audio_file.write_bytes(b"RIFFdummydataWAVEfmt ")
     
-    respx.post("https://asr.example/v1/audio/transcriptions").mock(
+    respx.post("https://example.test/v1/audio/transcriptions").mock(
         return_value=httpx.Response(
             200,
             json={
@@ -344,8 +344,7 @@ def test_transcribe_routes_to_asr_endpoint(tmp_path: Path) -> None:
         )
     )
     with Client(
-        base_url="https://llm.example",
-        asr_url="https://asr.example",
+        base_url="https://example.test",
         api_key="secret",
     ) as client:
         res = client.transcribe(audio_file, language="yoruba")

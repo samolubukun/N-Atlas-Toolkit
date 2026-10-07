@@ -37,7 +37,7 @@ from .exceptions import (
     NatlasError,
     StreamProtocolError,
 )
-from .hosted import DEFAULT_ASR_URL, DEFAULT_BASE_URL, DEFAULT_MODEL
+from .hosted import DEFAULT_BASE_URL, DEFAULT_MODEL
 from .languages import EN_NG, HA, IG, SUPPORTED_LANGUAGES, YO, detect_language, system_prompt
 
 __version__ = "0.1.0"
