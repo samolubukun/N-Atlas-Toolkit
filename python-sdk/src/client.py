@@ -80,7 +80,6 @@ class Client:
         self.mode = mode
         self.model = model
         self.base_url: str | None
-        self.asr_url: str | None = None
         self._local: LocalBackend | None
         self._hosted: HostedBackend | None
         if mode == "local":

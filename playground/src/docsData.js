@@ -231,7 +231,6 @@ client = natlas.Client()
 # Or configure explicitly:
 client = natlas.Client(
     base_url="https://<workspace>--natlas-engine-natlasapi-serve.modal.run",
-    asr_url="https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run",
     api_key="your-key",
 )
 \`\`\`
