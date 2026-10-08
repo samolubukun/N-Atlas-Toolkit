@@ -203,13 +203,13 @@ class NATLaSAPI:
             from vllm.engine.arg_utils import AsyncEngineArgs
             from vllm.engine.async_llm_engine import AsyncLLMEngine
 
-            logger.info("[N-ATLaS] Initializing vLLM AsyncEngine with PagedAttention (GPU memory util 0.90, max_model_len 8192)...")
+            logger.info("[N-ATLaS] Initializing vLLM AsyncEngine with PagedAttention (GPU memory util 0.80, max_model_len 8192)...")
             engine_args = AsyncEngineArgs(
                 model=self.model_dir,
                 tokenizer=self.model_dir,
                 dtype="bfloat16" if torch.cuda.is_bf16_supported() else "float16",
                 max_model_len=8192,
-                gpu_memory_utilization=0.88,
+                gpu_memory_utilization=0.80,
                 trust_remote_code=True,
                 enforce_eager=False,
                 tensor_parallel_size=1,
@@ -400,9 +400,11 @@ class NATLaSAPI:
             formatted_messages.append({
                 "role": "system",
                 "content": (
-                    f"Your name is AwaGPT. {ATTRIBUTION} "
+                    f"Your name is N-ATLaS. {ATTRIBUTION} "
                     "You are a friendly, highly intelligent multilingual assistant with deep fluency "
-                    "in English, Hausa, Igbo, Yoruba, "
+                    "in English, Nigerian English, Yorùbá, Hausa, and Igbo. "
+                    "Respond directly, accurately, and politely. "
+                    "Do not append unsolicited follow-up quiz questions at the end of answers."
                 )
             })
         formatted_messages.extend(messages)

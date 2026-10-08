@@ -49,7 +49,7 @@ export const ASR_MODELS = [
 
 // LLM Language & Persona Switchers
 export const LLM_LANGUAGES = [
-  { id: "general", name: "General AI (Universal)", shortName: "General AI", code: "en", greeting: "Hello! I am N-ATLaS. How can I help you today with coding, reasoning, analysis, or general questions?" },
+  { id: "general", name: "General AI (Universal)", shortName: "General AI", code: "en", greeting: "Hello! I am N-ATLaS. How can I help you today?" },
   { id: "english", name: "Nigerian English", shortName: "Nig. English", code: "en-NG", greeting: "Good day! How is everything with you today? What would you like us to work on?" },
   { id: "yoruba", name: "Yorùbá", shortName: "Yorùbá", code: "yo", greeting: "Ẹ n lẹ́ o! Kí ni mo lè ràn yín lọ́wọ́ pẹ̀lú lónìí?" },
   { id: "hausa", name: "Hausa", shortName: "Hausa", code: "ha", greeting: "Sannu! Me zan iya taimaka muku da shi a yau?" },

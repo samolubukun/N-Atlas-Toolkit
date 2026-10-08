@@ -30,6 +30,30 @@ npm install natlas-sdk       # JavaScript / TypeScript SDK
 
 ---
 
+## 📦 Monorepo Architecture & What's In The Repo
+
+This repository is organized as a unified monorepo providing everything needed to build, fine-tune, deploy, and integrate sovereign Nigerian AI:
+
+| Component / Directory | Purpose & Key Features |
+| :--- | :--- |
+| **[`python-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/python-sdk)** | **Official PyPI Package (`pip install natlas-sdk`)**: Fully typed synchronous & asynchronous clients, CLI (`natlas chat`, `natlas transcribe`), 7 built-in zero-auth agent tools, and MCP stdio server. |
+| **[`js-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/js-sdk)** | **Official npm Package (`npm install natlas-sdk`)**: Universal TypeScript/JavaScript SDK with native fetch, SSE streaming, full types, agent tools, and executable CLI (`npx natlas`). |
+| **[`playground/`](file:///c:/Users/USER/Downloads/natlas-toolkit/playground)** | **Interactive Web Application**: React + Vite playground UI with Chat Studio, Audio Recording & Transcription Studio, Model Catalog explorer, and live interactive documentation. |
+| **[`docs/`](file:///c:/Users/USER/Downloads/natlas-toolkit/docs) & [`mkdocs.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/mkdocs.yml)** | **Developer Documentation Site**: Comprehensive documentation built with Material for MkDocs, featuring API specifications, developer tutorials, and bilingual guides (Yorùbá, Hausa, Igbo). |
+| **[`finetune-starter-kit/`](file:///c:/Users/USER/Downloads/natlas-toolkit/finetune-starter-kit)** | **Domain Adaptation Suite**: LoRA/QLoRA and Unsloth fine-tuning recipes for adapting N-ATLaS to custom enterprise, healthcare, and educational datasets on consumer GPUs. |
+| **[`cookbook/`](file:///c:/Users/USER/Downloads/natlas-toolkit/cookbook)** | **Production Recipes**: Copy-pasteable application templates including WhatsApp voice & text bots, banking dispute classifiers, and agent loops. |
+| **[`hf_space/`](file:///c:/Users/USER/Downloads/natlas-toolkit/hf_space)** | **Hugging Face ZeroGPU Space ([`NATLaS-Sovereign-Engine`](https://huggingface.co/spaces/samuelolubukun/NATLaS-Sovereign-Engine))**: Turnkey Gradio Web UI and embedded `/v1/*` OpenAI endpoints for free deployment on Hugging Face Spaces. |
+| **[`notebooks/`](file:///c:/Users/USER/Downloads/natlas-toolkit/notebooks)** | **Google Colab (`natlas_engine_colab.ipynb`)**: 1-click cloud notebook that downloads model weights, spins up the LLM engine, and exposes a public endpoint via Cloudflare Tunnel. |
+| **[`natlas_engine.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/natlas_engine.py)** | **Modal Serverless Engine**: Enterprise serverless deployment file defining container environments, GPU volume caching, FastAPI ASGI server, and WebSocket endpoints. |
+| **[`docker-compose.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/docker-compose.yml)** | **On-Premise NVIDIA GPU Stack**: Turnkey production Docker setup unifying LLM (vLLM continuous batching) and Sovereign ASR behind an Nginx gateway on port `8000`. |
+| **[`docker-compose.local.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/docker-compose.local.yml)** | **Local CPU & Apple Silicon Stack**: Zero-NVIDIA Docker stack for local testing on MacBooks and CPU laptops. |
+| **[`Dockerfile.llm`](file:///c:/Users/USER/Downloads/natlas-toolkit/Dockerfile.llm) & [`Dockerfile.asr`](file:///c:/Users/USER/Downloads/natlas-toolkit/Dockerfile.llm)** | Dedicated Docker container definitions for the LLM and Sovereign ASR microservices. |
+| **[`tests/`](file:///c:/Users/USER/Downloads/natlas-toolkit/tests)** | Comprehensive end-to-end integration tests (`e2e_python.py`, `e2e_js.mjs`, `test_asr_samples.py`) and real multilingual audio samples (`hausa.mp3`, `yoruba.mp3`, `igbo.mp3`, `english.mp3`). |
+| **[`scripts/`](file:///c:/Users/USER/Downloads/natlas-toolkit/scripts)** | Benchmarking and evaluation harnesses measuring WER/CER, Time to First Token (TTFT), throughput (tok/s), and latency. |
+| **[`.github/workflows/`](file:///c:/Users/USER/Downloads/natlas-toolkit/.github/workflows)** | CI/CD automated workflow running multi-version matrix tests for Python, Node.js, and MkDocs site builds. |
+
+---
+
 ## 🏛️ Sovereign Models & Architecture Catalog
 
 The N-ATLaS ecosystem comprises one 8B large language model and four specialized Whisper speech recognition models, fine-tuned across all six geopolitical zones of Nigeria:
@@ -414,28 +438,6 @@ print(response.message.content)
 ```
 
 ---
-
-## 📦 Monorepo Architecture & What's In The Repo
-
-This repository is organized as a unified monorepo providing everything needed to build, fine-tune, deploy, and integrate sovereign Nigerian AI:
-
-| Component / Directory | Purpose & Key Features |
-| :--- | :--- |
-| **[`python-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/python-sdk)** | **Official PyPI Package (`pip install natlas-sdk`)**: Fully typed synchronous & asynchronous clients, CLI (`natlas chat`, `natlas transcribe`), 7 built-in zero-auth agent tools, and MCP stdio server. |
-| **[`js-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/js-sdk)** | **Official npm Package (`npm install natlas-sdk`)**: Universal TypeScript/JavaScript SDK with native fetch, SSE streaming, full types, agent tools, and executable CLI (`npx natlas`). |
-| **[`playground/`](file:///c:/Users/USER/Downloads/natlas-toolkit/playground)** | **Interactive Web Application**: React + Vite playground UI with Chat Studio, Audio Recording & Transcription Studio, Model Catalog explorer, and live interactive documentation. |
-| **[`docs/`](file:///c:/Users/USER/Downloads/natlas-toolkit/docs) & [`mkdocs.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/mkdocs.yml)** | **Developer Documentation Site**: Comprehensive documentation built with Material for MkDocs, featuring API specifications, developer tutorials, and bilingual guides (Yorùbá, Hausa, Igbo). |
-| **[`finetune-starter-kit/`](file:///c:/Users/USER/Downloads/natlas-toolkit/finetune-starter-kit)** | **Domain Adaptation Suite**: LoRA/QLoRA and Unsloth fine-tuning recipes for adapting N-ATLaS to custom enterprise, healthcare, and educational datasets on consumer GPUs. |
-| **[`cookbook/`](file:///c:/Users/USER/Downloads/natlas-toolkit/cookbook)** | **Production Recipes**: Copy-pasteable application templates including WhatsApp voice & text bots, banking dispute classifiers, and agent loops. |
-| **[`hf_space/`](file:///c:/Users/USER/Downloads/natlas-toolkit/hf_space)** | **Hugging Face ZeroGPU Space ([`NATLaS-Sovereign-Engine`](https://huggingface.co/spaces/samuelolubukun/NATLaS-Sovereign-Engine))**: Turnkey Gradio Web UI and embedded `/v1/*` OpenAI endpoints for free deployment on Hugging Face Spaces. |
-| **[`notebooks/`](file:///c:/Users/USER/Downloads/natlas-toolkit/notebooks)** | **Google Colab (`natlas_engine_colab.ipynb`)**: 1-click cloud notebook that downloads model weights, spins up the LLM engine, and exposes a public endpoint via Cloudflare Tunnel. |
-| **[`natlas_engine.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/natlas_engine.py)** | **Modal Serverless Engine**: Enterprise serverless deployment file defining container environments, GPU volume caching, FastAPI ASGI server, and WebSocket endpoints. |
-| **[`docker-compose.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/docker-compose.yml)** | **On-Premise NVIDIA GPU Stack**: Turnkey production Docker setup unifying LLM (vLLM continuous batching) and Sovereign ASR behind an Nginx gateway on port `8000`. |
-| **[`docker-compose.local.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/docker-compose.local.yml)** | **Local CPU & Apple Silicon Stack**: Zero-NVIDIA Docker stack for local testing on MacBooks and CPU laptops. |
-| **[`Dockerfile.llm`](file:///c:/Users/USER/Downloads/natlas-toolkit/Dockerfile.llm) & [`Dockerfile.asr`](file:///c:/Users/USER/Downloads/natlas-toolkit/Dockerfile.llm)** | Dedicated Docker container definitions for the LLM and Sovereign ASR microservices. |
-| **[`tests/`](file:///c:/Users/USER/Downloads/natlas-toolkit/tests)** | Comprehensive end-to-end integration tests (`e2e_python.py`, `e2e_js.mjs`, `test_asr_samples.py`) and real multilingual audio samples (`hausa.mp3`, `yoruba.mp3`, `igbo.mp3`, `english.mp3`). |
-| **[`scripts/`](file:///c:/Users/USER/Downloads/natlas-toolkit/scripts)** | Benchmarking and evaluation harnesses measuring WER/CER, Time to First Token (TTFT), throughput (tok/s), and latency. |
-| **[`.github/workflows/`](file:///c:/Users/USER/Downloads/natlas-toolkit/.github/workflows)** | CI/CD automated workflow running multi-version matrix tests for Python, Node.js, and MkDocs site builds. |
 
 ---
 

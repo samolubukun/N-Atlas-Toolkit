@@ -1,15 +1,11 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Bot, User, Sliders, RefreshCw, Copy, Check, Wrench, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
-import { LLM_LANGUAGES, DEFAULT_ENDPOINTS } from '../constants';
-import { getOpenAITools, executeTool } from '../tools';
-
-const QUICK_PROMPTS = [
-  { label: '💵 Live FX Rates', text: 'How much is 100 USD in Naira today? Multiply the rate by 100 to give me the exact total.', tools: [['fx_rates', {base:'USD',target:'NGN'}]] },
-  { label: '⛅ Live Weather', text: 'What is the current weather in Kano?', tools: [['weather_lookup', {location:'Kano'}]] },
-  { label: '🗺️ LGA Validation', text: 'Tell me which state Alimosho LGA belongs to, its capital, and how many LGAs that state has.', tools: [['nigeria_gazetteer', {query:'Alimosho'}]] },
-  { label: '🧮 VAT Calculator', text: 'Calculate 7.5% Nigerian VAT on an invoice of 450,000 NGN plus a 2,500 NGN flat processing fee. Give me the final number.', tools: [['math_eval', {expression:'(450000 * 0.075) + 2500'}]] },
-  { label: '🌐 Live Web Search', text: 'Search the web and give me a brief overview of Artificial Intelligence.', tools: [['web_search', {query:'Artificial Intelligence'}]] },
-];
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  Send, Bot, User, Sliders, RefreshCw, Copy, Check, 
+  Mic, MicOff, Paperclip, FileText, X, Volume2 
+} from 'lucide-react';
+import { LLM_LANGUAGES, DEFAULT_ENDPOINTS, ASR_MODELS } from '../constants';
+import { extractTextFromFile } from '../documentParser';
+import { encodeWAV, downsampleBuffer } from '../audioRecorder';
 
 export const ChatStream = ({ initialPrompt = '' }) => {
   const [selectedLang, setSelectedLang] = useState('general');
@@ -27,13 +23,31 @@ export const ChatStream = ({ initialPrompt = '' }) => {
   const [ttft, setTtft] = useState(null);
   const [copiedIndex, setCopiedIndex] = useState(null);
 
-  // Agent Tools Mode State
-  const [toolsEnabled, setToolsEnabled] = useState(true);
-  const [activeToolStatus, setActiveToolStatus] = useState(null);
-  const [expandedToolCards, setExpandedToolCards] = useState({});
+  // Document Attachment State
+  const [attachments, setAttachments] = useState([]);
+  const [isExtractingDoc, setIsExtractingDoc] = useState(false);
+  const fileInputRef = useRef(null);
+
+  // Voice Note / ASR State
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioLevel, setAudioLevel] = useState(0);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [asrModelForChat, setAsrModelForChat] = useState('NCAIR1/Yoruba-ASR');
+  const mediaRecorderRef = useRef(null);
+  const audioCtxRef = useRef(null);
+  const isRecordingRef = useRef(false);
 
   const messagesEndRef = useRef(null);
+  const scrollContainerRef = useRef(null);
   const shouldScrollRef = useRef(false);
+
+  // Map chat language to corresponding ASR model
+  useEffect(() => {
+    if (selectedLang === 'yoruba') setAsrModelForChat('NCAIR1/Yoruba-ASR');
+    else if (selectedLang === 'hausa') setAsrModelForChat('NCAIR1/Hausa-ASR');
+    else if (selectedLang === 'igbo') setAsrModelForChat('NCAIR1/Igbo-ASR');
+    else setAsrModelForChat('NCAIR1/NigerianAccentedEnglish');
+  }, [selectedLang]);
 
   const handleSelectLang = (langId) => {
     setSelectedLang(langId);
@@ -54,121 +68,223 @@ export const ChatStream = ({ initialPrompt = '' }) => {
   }, [initialPrompt]);
 
   useEffect(() => {
-    if (shouldScrollRef.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (shouldScrollRef.current && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
     }
-  }, [messages, isStreaming, activeToolStatus]);
+  }, [messages, isStreaming, isTranscribing]);
 
-  const toggleToolCard = (idx) => {
-    setExpandedToolCards(prev => ({ ...prev, [idx]: !prev[idx] }));
+  // ---------------------------------------------------------------------------
+  // Document Attachment Handlers
+  // ---------------------------------------------------------------------------
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setIsExtractingDoc(true);
+    for (const file of files) {
+      // If user uploaded an audio file directly, transcribe it via ASR!
+      if (file.type.startsWith('audio/') || /\.(wav|mp3|m4a|ogg|flac|webm)$/i.test(file.name)) {
+        await transcribeAudioFile(file);
+        continue;
+      }
+
+      // Otherwise extract document text (.pdf, .docx, .txt, .md, .json, .csv)
+      try {
+        const parsed = await extractTextFromFile(file);
+        setAttachments(prev => [...prev, parsed]);
+      } catch (err) {
+        console.error('File extraction failed:', err);
+        alert(`Failed to extract text from ${file.name}: ${err.message}`);
+      }
+    }
+    setIsExtractingDoc(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleSend = async (overrideText = null, preloadedTools = null) => {
-    const textToSend = overrideText || input;
-    if (!textToSend.trim() || isStreaming) return;
+  const removeAttachment = (idx) => {
+    setAttachments(prev => prev.filter((_, i) => i !== idx));
+  };
 
-    const userText = textToSend.trim();
+  // ---------------------------------------------------------------------------
+  // Voice Recording & ASR Handlers
+  // ---------------------------------------------------------------------------
+  const toggleRecording = async () => {
+    if (isRecording) {
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stop();
+      }
+      setIsRecording(false);
+      setAudioLevel(0);
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            channelCount: 1,
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+          }
+        });
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioCtxRef.current = audioCtx;
+        const nativeSampleRate = audioCtx.sampleRate;
+
+        const src = audioCtx.createMediaStreamSource(stream);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        src.connect(analyser);
+        const dataArr = new Uint8Array(analyser.frequencyBinCount);
+
+        const checkLevel = () => {
+          if (!isRecordingRef.current) {
+            audioCtx.close().catch(() => {});
+            return;
+          }
+          analyser.getByteFrequencyData(dataArr);
+          let sum = 0;
+          for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
+          const avg = sum / dataArr.length / 255;
+          setAudioLevel(Math.min(1, avg * 3.5));
+          requestAnimationFrame(checkLevel);
+        };
+
+        const scriptProcessor = audioCtx.createScriptProcessor(4096, 1, 1);
+        const audioBuffers = [];
+
+        scriptProcessor.onaudioprocess = (e) => {
+          if (!isRecordingRef.current) return;
+          const channel = e.inputBuffer.getChannelData(0);
+          audioBuffers.push(new Float32Array(channel));
+        };
+
+        src.connect(scriptProcessor);
+        scriptProcessor.connect(audioCtx.destination);
+
+        isRecordingRef.current = true;
+        setIsRecording(true);
+        requestAnimationFrame(checkLevel);
+
+        mediaRecorderRef.current = {
+          stop: async () => {
+            isRecordingRef.current = false;
+            stream.getTracks().forEach(t => t.stop());
+            scriptProcessor.disconnect();
+            src.disconnect();
+
+            const finalSamples = downsampleBuffer(audioBuffers, nativeSampleRate, 16000);
+            const wavBlob = encodeWAV(finalSamples, 16000);
+            await transcribeAudioFile(wavBlob, 'voice_note.wav');
+          }
+        };
+      } catch (err) {
+        console.error('Mic error:', err);
+        alert(`Could not start microphone: ${err.message}`);
+        setIsRecording(false);
+      }
+    }
+  };
+
+  const transcribeAudioFile = async (fileOrBlob, filename = 'recording.wav') => {
+    setIsTranscribing(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', fileOrBlob, filename);
+      formData.append('model', asrModelForChat);
+      formData.append('response_format', 'verbose_json');
+
+      const res = await fetch(`${DEFAULT_ENDPOINTS.asrUrl}/v1/audio/transcriptions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${DEFAULT_ENDPOINTS.apiKey}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error(`ASR Error (${res.status}): ${await res.text()}`);
+      }
+
+      const data = await res.json();
+      const transcribedText = (data.text || '').trim();
+
+      if (transcribedText) {
+        setInput(prev => prev ? `${prev} ${transcribedText}` : transcribedText);
+      }
+    } catch (err) {
+      console.error('Transcription failed:', err);
+      alert(`Audio transcription failed: ${err.message}`);
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // Message Submission
+  // ---------------------------------------------------------------------------
+  const handleSend = async (overrideText = null) => {
+    const textToSend = overrideText || input;
+    const hasAttachments = attachments.length > 0;
+    if ((!textToSend.trim() && !hasAttachments) || isStreaming) return;
+
+    let userPrompt = textToSend.trim();
+    let displayPrompt = userPrompt;
+    const attachedDocs = [...attachments];
+
+    // If documents are attached, format into structured context
+    if (hasAttachments) {
+      const docContextStrings = attachedDocs.map(doc => 
+        `--- DOCUMENT: ${doc.filename} ---\n${doc.text}`
+      ).join('\n\n');
+
+      userPrompt = `${docContextStrings}\n\nUser Question/Instruction:\n${userPrompt || 'Please analyze and summarize the attached document(s).'}`;
+      if (!displayPrompt) {
+        displayPrompt = `Analyzed ${attachedDocs.length} attached document(s): ${attachedDocs.map(d => d.filename).join(', ')}`;
+      }
+    }
+
     setInput('');
+    setAttachments([]);
 
     shouldScrollRef.current = true;
-    const conversationHistory = [...messages, { role: 'user', content: userText }];
+    const userMessageObj = { 
+      role: 'user', 
+      content: userPrompt,
+      displayContent: displayPrompt,
+      attachedFiles: hasAttachments ? attachedDocs.map(d => ({ name: d.filename, type: d.type })) : null
+    };
+
+    const conversationHistory = [...messages, userMessageObj];
     setMessages(conversationHistory);
     setIsStreaming(true);
     setTtft(null);
-    setActiveToolStatus(null);
 
     const startTime = performance.now();
     let hasReceivedFirstToken = false;
 
     try {
-      // 1. Prepare payload (with or without tools)
-      const payload = {
-        model: 'NCAIR1/N-ATLaS',
-        messages: conversationHistory.map(m => ({
-          role: m.role,
-          content: m.content || '',
-          ...(m.tool_calls ? { tool_calls: m.tool_calls } : {}),
-          ...(m.tool_call_id ? { tool_call_id: m.tool_call_id } : {}),
-          ...(m.name ? { name: m.name } : {}),
-        })),
-        temperature: parseFloat(temperature),
-        max_tokens: parseInt(maxTokens),
+      const systemMessage = {
+        role: 'system',
+        content: `You are N-ATLaS, Nigeria's sovereign AI assistant developed by FMCIDE, NCAIR, NITDA, and Awarri Technologies. Answer the user's questions directly, accurately, and naturally. Do not append unsolicited conversational questions (such as "Question: ...") at the end of your answers.`
       };
 
-      if (toolsEnabled) {
-        payload.tools = getOpenAITools();
-        payload.tool_choice = 'auto';
-      }
+      const payload = {
+        model: 'NCAIR1/N-ATLaS',
+        messages: [
+          systemMessage,
+          ...conversationHistory.map(m => ({
+            role: m.role,
+            content: m.content || '',
+          }))
+        ],
+        temperature: parseFloat(temperature),
+        max_tokens: parseInt(maxTokens),
+        stream: true,
+      };
 
-      // --- PROACTIVE TOOL EXECUTION FOR DEMO PILLS ---
-      // 8B models can be stubborn/lazy about emitting tool calls reliably.
-      // For the playground demo pills, we proactively execute the tool client-side
-      // so the model is guaranteed to have the context for a perfect answer.
-      let forcedToolExecutions = [];
-      if (toolsEnabled && preloadedTools && preloadedTools.length > 0) {
-        for (const [fnName, fnArgs] of preloadedTools) {
-          setActiveToolStatus(`Fetching ${fnName.replace('_', ' ')}...`);
-          const result = await executeTool(fnName, fnArgs);
-          forcedToolExecutions.push({ name: fnName, args: fnArgs, result });
-          
-          const fakeId = `call_${Date.now()}`;
-          conversationHistory.push(
-            { role: 'assistant', content: '', tool_calls: [{ id: fakeId, type: 'function', function: { name: fnName, arguments: JSON.stringify(fnArgs) } }] },
-            { role: 'tool', tool_call_id: fakeId, name: fnName, content: JSON.stringify(result) }
-          );
-        }
-      }
+      setMessages([...conversationHistory, { role: 'assistant', content: '' }]);
 
-      if (forcedToolExecutions.length > 0) {
-        setActiveToolStatus('Generating grounded response...');
-        setMessages([...conversationHistory, { role: 'assistant', content: '', executedTools: forcedToolExecutions }]);
-
-        const streamResp = await fetch(`${DEFAULT_ENDPOINTS.llmUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEFAULT_ENDPOINTS.apiKey}` },
-          body: JSON.stringify({
-            model: 'NCAIR1/N-ATLaS',
-            messages: conversationHistory.map(m => ({
-              role: m.role,
-              content: m.content || '',
-              ...(m.tool_calls ? { tool_calls: m.tool_calls } : {}),
-              ...(m.tool_call_id ? { tool_call_id: m.tool_call_id } : {}),
-              ...(m.name ? { name: m.name } : {}),
-            })),
-            temperature: parseFloat(temperature),
-            max_tokens: parseInt(maxTokens),
-            stream: true,
-          }),
-        });
-
-        if (!streamResp.ok) throw new Error(`HTTP Error: ${streamResp.status}`);
-        const reader = streamResp.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let accumulatedText = '';
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          for (const line of chunk.split('\n')) {
-            if (!line.startsWith('data: ')) continue;
-            const dataStr = line.slice(6).trim();
-            if (dataStr === '[DONE]') continue;
-            try {
-              const delta = JSON.parse(dataStr).choices?.[0]?.delta?.content || '';
-              if (delta) {
-                if (!hasReceivedFirstToken) { hasReceivedFirstToken = true; setTtft(Math.round(performance.now() - startTime)); }
-                accumulatedText += delta;
-                setMessages(prev => { const u = [...prev]; u[u.length-1] = { role: 'assistant', content: accumulatedText, executedTools: forcedToolExecutions }; return u; });
-              }
-            } catch (e) {}
-          }
-        }
-        return;
-      }
-
-      // --- NORMAL FLOW (no pre-loaded tools) ---
-      // First call (non-streaming): let the model decide which tools to invoke.
-      const res = await fetch(`${DEFAULT_ENDPOINTS.llmUrl}/v1/chat/completions`, {
+      const streamResp = await fetch(`${DEFAULT_ENDPOINTS.llmUrl}/v1/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -177,131 +293,59 @@ export const ChatStream = ({ initialPrompt = '' }) => {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-      const data = await res.json();
-      const choice = data.choices?.[0]?.message;
+      if (!streamResp.ok) throw new Error(`HTTP Error: ${streamResp.status}`);
+      const reader = streamResp.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let fullAssistantMsg = '';
 
-      // 2. Check if Model wants to execute Tools!
-      if (choice && choice.tool_calls && choice.tool_calls.length > 0) {
-        const toolCalls = choice.tool_calls;
-        const toolExecutions = [];
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
 
-        // Add assistant tool_calls message to thread
-        conversationHistory.push({
-          role: 'assistant',
-          content: choice.content || '',
-          tool_calls: toolCalls,
-        });
+        for (const line of lines) {
+          const clean = line.trim();
+          if (!clean.startsWith('data:')) continue;
+          const dataStr = clean.replace(/^data:\s*/, '');
+          if (dataStr === '[DONE]') continue;
 
-        // Execute each tool locally in client
-        for (const call of toolCalls) {
-          const fnName = call.function.name;
-          const fnArgs = call.function.arguments;
-          setActiveToolStatus(`Executing tool: ${fnName}...`);
-
-          const result = await executeTool(fnName, fnArgs);
-
-          toolExecutions.push({
-            name: fnName,
-            args: typeof fnArgs === 'string' ? JSON.parse(fnArgs || '{}') : fnArgs,
-            result,
-          });
-
-          // Append tool response
-          conversationHistory.push({
-            role: 'tool',
-            tool_call_id: call.id,
-            name: fnName,
-            content: typeof result === 'object' ? JSON.stringify(result) : String(result),
-          });
-        }
-
-        setActiveToolStatus('Generating grounded response...');
-
-        // Now stream final assistant completion grounded on tool outputs
-        setMessages([...conversationHistory, {
-          role: 'assistant',
-          content: '',
-          executedTools: toolExecutions,
-        }]);
-
-        const secondResponse = await fetch(`${DEFAULT_ENDPOINTS.llmUrl}/v1/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${DEFAULT_ENDPOINTS.apiKey}`,
-          },
-          body: JSON.stringify({
-            model: 'NCAIR1/N-ATLaS',
-            messages: conversationHistory.map(m => ({
-              role: m.role,
-              content: m.content || '',
-              ...(m.tool_calls ? { tool_calls: m.tool_calls } : {}),
-              ...(m.tool_call_id ? { tool_call_id: m.tool_call_id } : {}),
-              ...(m.name ? { name: m.name } : {}),
-            })),
-            temperature: parseFloat(temperature),
-            max_tokens: parseInt(maxTokens),
-            stream: true,
-          }),
-        });
-
-        if (!secondResponse.ok) throw new Error(`HTTP Error: ${secondResponse.status}`);
-        const reader = secondResponse.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let accumulatedText = '';
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const dataStr = line.slice(6).trim();
-              if (dataStr === '[DONE]') continue;
-              try {
-                const parsed = JSON.parse(dataStr);
-                const delta = parsed.choices?.[0]?.delta?.content || '';
-                if (delta) {
-                  if (!hasReceivedFirstToken) {
-                    hasReceivedFirstToken = true;
-                    setTtft(Math.round(performance.now() - startTime));
-                  }
-                  accumulatedText += delta;
-                  setMessages(prev => {
-                    const updated = [...prev];
-                    updated[updated.length - 1] = {
-                      role: 'assistant',
-                      content: accumulatedText,
-                      executedTools: toolExecutions,
-                    };
-                    return updated;
-                  });
-                }
-              } catch (e) {}
+          try {
+            const parsed = JSON.parse(dataStr);
+            const delta = parsed.choices?.[0]?.delta?.content || '';
+            if (delta) {
+              if (!hasReceivedFirstToken) {
+                hasReceivedFirstToken = true;
+                setTtft(Math.round(performance.now() - startTime));
+              }
+              fullAssistantMsg += delta;
+              setMessages(prev => {
+                const updated = [...prev];
+                const lastIdx = updated.length - 1;
+                updated[lastIdx] = {
+                  ...updated[lastIdx],
+                  role: 'assistant',
+                  content: fullAssistantMsg,
+                };
+                return updated;
+              });
             }
+          } catch {
+            // ignore partial json chunk parse errors
           }
         }
-      } else {
-        // Normal response without tool calls
-        setMessages(prev => [
-          ...prev,
-          { role: 'assistant', content: choice?.content || 'No response returned.' }
-        ]);
-        setTtft(Math.round(performance.now() - startTime));
       }
     } catch (err) {
       console.error('Chat error:', err);
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', content: `Error: ${err.message || 'Failed to communicate with N-ATLaS model.'}` }
+        {
+          role: 'assistant',
+          content: `⚠️ Error communicating with N-ATLaS endpoint: ${err.message}. Please verify the backend status and API key.`,
+        }
       ]);
     } finally {
       setIsStreaming(false);
-      setActiveToolStatus(null);
     }
   };
 
@@ -311,88 +355,78 @@ export const ChatStream = ({ initialPrompt = '' }) => {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
+  const handleClearChat = () => {
+    const langObj = LLM_LANGUAGES.find(l => l.id === selectedLang);
+    setMessages([
+      {
+        role: 'assistant',
+        content: langObj ? langObj.greeting : LLM_LANGUAGES[0].greeting,
+      }
+    ]);
+    setTtft(null);
+    setAttachments([]);
+  };
+
   return (
     <div className="space-y-4">
-      {/* Language Selector & Controls Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-2.5 sm:p-3 rounded-2xl border border-stone-200 shadow-sm">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-          <span className="text-xs font-semibold text-stone-500 shrink-0 px-1">Language:</span>
-          <div className="flex gap-1.5 shrink-0">
-            {LLM_LANGUAGES.map(lang => (
-              <button
-                key={lang.id}
-                onClick={() => handleSelectLang(lang.id)}
-                className={`px-2.5 py-1 rounded-xl text-xs font-medium transition-all ${
-                  selectedLang === lang.id
-                    ? 'bg-federal-700 text-white shadow-sm'
-                    : 'bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-200/60'
-                }`}
-              >
-                {lang.name}
-              </button>
-            ))}
-          </div>
+      {/* Top Controls: Persona + Quick ASR selector + Parameters */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-stone-50/80 p-3 rounded-2xl border border-stone-200">
+        {/* Language Tabs */}
+        <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+          {LLM_LANGUAGES.map(lang => (
+            <button
+              key={lang.id}
+              onClick={() => handleSelectLang(lang.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                selectedLang === lang.id
+                  ? 'bg-federal-700 text-white shadow-xs'
+                  : 'bg-white hover:bg-stone-100 text-stone-600 border border-stone-200/80'
+              }`}
+            >
+              {lang.shortName}
+            </button>
+          ))}
         </div>
 
-        <div className="flex items-center justify-end gap-2 shrink-0">
-          {/* Agent Tools Mode Switch */}
-          <button
-            onClick={() => setToolsEnabled(!toolsEnabled)}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              toolsEnabled
-                ? 'bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm'
-                : 'bg-stone-50 border-stone-200 text-stone-500 hover:border-stone-300'
-            }`}
-            title="Toggle autonomous 100% free agent tools (DuckDuckGo, Weather, FX, 774 LGAs)"
-          >
-            <Wrench className={`w-3.5 h-3.5 ${toolsEnabled ? 'text-emerald-600' : 'text-stone-400'}`} />
-            <span>Agent Tools:</span>
-            <span className={`font-mono text-[10px] px-1.5 py-0.5 rounded ${toolsEnabled ? 'bg-emerald-200 text-emerald-900 font-bold' : 'bg-stone-200 text-stone-600'}`}>
-              {toolsEnabled ? 'ON' : 'OFF'}
-            </span>
-          </button>
-
-          {ttft && (
-            <span className="text-[11px] font-mono text-federal-600 bg-federal-50 px-2 py-1 rounded-lg border border-federal-100">
-              {ttft}ms
-            </span>
-          )}
+        {/* Right Controls: Audio Model Pill + Sliders */}
+        <div className="flex items-center gap-2 self-end sm:self-center">
+          {/* Quick ASR selector */}
+          <div className="flex items-center gap-1 text-[11px] font-mono bg-white px-2.5 py-1.5 rounded-xl border border-stone-200 text-stone-600">
+            <Volume2 className="w-3.5 h-3.5 text-federal-600" />
+            <span className="text-[10px] text-stone-400 hidden xs:inline">ASR:</span>
+            <select
+              value={asrModelForChat}
+              onChange={e => setAsrModelForChat(e.target.value)}
+              className="bg-transparent text-stone-700 text-[11px] font-medium focus:outline-none cursor-pointer"
+            >
+              {ASR_MODELS.map(m => (
+                <option key={m.id} value={m.id}>{m.badge}</option>
+              ))}
+            </select>
+          </div>
 
           <button
             onClick={() => setShowConfig(!showConfig)}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              showConfig ? 'bg-stone-900 border-stone-900 text-white' : 'bg-white border-stone-200 text-stone-600 hover:border-stone-300'
+            className={`p-2 rounded-xl border text-stone-600 hover:text-stone-900 transition-colors ${
+              showConfig ? 'bg-cream-200 border-stone-300' : 'bg-white border-stone-200 hover:bg-stone-50'
             }`}
+            title="Inference Parameters"
           >
-            <Sliders className="w-3 h-3" />
-            Config
+            <Sliders className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleClearChat}
+            className="p-2 rounded-xl bg-white border border-stone-200 text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition-colors"
+            title="Clear Chat History"
+          >
+            <RefreshCw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Quick Agent Tool Demo Prompt Pills */}
-      {toolsEnabled && (
-        <div className="bg-gradient-to-r from-emerald-50/70 via-stone-50 to-federal-50/50 p-2.5 rounded-xl border border-emerald-100 flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="text-emerald-800 font-semibold flex items-center gap-1 shrink-0">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            Try Agent Tool:
-          </span>
-          {QUICK_PROMPTS.map((qp, i) => (
-            <button
-              key={i}
-              onClick={() => handleSend(qp.text, qp.tools ?? null)}
-              disabled={isStreaming}
-              className="px-2.5 py-1 rounded-lg bg-white border border-emerald-200/80 hover:border-emerald-400 text-stone-700 hover:text-emerald-900 shadow-2xs font-medium text-[11px] transition-all hover:scale-101 active:scale-99"
-            >
-              {qp.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Expandable Parameters Drawer */}
+      {/* Config Drawer */}
       {showConfig && (
-        <div className="bg-white p-5 rounded-2xl border border-federal-100 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in duration-200">
+        <div className="grid grid-cols-2 gap-4 p-4 bg-cream-100 rounded-xl border border-stone-200 text-xs animate-fade-down">
           <div>
             <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
               <span>Temperature</span>
@@ -428,14 +462,9 @@ export const ChatStream = ({ initialPrompt = '' }) => {
 
       {/* Chat Messages Box */}
       <div className="bg-white rounded-2xl border border-stone-200 shadow-card h-[58vh] sm:h-[480px] flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4">
           {messages.map((m, idx) => {
-            // Hide intermediate tool calls and raw tool JSON responses from the UI
-            if (m.role === 'tool' || m.tool_calls) return null;
-
             const isUser = m.role === 'user';
-            const hasTools = m.executedTools && m.executedTools.length > 0;
-            const isExpanded = expandedToolCards[idx];
 
             return (
               <div key={idx} className={`flex gap-2 sm:gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -451,44 +480,19 @@ export const ChatStream = ({ initialPrompt = '' }) => {
                       : 'bg-cream-100 text-slate-800 border border-federal-100/60'
                   }`}
                 >
-                  {/* Tool Execution Accordion Badge */}
-                  {hasTools && (
-                    <div className="mb-3 rounded-xl border border-emerald-200 bg-white/95 overflow-hidden shadow-2xs">
-                      <button
-                        onClick={() => toggleToolCard(idx)}
-                        className="w-full px-3 py-2 bg-emerald-50/60 hover:bg-emerald-50 text-emerald-900 flex items-center justify-between text-xs font-semibold border-b border-emerald-100 transition-colors"
-                      >
-                        <div className="flex items-center gap-1.5">
-                          <Wrench className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>{m.executedTools.length} Tool{m.executedTools.length > 1 ? 's' : ''} Executed:</span>
-                          <span className="font-mono text-[11px] text-emerald-700 font-normal">
-                            {m.executedTools.map(t => t.name).join(', ')}
-                          </span>
-                        </div>
-                        {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                      </button>
-
-                      {isExpanded && (
-                        <div className="p-2.5 space-y-2 text-[11px] font-mono bg-stone-50 max-h-48 overflow-y-auto">
-                          {m.executedTools.map((t, tIdx) => (
-                            <div key={tIdx} className="bg-white p-2 rounded-lg border border-stone-200">
-                              <div className="text-emerald-800 font-bold flex items-center gap-1 mb-1">
-                                ⚙️ {t.name}
-                              </div>
-                              <div className="text-stone-500 text-[10px]">
-                                <span className="font-semibold text-stone-700">Inputs:</span> {JSON.stringify(t.args)}
-                              </div>
-                              <div className="text-stone-800 text-[10px] mt-1 bg-stone-50 p-1.5 rounded border border-stone-100">
-                                <span className="font-semibold text-stone-700">Output:</span> {JSON.stringify(t.result)}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                  {/* Attached Document Tags on User Messages */}
+                  {isUser && m.attachedFiles && m.attachedFiles.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-2 pb-2 border-b border-white/20">
+                      {m.attachedFiles.map((f, fIdx) => (
+                        <span key={fIdx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/20 text-white text-[11px] font-mono">
+                          <FileText className="w-3 h-3" />
+                          <span>{f.name}</span>
+                        </span>
+                      ))}
                     </div>
                   )}
 
-                  <p className="whitespace-pre-wrap">{m.content}</p>
+                  <p className="whitespace-pre-wrap">{m.displayContent || m.content}</p>
 
                   {!isUser && m.content && (
                     <button
@@ -508,14 +512,21 @@ export const ChatStream = ({ initialPrompt = '' }) => {
             );
           })}
 
-          {activeToolStatus && (
-            <div className="flex items-center gap-2 text-xs font-mono text-emerald-700 pl-9 sm:pl-11 bg-emerald-50/80 py-1.5 px-3 rounded-lg border border-emerald-200/80 w-fit">
-              <RefreshCw className="w-3 h-3 animate-spin text-emerald-600" />
-              {activeToolStatus}
+          {isTranscribing && (
+            <div className="flex items-center gap-2 text-xs font-mono text-ochre-800 pl-9 sm:pl-11 bg-ochre-50 py-1.5 px-3 rounded-lg border border-ochre-300 w-fit">
+              <RefreshCw className="w-3 h-3 animate-spin text-ochre-600" />
+              Transcribing audio via {asrModelForChat.split('/')[1]}...
             </div>
           )}
 
-          {isStreaming && !activeToolStatus && (
+          {isExtractingDoc && (
+            <div className="flex items-center gap-2 text-xs font-mono text-indigo-800 pl-9 sm:pl-11 bg-indigo-50 py-1.5 px-3 rounded-lg border border-indigo-200 w-fit">
+              <RefreshCw className="w-3 h-3 animate-spin text-indigo-600" />
+              Extracting document text context...
+            </div>
+          )}
+
+          {isStreaming && (
             <div className="flex items-center gap-2 text-xs font-mono text-federal-700 pl-9 sm:pl-11">
               <RefreshCw className="w-3 h-3 animate-spin" />
               N-ATLaS is thinking...
@@ -524,24 +535,120 @@ export const ChatStream = ({ initialPrompt = '' }) => {
           <div ref={messagesEndRef} />
         </div>
 
+        {/* Attached Files Preview Strip */}
+        {attachments.length > 0 && (
+          <div className="px-3 pt-2 pb-1 bg-stone-100/90 border-t border-stone-200 flex flex-wrap gap-2 items-center">
+            <span className="text-[11px] font-mono text-stone-500 font-semibold">Context Attachments:</span>
+            {attachments.map((att, attIdx) => (
+              <span
+                key={attIdx}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-stone-200 text-stone-800 text-xs font-mono shadow-2xs"
+              >
+                <FileText className="w-3.5 h-3.5 text-federal-600" />
+                <span className="max-w-[140px] truncate">{att.filename}</span>
+                <span className="text-[10px] text-stone-400">({(att.sizeBytes / 1024).toFixed(0)}KB)</span>
+                <button
+                  onClick={() => removeAttachment(attIdx)}
+                  className="hover:text-red-500 transition-colors ml-0.5"
+                  title="Remove file"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Live Audio Recording Status Banner */}
+        {isRecording && (
+          <div className="px-3 py-2 bg-red-50 border-t border-red-200 flex items-center justify-between text-xs text-red-900 animate-pulse">
+            <div className="flex items-center gap-2 font-mono">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping" />
+              <span>Recording Voice Note... ({asrModelForChat.split('/')[1]})</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-24 h-2 bg-red-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-red-600 transition-all duration-75"
+                  style={{ width: `${Math.min(100, audioLevel * 100)}%` }}
+                />
+              </div>
+              <button
+                onClick={toggleRecording}
+                className="px-2 py-0.5 rounded bg-red-600 text-white font-bold text-[11px] hover:bg-red-700 transition-colors"
+              >
+                Stop & Transcribe
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Input Bar */}
         <div className="p-2.5 sm:p-3 bg-stone-50 border-t border-stone-100 flex items-center gap-2">
+          {/* Hidden File Input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            multiple
+            accept=".pdf,.docx,.txt,.md,.json,.csv,.wav,.mp3,.m4a,.ogg,.flac,.webm"
+            className="hidden"
+          />
+
+          {/* Paperclip Document Button */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isStreaming || isExtractingDoc || isTranscribing}
+            className="p-2 sm:p-2.5 rounded-xl bg-white border border-stone-200 hover:border-federal-400 text-stone-600 hover:text-federal-700 transition-all shrink-0 shadow-2xs hover:bg-stone-50"
+            title="Attach documents (.pdf, .docx, .txt, .csv) or audio files to transcribe"
+          >
+            <Paperclip className="w-4 h-4" />
+          </button>
+
+          {/* Microphone Recording Button */}
+          <button
+            type="button"
+            onClick={toggleRecording}
+            disabled={isStreaming || isTranscribing}
+            className={`p-2 sm:p-2.5 rounded-xl border transition-all shrink-0 shadow-2xs flex items-center justify-center ${
+              isRecording
+                ? 'bg-red-600 border-red-600 text-white animate-pulse'
+                : 'bg-white border-stone-200 hover:border-federal-400 text-stone-600 hover:text-federal-700 hover:bg-stone-50'
+            }`}
+            title={isRecording ? "Stop recording voice note" : `Record voice note (transcribed via ${asrModelForChat.split('/')[1]})`}
+          >
+            {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+          </button>
+
+          {/* Main Text Input */}
           <input
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSend()}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
             placeholder={
-              toolsEnabled
-                ? "Ask anything (Agent tools enabled: FX, Weather, 774 LGAs, Search)..."
-                : "Ask anything..."
+              isRecording
+                ? "Listening to voice note..."
+                : isTranscribing
+                ? "Transcribing voice to text..."
+                : attachments.length > 0
+                ? "Ask a question about the attached document..."
+                : "Ask anything (Multilingual LLM + Voice notes + Document context)..."
             }
             className="flex-1 min-w-0 bg-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-federal-500/40 focus:border-federal-500 transition-colors"
           />
+
+          {/* Send Button */}
           <button
             onClick={() => handleSend()}
-            disabled={!input.trim() || isStreaming}
-            className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-federal-600 hover:bg-federal-700 disabled:opacity-40 text-white font-semibold text-xs flex items-center gap-1.5 transition-all shrink-0"
+            disabled={(!input.trim() && attachments.length === 0) || isStreaming}
+            className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-federal-600 hover:bg-federal-700 disabled:opacity-40 text-white font-semibold text-xs flex items-center gap-1.5 transition-all shrink-0 shadow-sm"
           >
             <Send className="w-3.5 h-3.5" />
             <span className="hidden xs:inline">Send</span>
