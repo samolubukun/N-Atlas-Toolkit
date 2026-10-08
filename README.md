@@ -247,7 +247,7 @@ Run inference directly inside your Python process on your local GPU/workstation:
 
 ```bash
 # Install local dependencies
-pip install "./python-sdk[local]"
+pip install "natlas-sdk[local]"
 
 # Run interactive local chat runner
 python run_local.py

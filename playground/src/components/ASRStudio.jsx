@@ -35,8 +35,19 @@ function encodeWAV(samples, sampleRate = 16000) {
   return new Blob([view], { type: 'audio/wav' });
 }
 
-export const ASRStudio = ({ onSendToLLM }) => {
-  const [selectedModel, setSelectedModel] = useState(ASR_MODELS[0].id);
+export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
+  const [selectedModel, setSelectedModel] = useState(() => {
+    if (initialModelId && ASR_MODELS.some(m => m.id === initialModelId)) {
+      return initialModelId;
+    }
+    return ASR_MODELS[0].id;
+  });
+
+  React.useEffect(() => {
+    if (initialModelId && ASR_MODELS.some(m => m.id === initialModelId)) {
+      setSelectedModel(initialModelId);
+    }
+  }, [initialModelId]);
   const [isRecording, setIsRecording] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
   const [transcript, setTranscript] = useState('');

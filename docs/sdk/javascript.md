@@ -9,7 +9,7 @@ The official typed JavaScript and TypeScript SDK (`natlas`) is designed for mode
 Install directly from the repository:
 
 ```bash
-npm install ./js-sdk
+npm install natlas-sdk
 # or: pnpm add ./js-sdk / bun add ./js-sdk
 ```
 
@@ -113,7 +113,7 @@ if (response.message.tool_calls) {
 
 ## 4. Built-in Agent Tools (Zero-Key)
 
-All 7 tools are available immediately after `npm install ./js-sdk` — no external API keys needed:
+All 7 tools are available immediately after `npm install natlas-sdk` — no external API keys needed:
 
 ```typescript
 import { tools } from "natlas";

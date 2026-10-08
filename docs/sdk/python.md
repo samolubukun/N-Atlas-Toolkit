@@ -125,7 +125,7 @@ if response.message.tool_calls:
 
 ## 5. Built-in Agent Tools (Zero-Key)
 
-All 7 tools are available immediately after `pip install ./python-sdk` — no external API keys required:
+All 7 tools are available immediately after `pip install natlas-sdk` — no external API keys required:
 
 ```python
 from natlas import tools

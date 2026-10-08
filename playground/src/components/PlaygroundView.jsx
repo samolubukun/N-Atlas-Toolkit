@@ -38,7 +38,7 @@ const studios = [
 
 ];
 
-export const PlaygroundView = ({ activeStudio = 'chat', onStudioChange, onBackToLanding, onSelectDocs }) => {
+export const PlaygroundView = ({ activeStudio = 'chat', selectedModelId = null, onStudioChange, onBackToLanding, onSelectDocs }) => {
   const [transferredPrompt, setTransferredPrompt] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -211,7 +211,7 @@ export const PlaygroundView = ({ activeStudio = 'chat', onStudioChange, onBackTo
         {/* Studio content */}
         <div className="animate-fade-up">
           {activeStudio === 'chat'       && <ChatStream initialPrompt={transferredPrompt} />}
-          {activeStudio === 'asr'        && <ASRStudio onSendToLLM={handleSendToLLM} />}
+          {activeStudio === 'asr'        && <ASRStudio initialModelId={selectedModelId} onSendToLLM={handleSendToLLM} />}
         </div>
       </section>
     </div>

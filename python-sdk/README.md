@@ -30,23 +30,16 @@ This `python-sdk/` directory is the complete Python SDK project inside the N-ATL
 
 Python 3.10 or newer is required.
 
-From the monorepo root, install the hosted SDK directly from this directory:
+From PyPI, install the hosted SDK:
 
 ```bash
-python -m pip install ./python-sdk
+python -m pip install natlas-sdk
 ```
 
-Or enter the SDK project first:
+Install local-inference dependencies as well (for offline use with GPUs):
 
 ```bash
-cd python-sdk
-python -m pip install .
-```
-
-Install local-inference dependencies as well:
-
-```bash
-python -m pip install "./python-sdk[local]"
+python -m pip install "natlas-sdk[local]"
 ```
 
 For development / editable install (also works):

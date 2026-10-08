@@ -31,13 +31,13 @@ export NATLAS_API_URL="https://<workspace>--natlas-engine-natlasasrengine-serve.
 === "Hosted (Cloud Inference)"
     ```bash
     # Install directly from the repository
-    pip install ./python-sdk
+    pip install natlas-sdk
     ```
 
 === "Local Inference (In-Process PyTorch/GPU)"
     ```bash
     # Installs optional local model execution dependencies
-    pip install "./python-sdk[local]"
+    pip install "natlas-sdk[local]"
     ```
 
 ### Your First Python Chat
@@ -63,7 +63,7 @@ Install directly from the repository in your Node.js, Bun, Next.js, or web appli
 
 === "npm"
     ```bash
-    npm install ./js-sdk
+    npm install natlas-sdk
     ```
 === "pnpm"
     ```bash

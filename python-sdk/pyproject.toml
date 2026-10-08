@@ -1,15 +1,16 @@
 [build-system]
-requires = ["setuptools>=72", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "natlas"
-version = "0.1.0"
+name = "natlas-sdk"
+version = "0.1.1"
 description = "Python SDK for Nigeria's sovereign N-ATLaS multilingual LLM and Whisper ASR models"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { file = "LICENSE" }
-authors = [{ name = "National AI Innovation Challenge contributors" }]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Samuel Olubukun" }]
 keywords = [
   "n-atlas",
   "nigerian-languages",
@@ -20,6 +21,8 @@ keywords = [
   "yoruba",
   "hausa",
   "igbo",
+  "nigerian-english",
+  "african-nlp",
   "transformers",
   "vllm",
 ]
@@ -38,13 +41,36 @@ dependencies = [
   "typing-extensions>=4.12",
 ]
 
+[project.urls]
+"Homepage" = "https://huggingface.co/NCAIR1"
+"Source" = "https://github.com/samolubukun/N-Atlas-Toolkit"
+"Bug Tracker" = "https://github.com/samolubukun/N-Atlas-Toolkit/issues"
+
 [project.scripts]
 natlas = "natlas.cli:main"
 
+# ---------------------------------------------------------------------------
+# Packaging layout
+#
+# The source lives in src/ directly (src/__init__.py is the natlas package).
+# We explicitly enumerate the packages and map their directories so that only
+# natlas/* ends up in the wheel — the raw "src" name is never included.
+# ---------------------------------------------------------------------------
 [tool.setuptools]
-package-dir = {"natlas" = "src"}
 packages = ["natlas", "natlas.tools", "natlas.tools.data"]
 
+[tool.setuptools.package-dir]
+"natlas"            = "src"
+"natlas.tools"      = "src/tools"
+"natlas.tools.data" = "src/tools/data"
+
+[tool.setuptools.package-data]
+"natlas"       = ["py.typed"]
+"natlas.tools" = ["data/*.json"]
+
+# ---------------------------------------------------------------------------
+# Optional dependencies
+# ---------------------------------------------------------------------------
 [project.optional-dependencies]
 local = [
   "accelerate>=0.34,<2",
@@ -55,7 +81,7 @@ local = [
 ]
 test = [
   "build>=1.2,<2",
-  "setuptools>=72",
+  "setuptools>=77",
   "wheel",
   "mypy>=1.13,<2",
   "pytest>=8,<9",
@@ -64,9 +90,9 @@ test = [
   "ruff>=0.9,<1",
 ]
 
-[tool.setuptools.package-data]
-"natlas" = ["tools/data/*.json", "py.typed"]
-
+# ---------------------------------------------------------------------------
+# Dev tooling
+# ---------------------------------------------------------------------------
 [tool.pytest.ini_options]
 addopts = "-ra"
 asyncio_mode = "auto"

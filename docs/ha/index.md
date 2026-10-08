@@ -11,12 +11,12 @@ Wannan ita ce takardar jagora a harshen Hausa ga masu haɓaka software (develope
 
 === "Python"
     ```bash
-    pip install ./python-sdk
+    pip install natlas-sdk
     ```
 
 === "JavaScript / TypeScript"
     ```bash
-    npm install ./js-sdk
+    npm install natlas-sdk
     ```
 
 ---

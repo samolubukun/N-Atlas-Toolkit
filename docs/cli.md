@@ -12,7 +12,7 @@ The N-ATLaS toolkit provides unified command-line interfaces for both Python (`p
     python python-sdk/src/cli.py --help
 
     # Option 2: Install locally in editable mode:
-    pip install -e ./python-sdk
+    pip install natlas-sdk
     natlas --help
     ```
 

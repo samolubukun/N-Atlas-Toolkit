@@ -1,4 +1,4 @@
-# N-ATLaS JavaScript / TypeScript SDK (`@natlas/sdk` / `natlas`)
+# N-ATLaS JavaScript / TypeScript SDK (`natlas-sdk`)
 
 A typed JavaScript and TypeScript SDK for Nigeria's sovereign multilingual LLM and speech models, [NCAIR1/N-ATLaS](https://huggingface.co/NCAIR1/N-ATLaS), built for the National AI Innovation Challenge.
 
@@ -20,14 +20,14 @@ N-ATLaS is an initiative of the Federal Ministry of Communications, Innovation a
 
 ## Installation
 
-Install directly from the repository directory:
+Install from npm:
 
 ```bash
-npm install ./js-sdk
+npm install natlas-sdk
 # or
-pnpm add ./js-sdk
+pnpm add natlas-sdk
 # or
-bun add ./js-sdk
+bun add natlas-sdk
 ```
 
 ---

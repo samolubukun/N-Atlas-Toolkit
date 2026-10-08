@@ -257,6 +257,12 @@ class NATLaSAPI:
 
         if model_id not in self.loaded_asr_models:
             logger.info(f"[N-ATLaS ASR] Loading ASR weights for {model_id}...")
+            
+            # Clear previous models from memory to avoid VRAM OOM alongside vLLM
+            # (Do NOT call torch.cuda.empty_cache() here as it corrupts vLLM's paged memory)
+            self.loaded_asr_models.clear()
+            self.loaded_asr_processors.clear()
+                
             processor = WhisperProcessor.from_pretrained(
                 model_id,
                 token=hf_token,
@@ -301,9 +307,16 @@ class NATLaSAPI:
         try:
             audio_array, sampling_rate = sf.read(io.BytesIO(audio_bytes))
         except Exception:
+            import tempfile
+            import os
             try:
-                audio_array, sampling_rate = librosa.load(io.BytesIO(audio_bytes), sr=16000)
-            except Exception:
+                with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+                    tmp.write(audio_bytes)
+                    tmp_path = tmp.name
+                audio_array, sampling_rate = librosa.load(tmp_path, sr=16000)
+                os.remove(tmp_path)
+            except Exception as e:
+                logger.error(f"Audio decode failed: {e}")
                 audio_array = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
                 sampling_rate = 16000
 

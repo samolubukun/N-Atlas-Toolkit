@@ -24,9 +24,9 @@ No external accounts, no credit cards, no rate limits beyond what the underlying
 ### Installation
 
 ```bash
-pip install ./python-sdk
+pip install natlas-sdk
 # or editable / dev mode:
-pip install -e ./python-sdk
+pip install natlas-sdk
 ```
 
 ### Usage
@@ -156,7 +156,7 @@ Configure in `claude_desktop_config.json`:
 ### Installation
 
 ```bash
-npm install ./js-sdk
+npm install natlas-sdk
 # pnpm add ./js-sdk  /  bun add ./js-sdk
 ```
 

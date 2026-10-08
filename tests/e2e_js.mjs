@@ -11,7 +11,7 @@
  *
  * Usage:
  *   cd natlas-toolkit
- *   npm install ./js-sdk
+ *   npm install natlas-sdk
  *   NATLAS_API_KEY=<key> node tests/e2e_js.mjs
  *
  * Optional env vars (if different from SDK defaults):

@@ -1,5 +1,5 @@
 {
-  "name": "natlas",
+  "name": "natlas-sdk",
   "version": "0.1.0",
   "description": "TypeScript/JavaScript SDK for N-ATLaS, Nigeria's sovereign multilingual LLM and speech models",
   "main": "./dist/index.js",
@@ -46,6 +46,15 @@
   ],
   "author": "N-ATLaS Initiative",
   "license": "Apache-2.0",
+  "homepage": "https://huggingface.co/NCAIR1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samolubukun/N-Atlas-Toolkit.git",
+    "directory": "js-sdk"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "tsup": "^8.0.2",

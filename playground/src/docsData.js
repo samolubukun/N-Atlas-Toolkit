@@ -118,13 +118,13 @@ export NATLAS_API_URL="https://<workspace>--natlas-engine-natlasasrengine-serve.
 
 \`\`\`bash
 # Install directly from the repository
-pip install ./python-sdk
+pip install natlas-sdk
 
 # Or install with local PyTorch/GPU support
-pip install "./python-sdk[local]"
+pip install "natlas-sdk[local]"
 
 # Editable / development install (also supported)
-pip install -e ./python-sdk
+pip install natlas-sdk
 \`\`\`
 
 #### Your First Python Chat:
@@ -157,7 +157,7 @@ tools.web_search("Nigerian AI news")   # DuckDuckGo, no key
 Install directly from the repository directory:
 \`\`\`bash
 # Install local js-sdk directory
-npm install ./js-sdk
+npm install natlas-sdk
 # or pnpm: pnpm add ./js-sdk / bun add ./js-sdk
 \`\`\`
 
@@ -273,7 +273,7 @@ for w in result.words:
 
 ### 3. Built-in Agent Tools (Zero-Key)
 
-All 7 tools work immediately after \`pip install ./python-sdk\` — no API keys:
+All 7 tools work immediately after \`pip install natlas-sdk\` — no API keys:
 
 \`\`\`python
 from natlas import tools
@@ -307,7 +307,7 @@ result  = tools.execute_tool("fx_rates", {"base": "USD", "target": "NGN"})
 
 Install directly from the repository directory:
 \`\`\`bash
-npm install ./js-sdk
+npm install natlas-sdk
 # or: pnpm add ./js-sdk / bun add ./js-sdk
 \`\`\`
 
@@ -358,7 +358,7 @@ console.log("Transcribed Text:", result.text);
 
 ### 3. Built-in Agent Tools (Zero-Key)
 
-All 7 tools work immediately after \`npm install ./js-sdk\` — no API keys:
+All 7 tools work immediately after \`npm install natlas-sdk\` — no API keys:
 
 \`\`\`typescript
 import { nigeriaGazetteer, mathEval, webSearch, fxRates,
@@ -399,7 +399,7 @@ You can run either the **Python CLI** or the **Node.js / JavaScript CLI** direct
 python python-sdk/src/cli.py --help
 
 # Or install editable in local venv:
-pip install -e ./python-sdk
+pip install natlas-sdk
 natlas --help
 \`\`\`
 
@@ -764,10 +764,10 @@ Includes reverse proxy routing, CPU fallback for development, and NVIDIA Contain
 
 \`\`\`bash
 # Python
-pip install ./python-sdk
+pip install natlas-sdk
 
 # JavaScript / TypeScript
-npm install ./js-sdk
+npm install natlas-sdk
 \`\`\`
 
 ### Àpẹẹrẹ Ìbánisọ̀rọ̀ Kíákíá (First Chat in Yoruba):
@@ -799,10 +799,10 @@ Wannan ita ce takardar jagora a harshen Hausa ga masu haɓaka software (develope
 
 \`\`\`bash
 # Python
-pip install ./python-sdk
+pip install natlas-sdk
 
 # JavaScript / TypeScript
-npm install ./js-sdk
+npm install natlas-sdk
 \`\`\`
 
 ### Misalin Tattaunawa na Farko (First Chat in Hausa):
@@ -834,10 +834,10 @@ Nnọọ na akwụkwọ ntuziaka maka **N-ATLaS**, ụbụrụ ọgụgụ isi (
 
 \`\`\`bash
 # Python
-pip install ./python-sdk
+pip install natlas-sdk
 
 # JavaScript / TypeScript
-npm install ./js-sdk
+npm install natlas-sdk
 \`\`\`
 
 ### Mkparịta ụka Mbụ n'Asụsụ Igbo (First Chat in Igbo):

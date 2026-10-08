@@ -13,6 +13,7 @@ export function App() {
     return '/';
   });
   const [activeStudio, setActiveStudio] = useState('chat');
+  const [selectedModelId, setSelectedModelId] = useState(null);
 
   useEffect(() => {
     const handlePop = () => {
@@ -25,12 +26,13 @@ export function App() {
     return () => window.removeEventListener('popstate', handlePop);
   }, []);
 
-  const navigateTo = (path, studio = 'chat') => {
+  const navigateTo = (path, studio = 'chat', modelId = null) => {
     if (window.location.pathname !== path) {
       window.history.pushState({}, '', path);
     }
     setCurrentRoute(path);
     if (studio) setActiveStudio(studio);
+    if (modelId !== undefined) setSelectedModelId(modelId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -46,12 +48,13 @@ export function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {currentRoute === '/' && (
           <LandingPage
-            onSelectStudio={(studio) => navigateTo('/playground', studio)}
+            onSelectStudio={(studio, modelId) => navigateTo('/playground', studio, modelId)}
           />
         )}
         {currentRoute === '/playground' && (
           <PlaygroundView
             activeStudio={activeStudio}
+            selectedModelId={selectedModelId}
             onStudioChange={setActiveStudio}
             onBackToLanding={() => navigateTo('/')}
             onSelectDocs={() => navigateTo('/docs')}

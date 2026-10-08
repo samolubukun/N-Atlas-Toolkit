@@ -186,7 +186,7 @@ export const LandingPage = ({ onSelectStudio }) => {
       color: "bg-ochre-50 text-ochre-600 border-ochre-100",
       accentColor: "#D97706",
       pattern: "adire",
-      tags: ["pip install ./python-sdk", "npm i ./js-sdk", "Interactive CLI", "Full Types"],
+      tags: ["pip install natlas-sdk", "npm i natlas-sdk", "Interactive CLI", "Full Types"],
       bgClass: "hover:border-ochre-400 hover:shadow-card-md"
     },
     {
@@ -326,7 +326,7 @@ export const LandingPage = ({ onSelectStudio }) => {
       </div>
 
         <div className="relative max-w-6xl mx-auto px-4">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[76px] font-extrabold text-stone-900 leading-[1.08] tracking-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[76px] font-display font-extrabold text-stone-900 leading-[1.08] tracking-tight mb-6">
             {/* Line 1: AI that understands */}
             <span className="block">AI that understands</span>
 
@@ -643,7 +643,7 @@ export const LandingPage = ({ onSelectStudio }) => {
                 {/* Actions with signature bottom corner button matching the reference design */}
                 <div className="mt-6 pt-4 border-t border-stone-200/60 flex items-center justify-between gap-3 relative z-10">
                   <button
-                    onClick={() => onSelectStudio(m.action)}
+                    onClick={() => onSelectStudio(m.action, m.id)}
                     className="text-xs font-bold uppercase tracking-wider text-stone-700 hover:text-stone-950 transition-colors flex items-center gap-1.5"
                   >
                     <span>Explore model</span>
@@ -659,7 +659,7 @@ export const LandingPage = ({ onSelectStudio }) => {
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                     <button
-                      onClick={() => onSelectStudio(m.action)}
+                      onClick={() => onSelectStudio(m.action, m.id)}
                       className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-sm ${m.buttonClass}`}
                       title={`Try ${m.name}`}
                     >
@@ -685,14 +685,26 @@ export const LandingPage = ({ onSelectStudio }) => {
                   All five models are open-weight and downloadable. Explore the full repository, model cards, and evaluation benchmarks.
                 </p>
               </div>
-              <a
-                href="https://huggingface.co/NCAIR1"
-                target="_blank"
-                rel="noreferrer"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ochre-400 hover:text-ochre-300 transition-colors relative z-10"
-              >
-                Browse all models <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </a>
+              {/* Action footer matching the language cards */}
+              <div className="mt-6 pt-4 border-t border-federal-800/80 flex items-center justify-between gap-3 relative z-10">
+                <a
+                  href="https://huggingface.co/NCAIR1"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs font-bold uppercase tracking-wider text-ochre-400 hover:text-ochre-300 transition-colors"
+                >
+                  Browse all models
+                </a>
+                <a
+                  href="https://huggingface.co/NCAIR1"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-10 h-10 rounded-2xl bg-ochre-500 hover:bg-ochre-400 text-stone-950 flex items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-sm font-bold"
+                  title="Browse all models on Hugging Face"
+                >
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
