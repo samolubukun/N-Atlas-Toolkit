@@ -3,12 +3,24 @@
 <p align="center">
   <a href="https://pypi.org/project/natlas-sdk/"><img src="https://img.shields.io/pypi/v/natlas-sdk.svg?color=008751&label=PyPI%20package" alt="PyPI version" /></a>
   <a href="https://www.npmjs.com/package/natlas-sdk"><img src="https://img.shields.io/npm/v/natlas-sdk.svg?color=1E3A5F&label=npm%20package" alt="npm version" /></a>
+  <a href="https://huggingface.co/spaces/samuelolubukun/NATLaS-Sovereign-Engine"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face%20Space-Live%20Demo-blue" alt="Hugging Face Space Live Demo" /></a>
   <a href="https://huggingface.co/NCAIR1"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-NCAIR1-yellow" alt="Hugging Face Org" /></a>
   <a href="https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" alt="License" /></a>
   <a href="https://github.com/samolubukun/N-Atlas-Toolkit/actions"><img src="https://img.shields.io/badge/CI-Passing-brightgreen.svg" alt="CI Status" /></a>
 </p>
 
-High-performance, enterprise-grade serverless hosting of **N-ATLaS (NCAIR1/N-ATLaS)** on Modal, engineered after the architectural patterns of Cadence.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB?logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/JavaScript-ES2022-F7DF1E?logo=javascript&logoColor=black" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/Modal-Serverless-4ade80?logo=cloud&logoColor=black" alt="Modal" />
+  <img src="https://img.shields.io/badge/Google%20Colab-Supported-F9AB00?logo=googlecolab&logoColor=white" alt="Google Colab" />
+  <img src="https://img.shields.io/badge/Material%20for%20MkDocs-Documented-008751?logo=materialformkdocs&logoColor=white" alt="MkDocs" />
+</p>
+
+The **N-ATLaS Toolkit** is an open-source, production-ready engineering suite for Nigeria's sovereign AI initiative—spearheaded by the **National Centre for Artificial Intelligence and Robotics (NCAIR)**, the **Federal Ministry of Communications, Innovation and Digital Economy (FMCIDE)**, and **Awarri Technologies**. Built around the flagship **8.03B multilingual LLM (`NCAIR1/N-ATLaS`)** and four dedicated acoustic speech recognition models (**Yoruba, Hausa, Igbo, and Nigerian Accented English**), this monorepo provides everything developers and enterprises need to deploy, integrate, and scale indigenous AI: typed **Python** and **JavaScript/TypeScript SDKs**, a high-performance **serverless Modal cloud gateway** (`natlas_engine.py`) offering unified OpenAI-compatible LLM streaming and Whisper audio transcription, containerized **Docker GPU/CPU deployments**, an interactive **Vite playground**, automated **fine-tuning and evaluation starter kits**, 7 built-in **zero-dependency Nigerian agent tools** (local gazetteer lookups, currency conversion, date formatting), and multilingual documentation across four national languages.
 
 ```bash
 # Official SDKs
@@ -415,7 +427,7 @@ This repository is organized as a unified monorepo providing everything needed t
 | **[`docs/`](file:///c:/Users/USER/Downloads/natlas-toolkit/docs) & [`mkdocs.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/mkdocs.yml)** | **Developer Documentation Site**: Comprehensive documentation built with Material for MkDocs, featuring API specifications, developer tutorials, and bilingual guides (Yorùbá, Hausa, Igbo). |
 | **[`finetune-starter-kit/`](file:///c:/Users/USER/Downloads/natlas-toolkit/finetune-starter-kit)** | **Domain Adaptation Suite**: LoRA/QLoRA and Unsloth fine-tuning recipes for adapting N-ATLaS to custom enterprise, healthcare, and educational datasets on consumer GPUs. |
 | **[`cookbook/`](file:///c:/Users/USER/Downloads/natlas-toolkit/cookbook)** | **Production Recipes**: Copy-pasteable application templates including WhatsApp voice & text bots, banking dispute classifiers, and agent loops. |
-| **[`hf_space/`](file:///c:/Users/USER/Downloads/natlas-toolkit/hf_space)** | **Hugging Face ZeroGPU Space**: Turnkey Gradio Web UI and embedded `/v1/*` OpenAI endpoints for free deployment on Hugging Face Spaces. |
+| **[`hf_space/`](file:///c:/Users/USER/Downloads/natlas-toolkit/hf_space)** | **Hugging Face ZeroGPU Space ([`NATLaS-Sovereign-Engine`](https://huggingface.co/spaces/samuelolubukun/NATLaS-Sovereign-Engine))**: Turnkey Gradio Web UI and embedded `/v1/*` OpenAI endpoints for free deployment on Hugging Face Spaces. |
 | **[`notebooks/`](file:///c:/Users/USER/Downloads/natlas-toolkit/notebooks)** | **Google Colab (`natlas_engine_colab.ipynb`)**: 1-click cloud notebook that downloads model weights, spins up the LLM engine, and exposes a public endpoint via Cloudflare Tunnel. |
 | **[`natlas_engine.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/natlas_engine.py)** | **Modal Serverless Engine**: Enterprise serverless deployment file defining container environments, GPU volume caching, FastAPI ASGI server, and WebSocket endpoints. |
 | **[`docker-compose.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/docker-compose.yml)** | **On-Premise NVIDIA GPU Stack**: Turnkey production Docker setup unifying LLM (vLLM continuous batching) and Sovereign ASR behind an Nginx gateway on port `8000`. |

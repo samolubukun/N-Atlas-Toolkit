@@ -75,7 +75,16 @@ export function App() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-federal-800/80">
             {/* Col 1 & 2: Brand & Description */}
             <div className="md:col-span-2 space-y-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
+                <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+                  <rect width="40" height="40" rx="10" fill="white" fillOpacity="0.12" stroke="white" strokeOpacity="0.25" strokeWidth="1.5" />
+                  <rect x="6"    y="16" width="3.5" height="8"  rx="1.75" fill="white" opacity="0.65"/>
+                  <rect x="11.5" y="11" width="3.5" height="18" rx="1.75" fill="white" opacity="0.85"/>
+                  <rect x="17"   y="8"  width="4"   height="24" rx="2"    fill="white"/>
+                  <rect x="23.5" y="12" width="3.5" height="16" rx="1.75" fill="white" opacity="0.85"/>
+                  <rect x="29"   y="17" width="3.5" height="6"  rx="1.75" fill="white" opacity="0.65"/>
+                  <circle cx="32" cy="10" r="2.5" fill="#E5A93C"/>
+                </svg>
                 <span className="font-display font-bold text-lg text-white tracking-wide">N-ATLaS</span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-900/60 text-emerald-300 border border-emerald-700/60">
                   Sovereign AI

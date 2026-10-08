@@ -94,7 +94,7 @@ export const LandingPage = ({ onSelectStudio }) => {
     {
       id: "NCAIR1/N-ATLaS",
       name: "N-ATLaS LLM",
-      subtitle: "Llama 3 · 8B parameters",
+      subtitle: "Llama 3 Instruct Architecture",
       description: "Fine-tuned on 392 million tokens of instruction data across Nigeria's six geopolitical zones. Speaks Hausa, Yoruba, Igbo, and English fluently.",
       hfUrl: "https://huggingface.co/NCAIR1/N-ATLaS",
       action: "chat",
@@ -104,12 +104,12 @@ export const LandingPage = ({ onSelectStudio }) => {
       accentStripe: "bg-federal-600",
       pillBadge: "bg-federal-50 text-federal-700 border-federal-200",
       buttonClass: "bg-federal-600 hover:bg-federal-700 text-white",
-      tags: ["8.03B Params", "8,092 Context", "~918K Instruction Pairs"],
+      tags: ["Multilingual Sovereign LLM", "8K Context", "~918K Instruction Pairs"],
     },
     {
       id: "NCAIR1/Yoruba-ASR",
       name: "Yoruba Speech",
-      subtitle: "Whisper Small · 244M params",
+      subtitle: "Sovereign Whisper Small",
       description: "Trained on 120 hours of Yorùbá speech, preserving acute and grave tone diacritics that completely change word meaning when dropped.",
       hfUrl: "https://huggingface.co/NCAIR1/Yoruba-ASR",
       action: "asr",
@@ -119,12 +119,12 @@ export const LandingPage = ({ onSelectStudio }) => {
       accentStripe: "bg-[#1E3A5F]",
       pillBadge: "bg-indigo-100/70 text-indigo-950 border-indigo-200",
       buttonClass: "bg-[#1E3A5F] hover:bg-[#152a45] text-white",
-      tags: ["120h Training Data", "244M Params", "Tone-Preserving"],
+      tags: ["120h Training Data", "Word Timestamps", "Tone-Preserving"],
     },
     {
       id: "NCAIR1/Hausa-ASR",
       name: "Hausa Speech",
-      subtitle: "Whisper Small · 244M params",
+      subtitle: "Sovereign Whisper Small",
       description: "120 hours of Hausa recordings from speakers across northern and southern Nigeria. Handles regional dialect variation standard models miss entirely.",
       hfUrl: "https://huggingface.co/NCAIR1/Hausa-ASR",
       action: "asr",
@@ -134,12 +134,12 @@ export const LandingPage = ({ onSelectStudio }) => {
       accentStripe: "bg-[#D97706]",
       pillBadge: "bg-yellow-100/90 text-yellow-950 border-yellow-300/80",
       buttonClass: "bg-[#D97706] hover:bg-[#b45309] text-white",
-      tags: ["120h Training Data", "244M Params", "All 6 Zones"],
+      tags: ["120h Training Data", "Hooked Consonants", "All 6 Zones"],
     },
     {
       id: "NCAIR1/Igbo-ASR",
       name: "Igbo Speech",
-      subtitle: "Whisper Small · 244M params",
+      subtitle: "Sovereign Whisper Small",
       description: "Built to capture authentic Igbo phonetics, including the sub-dot characters and tonal patterns that off-the-shelf models have historically failed.",
       hfUrl: "https://huggingface.co/NCAIR1/Igbo-ASR",
       action: "asr",
@@ -149,12 +149,12 @@ export const LandingPage = ({ onSelectStudio }) => {
       accentStripe: "bg-[#DC2626]",
       pillBadge: "bg-red-100/90 text-red-950 border-red-300/80",
       buttonClass: "bg-[#DC2626] hover:bg-[#b91c1c] text-white",
-      tags: ["120h Training Data", "244M Params", "Diacritics Intact"],
+      tags: ["120h Training Data", "Vowel Harmony", "Diacritics Intact"],
     },
     {
       id: "NCAIR1/NigerianAccentedEnglish",
       name: "Nigerian English",
-      subtitle: "Whisper Small · 244M params",
+      subtitle: "Sovereign Whisper Small",
       description: "Because your accent is not a bug. Built specifically for Nigerian-accented English so speakers aren't penalised by systems designed for other parts of the world.",
       hfUrl: "https://huggingface.co/NCAIR1/NigerianAccentedEnglish",
       action: "asr",
@@ -164,7 +164,7 @@ export const LandingPage = ({ onSelectStudio }) => {
       accentStripe: "bg-purple-600",
       pillBadge: "bg-purple-100/70 text-purple-950 border-purple-200",
       buttonClass: "bg-purple-700 hover:bg-purple-800 text-white",
-      tags: ["120h Training Data", "244M Params", "en-NG Native"],
+      tags: ["120h Training Data", "Pidgin & Colloquial", "en-NG Native"],
     },
   ];
 
@@ -211,11 +211,6 @@ export const LandingPage = ({ onSelectStudio }) => {
       icon: Mic,
       title: "Speech that actually hears you",
       body: "Four dedicated ASR models built on Whisper, trained on hundreds of hours of real Nigerian voices from every corner of the country.",
-    },
-    {
-      icon: Zap,
-      title: "Drop-in Whisper API",
-      body: "OpenAI-compatible /v1/audio/transcriptions endpoint with word-level timestamps and duration metadata, ready for instant integration.",
     },
     {
       icon: Workflow,
@@ -369,41 +364,14 @@ export const LandingPage = ({ onSelectStudio }) => {
               NCAIR on Hugging Face
             </a>
           </div>
-
-          {/* Package Badges Ribbon */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 mt-6">
-            <a
-              href="https://pypi.org/project/natlas-sdk/"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-mono font-medium transition-all hover:scale-105 shadow-xs"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>pip install natlas-sdk</span>
-              <span className="text-[10px] bg-emerald-200/80 text-emerald-900 px-1.5 py-0.2 rounded font-bold">v0.1.1</span>
-            </a>
-            <a
-              href="https://www.npmjs.com/package/natlas-sdk"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-900 text-xs font-mono font-medium transition-all hover:scale-105 shadow-xs"
-            >
-              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-              <span>npm i natlas-sdk</span>
-              <span className="text-[10px] bg-indigo-200/80 text-indigo-950 px-1.5 py-0.2 rounded font-bold">v0.1.0</span>
-            </a>
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 border border-stone-200 text-stone-600 text-xs font-mono">
-              <span>Modal Serverless Live</span>
-            </span>
-          </div>
         </div>
 
         {/* Stats row */}
         <div className="relative mt-14 sm:mt-16 max-w-2xl mx-auto px-4">
           <div className="grid grid-cols-3 gap-6 border-t border-stone-200 pt-10">
-            <Stat value="8.03B" label="LLM parameters" />
-            <Stat value="480h"  label="Speech training audio" />
-            <Stat value="5"     label="Open models" />
+            <Stat value="4"      label="Languages covered" />
+            <Stat value="480h+"  label="Acoustic speech training" />
+            <Stat value="5"      label="Open models" />
           </div>
         </div>
 
@@ -888,7 +856,7 @@ export const LandingPage = ({ onSelectStudio }) => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {capabilities.map((c, i) => {
               const Icon = c.icon;
               return (

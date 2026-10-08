@@ -42,6 +42,21 @@ theme:
 extra_css:
   - stylesheets/extra.css
 
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/samolubukun/N-Atlas-Toolkit
+      name: GitHub
+    - icon: fontawesome/solid/globe
+      link: http://samuelolubukun.com/
+      name: Samuel Olubukun
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/natlas-sdk/
+      name: PyPI
+    - icon: fontawesome/brands/npm
+      link: https://www.npmjs.com/package/natlas-sdk
+      name: npm
+
 plugins:
   - search
   - mkdocstrings:
