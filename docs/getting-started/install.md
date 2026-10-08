@@ -59,7 +59,7 @@ print(response.message.content)
 
 ## 3. JavaScript / TypeScript SDK Installation
 
-Install directly from the repository in your Node.js, Bun, Next.js, or web application:
+Install directly from npm in your Node.js, Bun, Next.js, or web application:
 
 === "npm"
     ```bash
@@ -67,17 +67,21 @@ Install directly from the repository in your Node.js, Bun, Next.js, or web appli
     ```
 === "pnpm"
     ```bash
-    pnpm add ./js-sdk
+    pnpm add natlas-sdk
     ```
 === "bun"
     ```bash
-    bun add ./js-sdk
+    bun add natlas-sdk
+    ```
+=== "yarn"
+    ```bash
+    yarn add natlas-sdk
     ```
 
 ### Your First TypeScript Chat
 
 ```typescript
-import { NatlasClient, systemPrompt, YO } from "natlas";
+import { NatlasClient, systemPrompt, YO } from "natlas-sdk";
 
 const client = new NatlasClient({
   apiKey: process.env.NATLAS_API_KEY,

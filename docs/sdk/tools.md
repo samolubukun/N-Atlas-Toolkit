@@ -157,14 +157,14 @@ Configure in `claude_desktop_config.json`:
 
 ```bash
 npm install natlas-sdk
-# pnpm add ./js-sdk  /  bun add ./js-sdk
+# pnpm add natlas-sdk  /  bun add natlas-sdk  /  yarn add natlas-sdk
 ```
 
 ### Usage
 
 ```typescript
 // Named namespace import (via main barrel)
-import { tools } from "natlas";
+import { tools } from "natlas-sdk";
 
 // Or tree-shakeable subpath (smaller bundle)
 import {
@@ -178,7 +178,7 @@ import {
   getOpenAITools,
   executeTool,
   registerTool,
-} from "natlas/tools";
+} from "natlas-sdk/tools";
 
 // Offline tools
 const state = nigeriaGazetteer("Kano");
@@ -198,7 +198,7 @@ const page    = await fetchWebpage("https://example.com", 3000);
 ### OpenAI Function-Calling Schemas
 
 ```typescript
-import { getOpenAITools, executeTool } from "natlas/tools";
+import { getOpenAITools, executeTool } from "natlas-sdk/tools";
 
 const schemas = getOpenAITools();                            // all 7
 const subset  = getOpenAITools(["web_search", "fx_rates"]);  // subset
@@ -209,7 +209,7 @@ const result = await executeTool("fx_rates", { base: "USD", target: "NGN" });
 ### Register Custom Tools
 
 ```typescript
-import { registerTool, getOpenAITools, executeTool } from "natlas/tools";
+import { registerTool, getOpenAITools, executeTool } from "natlas-sdk/tools";
 
 registerTool({
   name: "get_commodity_price",

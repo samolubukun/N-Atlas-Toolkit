@@ -1,16 +1,16 @@
 # JavaScript & TypeScript SDK Guide
 
-The official typed JavaScript and TypeScript SDK (`natlas`) is designed for modern runtimes (Node.js >= 18, Bun, Deno, Next.js, and web browsers) using native `fetch` and standard Web Streams.
+The official typed JavaScript and TypeScript SDK (`natlas-sdk`) is designed for modern runtimes (Node.js >= 18, Bun, Deno, Next.js, and web browsers) using native `fetch` and standard Web Streams.
 
 ---
 
 ## Installation
 
-Install directly from the repository:
+Install directly from npm:
 
 ```bash
 npm install natlas-sdk
-# or: pnpm add ./js-sdk / bun add ./js-sdk
+# or: pnpm add natlas-sdk / bun add natlas-sdk / yarn add natlas-sdk
 ```
 
 ---
@@ -19,7 +19,7 @@ npm install natlas-sdk
 
 ### Standard Chat
 ```typescript
-import { NatlasClient, systemPrompt, YO } from "natlas";
+import { NatlasClient, systemPrompt, YO } from "natlas-sdk";
 
 const client = new NatlasClient({
   apiKey: process.env.NATLAS_API_KEY,
@@ -35,7 +35,7 @@ console.log(response.message.content);
 
 ### Server-Sent Events (SSE) Streaming
 ```typescript
-import { NatlasClient } from "natlas";
+import { NatlasClient } from "natlas-sdk";
 
 const client = new NatlasClient();
 
@@ -54,7 +54,7 @@ for await (const chunk of stream) {
 
 ### Batch Transcription
 ```typescript
-import { NatlasClient } from "natlas";
+import { NatlasClient } from "natlas-sdk";
 import * as fs from "node:fs";
 
 const client = new NatlasClient();
@@ -76,7 +76,7 @@ console.log("Word timestamps:", result.words);
 N-ATLaS 8B supports OpenAI-compatible tool calling for building autonomous agents:
 
 ```typescript
-import { NatlasClient } from "natlas";
+import { NatlasClient } from "natlas-sdk";
 
 const client = new NatlasClient();
 
@@ -116,13 +116,13 @@ if (response.message.tool_calls) {
 All 7 tools are available immediately after `npm install natlas-sdk` — no external API keys needed:
 
 ```typescript
-import { tools } from "natlas";
+import { tools } from "natlas-sdk";
 // or tree-shakeable subpath import:
 import {
   nigeriaGazetteer, mathEval, webSearch, weatherLookup,
   fxRates, wikipediaLookup, fetchWebpage,
   getOpenAITools, executeTool, registerTool,
-} from "natlas/tools";
+} from "natlas-sdk/tools";
 
 // Offline (no network required)
 nigeriaGazetteer("Lagos");           // 36 states, FCT, 774 LGAs
@@ -139,8 +139,8 @@ await fetchWebpage("https://example.com"); // clean text extractor
 ### Use with the N-ATLaS Agent Loop
 
 ```typescript
-import { NatlasClient } from "natlas";
-import { getOpenAITools, executeTool } from "natlas/tools";
+import { NatlasClient } from "natlas-sdk";
+import { getOpenAITools, executeTool } from "natlas-sdk/tools";
 
 const client = new NatlasClient();
 

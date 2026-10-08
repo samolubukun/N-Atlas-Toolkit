@@ -43,7 +43,7 @@ The Python and JS SDKs handle this date string template automatically without re
 
 === "TypeScript"
     ```typescript
-    import { NatlasClient, systemPrompt, HA } from "natlas";
+    import { NatlasClient, systemPrompt, HA } from "natlas-sdk";
 
     const client = new NatlasClient();
 

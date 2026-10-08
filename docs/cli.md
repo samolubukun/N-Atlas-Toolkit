@@ -18,11 +18,11 @@ The N-ATLaS toolkit provides unified command-line interfaces for both Python (`p
 
 === "Node.js / JavaScript CLI"
     ```bash
-    # Option 1: Run directly with Node from repo root:
-    node js-sdk/bin/cli.mjs --help
+    # Option 1: Run instantly with npx (zero install):
+    npx natlas --help
 
-    # Option 2: Link locally:
-    cd js-sdk && npm link
+    # Option 2: Install globally from npm:
+    npm install -g natlas-sdk
     natlas --help
     ```
 

@@ -369,6 +369,33 @@ export const LandingPage = ({ onSelectStudio }) => {
               NCAIR on Hugging Face
             </a>
           </div>
+
+          {/* Package Badges Ribbon */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 mt-6">
+            <a
+              href="https://pypi.org/project/natlas-sdk/"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-mono font-medium transition-all hover:scale-105 shadow-xs"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>pip install natlas-sdk</span>
+              <span className="text-[10px] bg-emerald-200/80 text-emerald-900 px-1.5 py-0.2 rounded font-bold">v0.1.1</span>
+            </a>
+            <a
+              href="https://www.npmjs.com/package/natlas-sdk"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-900 text-xs font-mono font-medium transition-all hover:scale-105 shadow-xs"
+            >
+              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+              <span>npm i natlas-sdk</span>
+              <span className="text-[10px] bg-indigo-200/80 text-indigo-950 px-1.5 py-0.2 rounded font-bold">v0.1.0</span>
+            </a>
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 border border-stone-200 text-stone-600 text-xs font-mono">
+              <span>Modal Serverless Live</span>
+            </span>
+          </div>
         </div>
 
         {/* Stats row */}

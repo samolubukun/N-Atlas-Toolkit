@@ -154,16 +154,16 @@ tools.web_search("Nigerian AI news")   # DuckDuckGo, no key
 
 ### 3. JavaScript / TypeScript SDK Installation
 
-Install directly from the repository directory:
-\`\`\`bash
-# Install local js-sdk directory
+Install directly from npm in your Node.js, Bun, Next.js, or web application:
+```bash
 npm install natlas-sdk
-# or pnpm: pnpm add ./js-sdk / bun add ./js-sdk
-\`\`\`
+# or pnpm / bun / yarn:
+# pnpm add natlas-sdk / bun add natlas-sdk / yarn add natlas-sdk
+```
 
 #### Your First TypeScript Chat:
-\`\`\`typescript
-import { NatlasClient, systemPrompt, YO } from "natlas";
+```typescript
+import { NatlasClient, systemPrompt, YO } from "natlas-sdk";
 
 const client = new NatlasClient({
   apiKey: process.env.NATLAS_API_KEY,
@@ -175,17 +175,17 @@ const response = await client.chat([
 ]);
 
 console.log(response.message.content);
-\`\`\`
+```
 
 #### Built-in Zero-Key Tools:
-\`\`\`typescript
-import { nigeriaGazetteer, fxRates, webSearch, mathEval } from "natlas/tools";
+```typescript
+import { nigeriaGazetteer, fxRates, webSearch, mathEval } from "natlas-sdk/tools";
 
 nigeriaGazetteer("Kano");              // offline, instant
 mathEval("(200000 * 0.075) + 500");   // offline, instant
 await fxRates("USD", "NGN");          // free, no key
 await webSearch("Lagos tech news");    // free, no key
-\`\`\`
+```
     `
   },
 
@@ -305,16 +305,16 @@ result  = tools.execute_tool("fx_rates", {"base": "USD", "target": "NGN"})
     content: `
 ### Installation
 
-Install directly from the repository directory:
+Install directly from npm:
 \`\`\`bash
 npm install natlas-sdk
-# or: pnpm add ./js-sdk / bun add ./js-sdk
+# or: pnpm add natlas-sdk / bun add natlas-sdk / yarn add natlas-sdk
 \`\`\`
 
 ### 1. Chat Completion & Streaming
 
 \`\`\`typescript
-import { NatlasClient, systemPrompt, YO } from "natlas";
+import { NatlasClient, systemPrompt, YO } from "natlas-sdk";
 
 const client = new NatlasClient({
   apiKey: process.env.NATLAS_API_KEY,
@@ -340,8 +340,8 @@ for await (const chunk of stream) {
 
 ### 2. Audio Transcription (Node.js & Browser)
 
-\`\`\`typescript
-import { NatlasClient } from "natlas";
+```typescript
+import { NatlasClient } from "natlas-sdk";
 import * as fs from "node:fs";
 
 const client = new NatlasClient();
@@ -354,16 +354,16 @@ const result = await client.audio.transcriptions.create(audioBuffer, {
 });
 
 console.log("Transcribed Text:", result.text);
-\`\`\`
+```
 
 ### 3. Built-in Agent Tools (Zero-Key)
 
-All 7 tools work immediately after \`npm install natlas-sdk\` — no API keys:
+All 7 tools work immediately after `npm install natlas-sdk` — no API keys:
 
-\`\`\`typescript
+```typescript
 import { nigeriaGazetteer, mathEval, webSearch, fxRates,
          weatherLookup, wikipediaLookup, fetchWebpage,
-         getOpenAITools, executeTool, registerTool } from "natlas/tools";
+         getOpenAITools, executeTool, registerTool } from "natlas-sdk/tools";
 
 // Offline tools
 nigeriaGazetteer("Rivers");           // state info + LGAs
@@ -947,10 +947,10 @@ import {
   nigeriaGazetteer, mathEval, webSearch, weatherLookup,
   fxRates, wikipediaLookup, fetchWebpage,
   getOpenAITools, executeTool, registerTool,
-} from "natlas/tools";
+} from "natlas-sdk/tools";
 
 // Or from main barrel
-import { tools } from "natlas";
+import { tools } from "natlas-sdk";
 
 // Offline tools
 const state = nigeriaGazetteer("Kano");   // {capital: "Kano", total_lgas: 44, ...}
