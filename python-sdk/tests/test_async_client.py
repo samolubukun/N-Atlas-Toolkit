@@ -69,7 +69,7 @@ async def test_async_chat_streaming() -> None:
     async with AsyncClient(base_url="https://async.example", api_key="secret") as client:
         chunks = await client.chat([{"role": "user", "content": "Hello"}], stream=True)
         received = [chunk async for chunk in chunks]
-    assert "".join(chunk.message.content for chunk in received) == "Habari"
+    assert "".join(chunk.message.content for chunk in received if chunk.message.content is not None) == "Habari"
     assert received[-1].done is True
 
 
@@ -105,7 +105,7 @@ async def test_async_local_stream_exhausts_cleanly() -> None:
             )
 
     client = AsyncClient(mode="local", hf_token="token")
-    client._local = FakeLocalBackend()
+    client._local = FakeLocalBackend()  # type: ignore
     stream = await client.chat([{"role": "user", "content": "Hello"}], stream=True)
     chunks = [chunk async for chunk in stream]
     assert len(chunks) == 1

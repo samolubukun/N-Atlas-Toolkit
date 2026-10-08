@@ -1,5 +1,5 @@
 {
-  "name": "natlas-toolkit",
+  "name": "natlas",
   "version": "0.1.0",
   "description": "TypeScript/JavaScript SDK for N-ATLaS, Nigeria's sovereign multilingual LLM and speech models",
   "main": "./dist/index.js",

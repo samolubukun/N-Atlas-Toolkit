@@ -31,4 +31,4 @@ def test_system_prompt_returns_prependable_message() -> None:
         assert message.content
         assert src.ATTRIBUTION in message.content
     with pytest.raises(ValueError, match="Unsupported language"):
-        system_prompt("french")
+        system_prompt("french")  # type: ignore

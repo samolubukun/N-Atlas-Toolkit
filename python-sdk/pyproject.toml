@@ -3,7 +3,7 @@ requires = ["setuptools>=72", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "natlas-toolkit"
+name = "natlas"
 version = "0.1.0"
 description = "Python SDK for Nigeria's sovereign N-ATLaS multilingual LLM and Whisper ASR models"
 readme = "README.md"

@@ -231,6 +231,7 @@ client = natlas.Client()
 # Or configure explicitly:
 client = natlas.Client(
     base_url="https://<workspace>--natlas-engine-natlasapi-serve.modal.run",
+    asr_url="https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run",
     api_key="your-key",
 )
 \`\`\`
@@ -605,7 +606,7 @@ N-ATLaS 8B supports OpenAI-compatible function calling:
 \`\`\`
     `
   },
-  
+
   "finetune-overview": {
     title: "Fine-Tuning Architecture Overview",
     subtitle: "Adapt N-ATLaS or Llama-3 checkpoints to specific enterprise domains and dialects.",

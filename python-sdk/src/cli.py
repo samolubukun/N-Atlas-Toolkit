@@ -131,7 +131,7 @@ def cmd_chat(args: argparse.Namespace) -> int:
 
 def cmd_transcribe(args: argparse.Namespace) -> int:
     """Run batch speech-to-text on an audio file."""
-    client = Client(, api_key=args.api_key)
+    client = Client(api_key=args.api_key)
     file_path = Path(args.file)
     if not file_path.exists():
         print(f"Error: Audio file not found at '{file_path}'", file=sys.stderr)
@@ -168,7 +168,7 @@ def cmd_transcribe(args: argparse.Namespace) -> int:
 
 def cmd_health(args: argparse.Namespace) -> int:
     """Inspect active health and GPU status."""
-    client = Client(base_url=args.base_url, , api_key=args.api_key)
+    client = Client(base_url=args.base_url, api_key=args.api_key)
     print("Checking LLM Engine Health...")
     try:
         llm_health = client.get("healthz")
@@ -179,7 +179,7 @@ def cmd_health(args: argparse.Namespace) -> int:
     print("\nChecking Sovereign ASR Engine Health...")
     try:
         import httpx
-        asr_health_url = (client.asr_url or "https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run").rstrip("/") + "/healthz"
+        asr_health_url = (client.base_url or "https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run").rstrip("/") + "/healthz"
         with httpx.Client(timeout=10.0) as http:
             r = http.get(asr_health_url)
             print(f"  ASR Health : {r.status_code} {r.json() if r.status_code == 200 else r.text}")
@@ -198,10 +198,10 @@ def cmd_models(args: argparse.Namespace) -> int:
         print(f"  - {m.get('id')} (owned by {m.get('owned_by')})")
 
     print("\nAvailable Sovereign ASR Models:")
-    print("  - NCAIR1/Yoruba-ASR (Yoruba)")
     print("  - NCAIR1/Hausa-ASR (Hausa)")
     print("  - NCAIR1/Igbo-ASR (Igbo)")
     print("  - NCAIR1/NigerianAccentedEnglish (Nigerian Accented English)")
+    print("  - NCAIR1/Yoruba-ASR (Yoruba)")
     return 0
 
 

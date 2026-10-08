@@ -8,7 +8,7 @@ from typing import Any
 import pytest
 
 import src.local as local_module
-from src import ChatResponse, Client, ConfigurationError, GenerateResponse, LocalInferenceError
+from src import ChatResponse, Client, ConfigurationError, GenerateResponse, LocalInferenceError, Message
 from src._types import ChatRequest, GenerateRequest
 from src.local import LocalBackend, format_date_string
 
@@ -89,7 +89,7 @@ class FakeStreamer:
     def __init__(self, pieces: list[str] | None = None) -> None:
         self.pieces = pieces or ["Sannu", ", ", "duniya!"]
 
-    def __iter__(self) -> FakeStreamer:
+    def __iter__(self) -> Any:
         return iter(self.pieces)
 
     def end(self) -> None:
@@ -120,7 +120,7 @@ def test_local_chat_applies_chat_template_date_and_model_card_defaults(
     backend, tokenizer, model = make_backend()
     request = ChatRequest(
         model="NCAIR1/N-ATLaS",
-        messages=[{"role": "user", "content": "Sannu"}],
+        messages=[Message(role="user", content="Sannu")],
     )
     response = backend.chat(request)
     assert isinstance(response, ChatResponse)
@@ -151,7 +151,7 @@ def test_local_non_stream_honors_stop_and_length(monkeypatch: pytest.MonkeyPatch
     tokenizer.output_text = "Answer STOP hidden"
     request = ChatRequest(
         model="NCAIR1/N-ATLaS",
-        messages=[{"role": "user", "content": "Hello"}],
+        messages=[Message(role="user", content="Hello")],
         stop="STOP",
     )
     response = backend.chat(request)
@@ -161,7 +161,7 @@ def test_local_non_stream_honors_stop_and_length(monkeypatch: pytest.MonkeyPatch
     model.output_length = 9
     request = ChatRequest(
         model="NCAIR1/N-ATLaS",
-        messages=[{"role": "user", "content": "Hello"}],
+        messages=[Message(role="user", content="Hello")],
         max_tokens=5,
     )
     response = backend.chat(request)
@@ -174,12 +174,12 @@ def test_local_stream_returns_typed_chunks(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setattr(backend, "_streamer", lambda: FakeStreamer())
     request = ChatRequest(
         model="NCAIR1/N-ATLaS",
-        messages=[{"role": "user", "content": "Sannu"}],
+        messages=[Message(role="user", content="Sannu")],
         stream=True,
     )
-    chunks = list(backend.chat(request))
+    chunks: list[ChatResponse] = list(backend.chat(request))  # type: ignore
     assert all(isinstance(chunk, ChatResponse) for chunk in chunks)
-    assert "".join(chunk.message.content for chunk in chunks) == "Sannu, duniya!"
+    assert "".join(chunk.message.content for chunk in chunks if chunk.message.content is not None) == "Sannu, duniya!"
     assert chunks[-1].done is True
     assert chunks[-1].usage.total_tokens > 0
 
@@ -193,12 +193,12 @@ def test_local_stream_honors_stop(monkeypatch: pytest.MonkeyPatch) -> None:
     )
     request = ChatRequest(
         model="NCAIR1/N-ATLaS",
-        messages=[{"role": "user", "content": "Sannu"}],
+        messages=[Message(role="user", content="Sannu")],
         stream=True,
         stop="STOP",
     )
-    chunks = list(backend.chat(request))
-    assert "".join(chunk.message.content for chunk in chunks) == "Answer "
+    chunks: list[ChatResponse] = list(backend.chat(request))  # type: ignore
+    assert "".join(chunk.message.content for chunk in chunks if chunk.message.content is not None) == "Answer "
     assert chunks[-1].done is True
     assert chunks[-1].done_reason == "stop"
 
@@ -232,10 +232,10 @@ def test_local_load_uses_fp16_auto_device_and_token(monkeypatch: pytest.MonkeyPa
             return FakeModel()
 
     torch_module = types.ModuleType("torch")
-    torch_module.float16 = "float16"
+    torch_module.float16 = "float16"  # type: ignore
     transformers_module = types.ModuleType("transformers")
-    transformers_module.AutoTokenizer = FakeAutoTokenizer
-    transformers_module.AutoModelForCausalLM = FakeAutoModel
+    transformers_module.AutoTokenizer = FakeAutoTokenizer  # type: ignore
+    transformers_module.AutoModelForCausalLM = FakeAutoModel  # type: ignore
     monkeypatch.setitem(sys.modules, "torch", torch_module)
     monkeypatch.setitem(sys.modules, "transformers", transformers_module)
     monkeypatch.setenv("HF_HUB_OFFLINE", "1")

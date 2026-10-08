@@ -188,7 +188,7 @@ def test_hosted_chat_streaming_parses_sse() -> None:
     )
     with Client(base_url="https://example.test", api_key="secret") as client:
         chunks = list(client.chat([{"role": "user", "content": "Hello"}], stream=True))
-    assert "".join(chunk.message.content for chunk in chunks) == "Sannu"
+    assert "".join(chunk.message.content for chunk in chunks if chunk.message.content is not None) == "Sannu"
     assert chunks[-1].done is True
     assert json.loads(route.calls.last.request.content)["stream"] is True
 
@@ -302,7 +302,7 @@ def test_configuration_errors(monkeypatch: pytest.MonkeyPatch) -> None:
     with pytest.raises(ConfigurationError, match="Hugging Face token"):
         Client(mode="local")
     with pytest.raises(ValueError, match="mode"):
-        Client(mode="invalid")
+        Client(mode="invalid")  # type: ignore
 
 
 def test_environment_configuration_precedence(monkeypatch: pytest.MonkeyPatch) -> None:

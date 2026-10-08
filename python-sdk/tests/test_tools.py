@@ -5,7 +5,7 @@ from natlas.tools.core import (
 from natlas.tools.registry import execute_tool, get_openai_tools
 
 
-def test_gazetteer_state_lookup():
+def test_gazetteer_state_lookup() -> None:
     res = nigeria_gazetteer("Lagos")
     assert res["found"] is True
     assert res["type"] == "state"
@@ -14,25 +14,25 @@ def test_gazetteer_state_lookup():
     assert "Ikeja" in res["lgas"]
 
 
-def test_gazetteer_lga_lookup():
+def test_gazetteer_lga_lookup() -> None:
     res = nigeria_gazetteer("Alimosho")
     assert res["found"] is True
     assert res["type"] == "lga_matches"
     assert any(m["lga"] == "Alimosho" and m["state"] == "Lagos" for m in res["results"])
 
 
-def test_math_eval():
+def test_math_eval() -> None:
     res = math_eval("(250000 * 0.075) + 500")
     assert res["result"] == 19250.0
 
 
-def test_tool_schemas():
+def test_tool_schemas() -> None:
     tools = get_openai_tools(["web_search", "weather_lookup", "nigeria_gazetteer"])
     assert len(tools) == 3
     assert all(t["type"] == "function" for t in tools)
 
 
-def test_execute_tool_dispatcher():
+def test_execute_tool_dispatcher() -> None:
     res = execute_tool("nigeria_gazetteer", {"query": "Oyo"})
     assert res["found"] is True
     assert res["capital"] == "Ibadan"

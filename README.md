@@ -142,10 +142,10 @@ curl -X POST "https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1/ch
 
 The toolkit natively incorporates the four official sovereign **Whisper Small (244M)** speech models trained across all 6 geopolitical zones of Nigeria:
 
-- **Yoruba**: `NCAIR1/Yoruba-ASR` (120+ hours training data)
 - **Hausa**: `NCAIR1/Hausa-ASR` (120+ hours training data)
 - **Igbo**: `NCAIR1/Igbo-ASR` (120+ hours training data)
 - **Nigerian Accented English**: `NCAIR1/NigerianAccentedEnglish` (120+ hours training data)
+- **Yoruba**: `NCAIR1/Yoruba-ASR` (120+ hours training data)
 
 ### 1. OpenAI-Compliant Batch Transcriptions (`POST /v1/audio/transcriptions`)
 
@@ -188,7 +188,7 @@ node tests/e2e_js.mjs
 python tests/test_asr_samples.py
 ```
 
-* Audio test assets are organized in [`tests/audio/`](tests/audio) (`hausa.mp3`, `english.mp3`, `igbo.mp3`, `yoruba.mp3`).
+* Audio test assets are organized in [`tests/audio/`](tests/audio) (`english.mp3`, `hausa.mp3`, `igbo.mp3`, `yoruba.mp3`).
 * Evaluates transcription against ground truth with word-level timestamps and duration metadata.
 
 ---

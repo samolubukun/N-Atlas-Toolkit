@@ -10,7 +10,7 @@ from src._types import ChatRequest, GenerateRequest, normalize_messages
 def test_chat_request_defaults_and_mapping_messages() -> None:
     request = ChatRequest(
         model="NCAIR1/N-ATLaS",
-        messages=[{"role": "user", "content": "Hello"}],
+        messages=[Message(role="user", content="Hello")],
     )
     assert request.max_tokens == 512
     assert request.temperature == 0.7
@@ -35,13 +35,13 @@ def test_validation_errors() -> None:
     with pytest.raises(ValidationError):
         ChatRequest(
             model="NCAIR1/N-ATLaS",
-            messages=[{"role": "user", "content": "Hello"}],
+            messages=[Message(role="user", content="Hello")],
             repetition_penalty=0,
         )
     with pytest.raises(ValidationError):
         ChatRequest(
             model="NCAIR1/N-ATLaS",
-            messages=[{"role": "user", "content": "Hello"}],
+            messages=[Message(role="user", content="Hello")],
             temperature=float("inf"),
         )
     with pytest.raises(ValueError, match="at least one"):
@@ -52,7 +52,7 @@ def test_response_models_are_typed() -> None:
     response = ChatResponse(
         model="NCAIR1/N-ATLaS",
         created=1,
-        message={"role": "assistant", "content": "Hello"},
+        message=Message(role="assistant", content="Hello"),
     )
     assert response.message.content == "Hello"
     assert response.usage.total_tokens == 0

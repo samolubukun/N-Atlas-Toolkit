@@ -18,7 +18,7 @@ This `python-sdk/` directory is the complete Python SDK project inside the N-ATL
 - Synchronous and asynchronous streaming with `stream=True`
 - Module-level `chat()` and `generate()` convenience functions
 - Automatic N-ATLaS `date_string` chat-template handling
-- Yoruba, Hausa, Igbo, and Nigerian English presets
+- Hausa, Igbo, Nigerian English, and Yoruba presets
 - Deterministic language detection and language-specific system prompts
 - Typed `get()` and `post()` escape hatches for additional hosted endpoints
 - Clear configuration, connection, timeout, response, and stream errors
@@ -300,7 +300,7 @@ Paths must be relative to the configured hosted origin. The SDK rejects absolute
 
 ## Sovereign Speech-to-Text (ASR)
 
-The SDK provides first-class support for sovereign Nigerian speech recognition across Yoruba, Hausa, Igbo, and Nigerian Accented English using official Whisper Small models:
+The SDK provides first-class support for sovereign Nigerian speech recognition across Hausa, Igbo, Nigerian Accented English, and Yoruba using official Whisper Small models:
 
 ### Hosted Audio Transcription (`/v1/audio/transcriptions`)
 
@@ -342,10 +342,10 @@ with open("hausa_sample.wav", "rb") as audio_file:
 ```
 
 Available Sovereign ASR Models:
-* `NCAIR1/Yoruba-ASR` (`language="yo"`)
 * `NCAIR1/Hausa-ASR` (`language="ha"`)
 * `NCAIR1/Igbo-ASR` (`language="ig"`)
 * `NCAIR1/NigerianAccentedEnglish` (`language="en-ng"`)
+* `NCAIR1/Yoruba-ASR` (`language="yo"`)
 
 ## Architecture
 

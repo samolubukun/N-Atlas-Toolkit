@@ -167,7 +167,7 @@ export const ArchitectureDiagram = () => {
             </p>
           </div>
 
-          {/* ══════ CONNECTING PIPELINE 2 (Unified Request Bus) ══════ */}
+          {/* ══════ CONNECTING PIPELINE 2 (Split bus to dual engines) ══════ */}
           <div className="relative py-1">
             <svg className="w-full h-7 overflow-visible max-w-lg mx-auto" preserveAspectRatio="none" viewBox="0 0 600 28">
               {/* Center stem down and split */}
@@ -191,7 +191,7 @@ export const ArchitectureDiagram = () => {
             </div>
           </div>
 
-          {/* ══════ LAYER 3: UNIFIED SOVEREIGN ENGINES ══════ */}
+          {/* ══════ LAYER 3: DUAL SOVEREIGN ENGINES ══════ */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Left: Sovereign LLM */}
             <div className="bg-white border border-stone-200/90 rounded-xl p-3.5 shadow-xs flex flex-col justify-between overflow-hidden">

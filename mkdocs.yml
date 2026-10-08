@@ -1,5 +1,5 @@
 site_name: N-ATLaS Toolkit Documentation
-site_description: Production Serverless, Sovereign LLM & Multilingual Nigerian ASR (Yoruba, Hausa, Igbo, Nigerian English)
+site_description: Production Serverless, Sovereign LLM & Multilingual Nigerian ASR (Hausa, Igbo, Nigerian English, Yoruba)
 site_author: Awarri Technologies / Federal Ministry of Communications, Innovation and Digital Economy
 site_url: https://samolubukun.github.io/N-Atlas-Toolkit/
 repo_name: samolubukun/N-Atlas-Toolkit
@@ -88,10 +88,6 @@ nav:
       - REST Endpoints: api/endpoints.md
       - Python SDK Auto-Docs: api/python-sdk.md
   - Troubleshooting: troubleshooting.md
-  - Èdè Yorùbá (Yoruba Docs):
-      - Ìbẹ̀rẹ̀ Kíákíá (Overview & Quickstart): yo/index.md
-      - Àwọn Ohun Èlò Ìṣirò (Models & Architecture): yo/models.md
-      - Ìgbéjáde (Deployment): yo/deployment.md
   - Harshen Hausa (Hausa Docs):
       - Farawa Cikin Sauri (Overview & Quickstart): ha/index.md
       - Ƙirar Model (Models & Architecture): ha/models.md
@@ -100,3 +96,7 @@ nav:
       - Mbido Ọsọ Ọsọ (Overview & Quickstart): ig/index.md
       - Ụdị Ụbụrụ Nghọta (Models & Architecture): ig/models.md
       - Mbupụ na Mmejuputa (Deployment): ig/deployment.md
+  - Èdè Yorùbá (Yoruba Docs):
+      - Ìbẹ̀rẹ̀ Kíákíá (Overview & Quickstart): yo/index.md
+      - Àwọn Ohun Èlò Ìṣirò (Models & Architecture): yo/models.md
+      - Ìgbéjáde (Deployment): yo/deployment.md
