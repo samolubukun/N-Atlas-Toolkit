@@ -12,7 +12,6 @@ Engineering & Performance Specifications:
     * POST /v1/completions
     * GET  /v1/models
     * GET  /healthz
-    * GET  /benchmark
 - GPU Acceleration: NVIDIA A10G (24GB VRAM) / L40S / A100-40GB / A100-80GB
 - Volume Caching: Dedicated Modal Volume for instant sub-second coldstarts without re-downloading 16GB weights
 - Scale-to-Zero: 300s keep-warm idle timeout (economic, ultra-cost-efficient)

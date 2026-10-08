@@ -16,11 +16,12 @@
   <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React" />
   <img src="https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white" alt="Docker" />
   <img src="https://img.shields.io/badge/Modal-Serverless-4ade80?logo=cloud&logoColor=black" alt="Modal" />
+  <img src="https://img.shields.io/badge/Lightning%20AI-Serverless-792ee5?logo=lightning&logoColor=white" alt="Lightning AI" />
   <img src="https://img.shields.io/badge/Google%20Colab-Supported-F9AB00?logo=googlecolab&logoColor=white" alt="Google Colab" />
   <img src="https://img.shields.io/badge/Material%20for%20MkDocs-Documented-008751?logo=materialformkdocs&logoColor=white" alt="MkDocs" />
 </p>
 
-The **N-ATLaS Toolkit** is an open-source, production-ready engineering suite for Nigeria's sovereign AI initiative—spearheaded by the **National Centre for Artificial Intelligence and Robotics (NCAIR)**, the **Federal Ministry of Communications, Innovation and Digital Economy (FMCIDE)**, and **Awarri Technologies**. Built around the flagship **8.03B multilingual LLM (`NCAIR1/N-ATLaS`)** and four dedicated acoustic speech recognition models (**Yoruba, Hausa, Igbo, and Nigerian Accented English**), this monorepo provides everything developers and enterprises need to deploy, integrate, and scale indigenous AI: typed **Python** and **JavaScript/TypeScript SDKs**, a high-performance **serverless Modal cloud gateway** (`natlas_engine.py`) offering unified OpenAI-compatible LLM streaming and Whisper audio transcription, containerized **Docker GPU/CPU deployments**, an interactive **Vite playground**, automated **fine-tuning and evaluation starter kits**, 7 built-in **zero-dependency Nigerian agent tools** (local gazetteer lookups, currency conversion, date formatting), and multilingual documentation across four national languages.
+The **N-ATLaS Toolkit** is an open-source, production-ready engineering suite for Nigeria's sovereign AI initiative—spearheaded by the **National Centre for Artificial Intelligence and Robotics (NCAIR)**, the **Federal Ministry of Communications, Innovation and Digital Economy (FMCIDE)**, and **Awarri Technologies**. Built around the flagship **8.03B multilingual LLM (`NCAIR1/N-ATLaS`)** and four dedicated acoustic speech recognition models (**Yoruba, Hausa, Igbo, and Nigerian Accented English**), this monorepo provides everything developers and enterprises need to deploy, integrate, and scale indigenous AI: typed **Python** and **JavaScript/TypeScript SDKs**, high-performance **serverless cloud gateways** on Modal (`natlas_engine.py`) and Lightning AI (`natlas_engine_lightning.py`) offering unified OpenAI-compatible LLM streaming and Whisper audio transcription, containerized **Docker GPU/CPU deployments**, an interactive **Vite playground**, automated **fine-tuning and evaluation starter kits**, 7 built-in **zero-dependency Nigerian agent tools** (local gazetteer lookups, currency conversion, date formatting), and multilingual documentation across four national languages.
 
 ```bash
 # Official SDKs
@@ -36,19 +37,20 @@ This repository is organized as a unified monorepo providing everything needed t
 
 | Component / Directory | Purpose & Key Features |
 | :--- | :--- |
-| **[`python-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/python-sdk)** | **Official PyPI Package (`pip install natlas-sdk`)**: Fully typed synchronous & asynchronous clients, CLI (`natlas chat`, `natlas transcribe`), 7 built-in zero-auth agent tools, and MCP stdio server. |
-| **[`js-sdk/`](file:///c:/Users/USER/Downloads/natlas-toolkit/js-sdk)** | **Official npm Package (`npm install natlas-sdk`)**: Universal TypeScript/JavaScript SDK with native fetch, SSE streaming, full types, agent tools, and executable CLI (`npx natlas`). |
-| **[`playground/`](file:///c:/Users/USER/Downloads/natlas-toolkit/playground)** | **Interactive Web Application**: React + Vite playground UI with Chat Studio, Audio Recording & Transcription Studio, Model Catalog explorer, and live interactive documentation. |
-| **[`docs/`](file:///c:/Users/USER/Downloads/natlas-toolkit/docs) & [`mkdocs.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/mkdocs.yml)** | **Developer Documentation Site**: Comprehensive documentation built with Material for MkDocs, featuring API specifications, developer tutorials, and bilingual guides (Yorùbá, Hausa, Igbo). |
-| **[`finetune-starter-kit/`](file:///c:/Users/USER/Downloads/natlas-toolkit/finetune-starter-kit)** | **Domain Adaptation Suite**: LoRA/QLoRA and Unsloth fine-tuning recipes for adapting N-ATLaS to custom enterprise, healthcare, and educational datasets on consumer GPUs. |
-| **[`cookbook/`](file:///c:/Users/USER/Downloads/natlas-toolkit/cookbook)** | **Production Recipes**: Copy-pasteable application templates including WhatsApp voice & text bots, banking dispute classifiers, and agent loops. |
-| **[`hf_space/`](file:///c:/Users/USER/Downloads/natlas-toolkit/hf_space)** | **Hugging Face ZeroGPU Space ([`NATLaS-Sovereign-Engine`](https://huggingface.co/spaces/samuelolubukun/NATLaS-Sovereign-Engine))**: Turnkey Gradio Web UI and embedded `/v1/*` OpenAI endpoints for free deployment on Hugging Face Spaces. |
-| **[`notebooks/`](file:///c:/Users/USER/Downloads/natlas-toolkit/notebooks)** | **Google Colab (`natlas_engine_colab.ipynb`)**: 1-click cloud notebook that downloads model weights, spins up the LLM engine, and exposes a public endpoint via Cloudflare Tunnel. |
-| **[`natlas_engine.py`](file:///c:/Users/USER/Downloads/natlas-toolkit/natlas_engine.py)** | **Modal Serverless Engine**: Enterprise serverless deployment file defining container environments, GPU volume caching, FastAPI ASGI server, and WebSocket endpoints. |
-| **[`docker-compose.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/docker-compose.yml)** | **On-Premise NVIDIA GPU Stack**: Turnkey production Docker setup unifying LLM (vLLM continuous batching) and Sovereign ASR behind an Nginx gateway on port `8000`. |
-| **[`docker-compose.local.yml`](file:///c:/Users/USER/Downloads/natlas-toolkit/docker-compose.local.yml)** | **Local CPU & Apple Silicon Stack**: Zero-NVIDIA Docker stack for local testing on MacBooks and CPU laptops. |
-| **[`Dockerfile.llm`](file:///c:/Users/USER/Downloads/natlas-toolkit/Dockerfile.llm) & [`Dockerfile.asr`](file:///c:/Users/USER/Downloads/natlas-toolkit/Dockerfile.llm)** | Dedicated Docker container definitions for the LLM and Sovereign ASR microservices. |
-| **[`tests/`](file:///c:/Users/USER/Downloads/natlas-toolkit/tests)** | Comprehensive end-to-end integration tests (`e2e_python.py`, `e2e_js.mjs`, `test_asr_samples.py`) and real multilingual audio samples (`hausa.mp3`, `yoruba.mp3`, `igbo.mp3`, `english.mp3`). |
+| **[`python-sdk/`](python-sdk)** | **Official PyPI Package (`pip install natlas-sdk`)**: Fully typed synchronous & asynchronous clients, CLI (`natlas chat`, `natlas transcribe`), 7 built-in zero-auth agent tools, and MCP stdio server. |
+| **[`js-sdk/`](js-sdk)** | **Official npm Package (`npm install natlas-sdk`)**: Universal TypeScript/JavaScript SDK with native fetch, SSE streaming, full types, agent tools, and executable CLI (`npx natlas`). |
+| **[`playground/`](playground)** | **Interactive Web Application**: React + Vite playground UI with Chat Studio, Audio Recording & Transcription Studio, Model Catalog explorer, and live interactive documentation. |
+| **[`docs/`](docs) & [`mkdocs.yml`](mkdocs.yml)** | **Developer Documentation Site**: Comprehensive documentation built with Material for MkDocs, featuring API specifications, developer tutorials, and bilingual guides (Yorùbá, Hausa, Igbo). |
+| **[`finetune-starter-kit/`](finetune-starter-kit)** | **Domain Adaptation Suite**: LoRA/QLoRA and Unsloth fine-tuning recipes for adapting N-ATLaS to custom enterprise, healthcare, and educational datasets on consumer GPUs. |
+| **[`cookbook/`](cookbook)** | **Production Recipes**: Copy-pasteable application templates including WhatsApp voice & text bots, banking dispute classifiers, and agent loops. |
+| **[`hf_space/`](hf_space)** | **Hugging Face ZeroGPU Space ([`NATLaS-Sovereign-Engine`](https://huggingface.co/spaces/samuelolubukun/NATLaS-Sovereign-Engine))**: Turnkey Gradio Web UI and embedded `/v1/*` OpenAI endpoints for free deployment on Hugging Face Spaces. |
+| **[`notebooks/`](notebooks)** | **Google Colab (`natlas_engine_colab.ipynb`)**: 1-click cloud notebook that downloads model weights, spins up the LLM engine, and exposes a public endpoint via Cloudflare Tunnel. |
+| **[`natlas_engine.py`](natlas_engine.py)** | **Modal Serverless Engine**: Enterprise serverless deployment file defining container environments, GPU volume caching, FastAPI ASGI server, and WebSocket endpoints. |
+| **[`natlas_engine_lightning.py`](natlas_engine_lightning.py)** | **Lightning AI Serverless Engine**: Zero-credit-card, scale-to-zero serverless deployment on NVIDIA T4 GPU with full OpenAI `/v1/chat/completions` & Whisper `/v1/audio/transcriptions`. |
+| **[`docker-compose.yml`](docker-compose.yml)** | **On-Premise NVIDIA GPU Stack**: Turnkey production Docker setup unifying LLM (vLLM continuous batching) and Sovereign ASR behind an Nginx gateway on port `8000`. |
+| **[`docker-compose.local.yml`](docker-compose.local.yml)** | **Local CPU & Apple Silicon Stack**: Zero-NVIDIA Docker stack for local testing on MacBooks and CPU laptops. |
+| **[`Dockerfile.llm`](Dockerfile.llm) & [`Dockerfile.asr`](Dockerfile.asr)** | Dedicated Docker container definitions for the LLM and Sovereign ASR microservices. |
+| **[`tests/`](tests)** | Comprehensive end-to-end integration tests and real multilingual audio samples (`hausa.mp3`, `yoruba.mp3`, `igbo.mp3`, `english.mp3`). |
 | **[`scripts/`](file:///c:/Users/USER/Downloads/natlas-toolkit/scripts)** | Benchmarking and evaluation harnesses measuring WER/CER, Time to First Token (TTFT), throughput (tok/s), and latency. |
 | **[`.github/workflows/`](file:///c:/Users/USER/Downloads/natlas-toolkit/.github/workflows)** | CI/CD automated workflow running multi-version matrix tests for Python, Node.js, and MkDocs site builds. |
 
@@ -108,40 +110,71 @@ The N-ATLaS ecosystem comprises one 8B large language model and four specialized
 Deploy N-ATLaS across cloud serverless, on-premise containers, or zero-cost GPU instances:
 
 ```text
-┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                    N-ATLaS DEPLOYMENT SPECTRUM                                     │
-├──────────────────────────┬──────────────────────────┬──────────────────────────┬───────────────────┤
-│ 1. Modal Cloud           │ 2. Docker GPU / On-Prem  │ 3. Apple Silicon / CPU   │ 4. Google Colab   │
-│ • NVIDIA A10G Serverless │ • Turnkey Docker Compose │ • docker-compose.local   │ • 1-Click Jupyter │
-│ • Scale-to-Zero Keepwarm │ • vLLM Continuous Batch  │ • Zero NVIDIA needed     │ • Free T4 GPU     │
-│ • Unified LLM + ASR API  │ • Nginx Reverse Proxy    │ • Local CPU prototyping  │ • Cloudflare Tun. │
-└──────────────────────────┴──────────────────────────┴──────────────────────────┴───────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                              N-ATLaS DEPLOYMENT SPECTRUM                                               │
+├──────────────────────────┬──────────────────────────┬──────────────────────────┬───────────────────┬───────────────────┤
+│ 1. Modal Cloud           │ 2. Lightning AI          │ 3. Docker GPU / On-Prem  │ 4. Apple Sil./CPU │ 5. Google Colab   │
+│ • NVIDIA A10G Serverless │ • NVIDIA T4 Serverless   │ • Turnkey Docker Compose │ • docker-compose  │ • 1-Click Jupyter │
+│ • Scale-to-Zero Keepwarm │ • Free Tier (No CC req.) │ • vLLM Continuous Batch  │ • Zero NVIDIA req │ • Free T4 GPU     │
+│ • Unified LLM + ASR API  │ • Scale-to-Zero Auto     │ • Nginx Reverse Proxy    │ • Local CPU/Mac   │ • Cloudflare Tun. │
+└──────────────────────────┴──────────────────────────┴──────────────────────────┴───────────────────┴───────────────────┘
 ```
 
 1. **Modal Cloud Serverless (Unified Production)**:
-   - Command: `modal deploy natlas_engine.py`
-   - Unified API: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1`
-   - Scales to zero in 300s of inactivity; pre-caches ~16GB weights on persistent volume.
-2. **On-Premise Dedicated GPU Server (Docker Compose)**:
+   - **Step 1: Sign up & Claim $30/month Free Tier**:
+     - Create an account at **[modal.com](https://modal.com/)**.
+     - Add a payment method under **Settings → Billing** to activate the **$30/mo free compute tier** (Modal will not charge you unless you exceed $30).
+   - **Step 2: Install & Authenticate Modal CLI**:
+     ```bash
+     pip install modal
+     modal setup
+     ```
+   - **Step 3: Configure Cloud Secrets**:
+     ```bash
+     modal secret create hf-token HF_TOKEN="hf_xxxxxxxxxxxxxxxxxxxxxxxxx"
+     modal secret create natlas-secrets NATLAS_API_KEY="your-secure-api-key"
+     ```
+   - **Step 4: Deploy Engine**:
+     ```bash
+     modal deploy natlas_engine.py
+     ```
+   - **Unified API Base URL**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1`
+   - Scales to zero after 300s of inactivity; pre-caches ~16GB weights on persistent volume.
+2. **Lightning AI Serverless (Zero-Credit-Card Free Tier)**:
+   - Command:
+     ```bash
+     pip install lightning-sdk
+     lightning login
+     lightning deployment create \
+       --name natlas-engine \
+       --studio scratch-studio-devbox \
+       --command "uvicorn natlas_engine_lightning:app --host 0.0.0.0 --port 8000" \
+       --machine lit-t4-1 \
+       --min-replicas 0 \
+       --max-replicas 1 \
+       --ports 8000
+     ```
+   - Scale-to-zero serverless deployment on NVIDIA T4 GPU. Spins up automatically on incoming requests, charges $0 while idle.
+3. **On-Premise Dedicated GPU Server (Docker Compose)**:
    - Command: `docker compose up -d --build`
    - Unified Endpoint: `http://localhost:8000/v1`
    - High-throughput vLLM PagedAttention engine + Faster-Whisper behind unified Nginx proxy.
-3. **Local Apple Silicon & CPU Fallback**:
+4. **Local Apple Silicon & CPU Fallback**:
    - Command: `docker compose -f docker-compose.local.yml up -d --build`
    - Runs inference on MacBooks (M1/M2/M3/M4) or standard laptops without discrete NVIDIA GPUs.
-4. **Google Colab (Zero-Setup GPU Engine)**:
+5. **Google Colab (Zero-Setup GPU Engine)**:
    - Open [`notebooks/natlas_engine_colab.ipynb`](notebooks/natlas_engine_colab.ipynb) to launch on a free cloud GPU with a secure public Cloudflare Tunnel URL.
 
 ## 🚀 Live Production Deployment
 
-The engine is deployed, live, and fully operational on Modal:
+The engine is deployed, live, and fully operational on Modal and Lightning AI:
 
-- **App Status**: `deployed` (Live on Modal)
-- **Base API URL**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run`
-- **Hardware Acceleration**: NVIDIA A10G (24GB VRAM)
+- **Modal API URL**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run` (NVIDIA A10G)
+- **Lightning AI API URL**: `https://<deployment-id>.cloudspaces.litng.ai` (NVIDIA T4 Serverless)
+- **Hardware Acceleration**: NVIDIA A10G / NVIDIA T4
 - **Engine**: PyTorch / Transformers bfloat16 + SDPA with native vLLM Continuous Batching support
-- **Scale-to-Zero Economics**: 300-second idle keep-warm lifecycle
-- **Volume Caching**: `natlas-weights-cache` (Persistent cache preserving ~16GB weights across container lifecycles)
+- **Scale-to-Zero Economics**: Automatically scales to 0 replicas during idle periods (0 credits billed when idle)
+- **Volume Caching**: Persistent model weight caching preserving weights across container lifecycles
 
 ---
 
@@ -149,23 +182,28 @@ The engine is deployed, live, and fully operational on Modal:
 
 ### Deployment Architecture & Base URLs
 
-N-ATLaS supports four production deployment targets:
+N-ATLaS supports five production deployment targets:
 
-1. **Hugging Face Spaces (ZeroGPU Free Tier)**:
-   - **Gradio Web UI + API**: `https://<workspace>-natlas-sovereign-engine.hf.space/v1`
-   - ZeroGPU hardware acceleration, zero infrastructure cost, native `/v1/*` OpenAI endpoints.
-   - Code & setup instructions located in [`hf_space/`](hf_space).
+1. **Lightning AI (Free Tier Serverless)**:
+   - **Unified API Base URL**: `https://<deployment-id>.cloudspaces.litng.ai/v1`
+   - Scale-to-zero NVIDIA T4 GPU container serving OpenAI-compliant chat completions and Whisper ASR.
+   - Code & requirements: [`natlas_engine_lightning.py`](natlas_engine_lightning.py) and [`requirements-lightning.txt`](requirements-lightning.txt).
 
-2. **Google Colab Notebook (Zero-Setup GPU Engine)**:
-   - Run in 1 click via [`notebooks/natlas_engine_colab.ipynb`](notebooks/natlas_engine_colab.ipynb).
-   - Serves the LLM and creates a secure public URL via Cloudflare Tunnel.
-
-3. **Modal Cloud Deployment (Unified Serverless Engine)**:
+2. **Modal Cloud Deployment (Unified Serverless Engine)**:
    - **Unified API Base URL**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1`
    - Serves both the 8.03B Multilingual LLM and all 4 Sovereign Whisper ASR models from a single unified serverless endpoint.
    - Dedicated NVIDIA A10G (24GB VRAM) with continuous batching and sub-second cold starts.
 
-4. **Local / On-Premise Docker Gateway (100% Unified)**:
+3. **Hugging Face Spaces (ZeroGPU Free Tier)**:
+   - **Gradio Web UI + API**: `https://<workspace>-natlas-sovereign-engine.hf.space/v1`
+   - ZeroGPU hardware acceleration, zero infrastructure cost, native `/v1/*` OpenAI endpoints.
+   - Code & setup instructions located in [`hf_space/`](hf_space).
+
+4. **Google Colab Notebook (Zero-Setup GPU Engine)**:
+   - Run in 1 click via [`notebooks/natlas_engine_colab.ipynb`](notebooks/natlas_engine_colab.ipynb).
+   - Serves the LLM and creates a secure public URL via Cloudflare Tunnel.
+
+5. **Local / On-Premise Docker Gateway (100% Unified)**:
    - `http://localhost:8000/v1` (Nginx reverse-proxy gateway unifying both LLM and ASR).
 
 | Method | Endpoint | Service | Description | Auth Header |
