@@ -99,6 +99,11 @@ export const LandingPage = ({ onSelectStudio }) => {
       hfUrl: "https://huggingface.co/NCAIR1/N-ATLaS",
       action: "chat",
       accentColor: "#008751",
+      cardBg: "bg-white",
+      borderClass: "border-stone-200 hover:border-federal-400",
+      accentStripe: "bg-federal-600",
+      pillBadge: "bg-federal-50 text-federal-700 border-federal-200",
+      buttonClass: "bg-federal-600 hover:bg-federal-700 text-white",
       tags: ["8.03B Params", "8,092 Context", "~918K Instruction Pairs"],
     },
     {
@@ -108,7 +113,12 @@ export const LandingPage = ({ onSelectStudio }) => {
       description: "Trained on 120 hours of Yorùbá speech, preserving acute and grave tone diacritics that completely change word meaning when dropped.",
       hfUrl: "https://huggingface.co/NCAIR1/Yoruba-ASR",
       action: "asr",
-      accentColor: "#00897B",
+      accentColor: "#1E3A5F",
+      cardBg: "bg-indigo-50/40 hover:bg-indigo-50/70",
+      borderClass: "border-indigo-200/80 hover:border-indigo-400",
+      accentStripe: "bg-[#1E3A5F]",
+      pillBadge: "bg-indigo-100/70 text-indigo-950 border-indigo-200",
+      buttonClass: "bg-[#1E3A5F] hover:bg-[#152a45] text-white",
       tags: ["120h Training Data", "244M Params", "Tone-Preserving"],
     },
     {
@@ -118,7 +128,12 @@ export const LandingPage = ({ onSelectStudio }) => {
       description: "120 hours of Hausa recordings from speakers across northern and southern Nigeria. Handles regional dialect variation standard models miss entirely.",
       hfUrl: "https://huggingface.co/NCAIR1/Hausa-ASR",
       action: "asr",
-      accentColor: "#1B4F8A",
+      accentColor: "#D97706",
+      cardBg: "bg-yellow-50/60 hover:bg-yellow-50/90",
+      borderClass: "border-yellow-200/90 hover:border-amber-400",
+      accentStripe: "bg-[#D97706]",
+      pillBadge: "bg-yellow-100/90 text-yellow-950 border-yellow-300/80",
+      buttonClass: "bg-[#D97706] hover:bg-[#b45309] text-white",
       tags: ["120h Training Data", "244M Params", "All 6 Zones"],
     },
     {
@@ -128,7 +143,12 @@ export const LandingPage = ({ onSelectStudio }) => {
       description: "Built to capture authentic Igbo phonetics, including the sub-dot characters and tonal patterns that off-the-shelf models have historically failed.",
       hfUrl: "https://huggingface.co/NCAIR1/Igbo-ASR",
       action: "asr",
-      accentColor: "#C0452A",
+      accentColor: "#DC2626",
+      cardBg: "bg-red-50/70 hover:bg-red-50/95",
+      borderClass: "border-red-200/90 hover:border-red-400",
+      accentStripe: "bg-[#DC2626]",
+      pillBadge: "bg-red-100/90 text-red-950 border-red-300/80",
+      buttonClass: "bg-[#DC2626] hover:bg-[#b91c1c] text-white",
       tags: ["120h Training Data", "244M Params", "Diacritics Intact"],
     },
     {
@@ -138,7 +158,12 @@ export const LandingPage = ({ onSelectStudio }) => {
       description: "Because your accent is not a bug. Built specifically for Nigerian-accented English so speakers aren't penalised by systems designed for other parts of the world.",
       hfUrl: "https://huggingface.co/NCAIR1/NigerianAccentedEnglish",
       action: "asr",
-      accentColor: "#E5A93C",
+      accentColor: "#7E22CE",
+      cardBg: "bg-purple-50/50 hover:bg-purple-50/80",
+      borderClass: "border-purple-200/80 hover:border-purple-400",
+      accentStripe: "bg-purple-600",
+      pillBadge: "bg-purple-100/70 text-purple-950 border-purple-200",
+      buttonClass: "bg-purple-700 hover:bg-purple-800 text-white",
       tags: ["120h Training Data", "244M Params", "en-NG Native"],
     },
   ];
@@ -382,7 +407,7 @@ export const LandingPage = ({ onSelectStudio }) => {
               target="_blank"
               rel="noreferrer"
               title="Federal Ministry of Communications, Innovation & Digital Economy"
-              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-emerald-500 hover:shadow-sm transition-all"
+              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-emerald-500 hover:shadow-md transition-all duration-200 hover:-rotate-1 hover:scale-105"
             >
               <img
                 src="https://fmcide.gov.ng/wp-content/uploads/2023/11/logo.png"
@@ -407,7 +432,7 @@ export const LandingPage = ({ onSelectStudio }) => {
               target="_blank"
               rel="noreferrer"
               title="Awarri Technologies — Africa's AI & Robotics Enabler"
-              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-red-500 hover:shadow-sm transition-all"
+              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-red-500 hover:shadow-md transition-all duration-200 hover:rotate-1 hover:scale-105"
             >
               <img
                 src="https://framerusercontent.com/images/ICkV3wlOQSxCtBRm6EXFzEne5RE.png"
@@ -432,7 +457,7 @@ export const LandingPage = ({ onSelectStudio }) => {
               target="_blank"
               rel="noreferrer"
               title="National Centre for Artificial Intelligence and Robotics"
-              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-emerald-600 hover:shadow-sm transition-all"
+              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-emerald-600 hover:shadow-md transition-all duration-200 hover:-rotate-1 hover:scale-105"
             >
               <img
                 src="https://lms.ncair.nitda.gov.ng/ncairlogo.jpg"
@@ -457,7 +482,7 @@ export const LandingPage = ({ onSelectStudio }) => {
               target="_blank"
               rel="noreferrer"
               title="National Information Technology Development Agency"
-              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-emerald-600 hover:shadow-sm transition-all"
+              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-emerald-600 hover:shadow-md transition-all duration-200 hover:rotate-1 hover:scale-105"
             >
               <img
                 src="https://nitda.gov.ng/wp-content/uploads/2024/01/NITDA-Logo-770x400.png"
@@ -482,7 +507,7 @@ export const LandingPage = ({ onSelectStudio }) => {
               target="_blank"
               rel="noreferrer"
               title="Langeasy — Multilingual AI Translation & Voice"
-              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-blue-500 hover:shadow-sm transition-all"
+              className="group flex items-center gap-2.5 px-4 py-2 rounded-xl border border-stone-200 bg-white hover:border-blue-500 hover:shadow-md transition-all duration-200 hover:-rotate-1 hover:scale-105"
             >
               <img
                 src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAZCAMAAAAVHr4VAAABIFBMVEVHcExIMuxXUfVvYvd2WfdKWPRhR/dpUPaDWviMY/mPZfiMa/iCbvZyUPVnMvpuTvd2Vfh2XPhwZvZNX/OVdPiRcfhdT/ZoXfdDYfWKePd5e/VuXfc/Z/NccfSRfPeMhvd8gfQ0Z/ONh/ZJivFLV/NkY/YWqutfXvVGc/OBhfSNjvVvoPJ/i/KHoPU1sOxSZ/SEnfR4pPVWavM2cfB4lfFPcvN2mPAWrO1cpe9+qvNFe/E3cvB2sfMyp+pjru9ruPIaie1Fh/FDtu1quPA9jvBeuu5Uvu4AhOxBmO85ju5Qwe1YwO5JoPA2retXw+5HqPBDqu43qu44v+tOxe1Wx+5Ise8+u+s2vOtOyO1RyOxGuu5Gve1Hv+1Jxu1Jx+wtueunhKmiAAAAYHRSTlMAARkzTBNdtvDs9bNRDQfW+rVnH/rPp5smohfsQ0riyiMs1x9w9wrohDr0eoD1HbPdgulmn/JtF1b62JXyB721J/FJ/o/aqRHQxsTW5C7hzOt6PrD78pBO1frO9e/y0DbrS+sHAAABDUlEQVR4AY2QA4IDQRAAe717sW3btm37/684xU6Np4YNn4GgGI7jGPFAESRF0zTDfDEsNudacUkeXyDERKgIE7LEEjZy4VApXyY/HI4gmEKsUJ4dpVLDJRqtTg97OFKVAa7R64ymfc9sudq3t0ad9a8V2exwj8Pp2m9E4QFujxcA8fngEXp/AIAIhh5KJOwHEEU08JCoJ/Yr1Y9lPOEFIhJ6LpFk6rF0pa0A9iTxyGWyOQDIFx6eWywV/5pyIX/vvJUq8tfW6g3TnWu2vPtevl3v3JzZbZ1m8r3+wHt+ynA0rp6HYB1M+tN4xxvzdmbT+aI5y1xfMliuVuv1erPZTofW+0jHdrNZcee92PQDjY8jYvYhfecAAAAASUVORK5CYII="
@@ -508,7 +533,7 @@ export const LandingPage = ({ onSelectStudio }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
           <div className="max-w-3xl mb-12">
             <p className="text-xs font-mono font-bold tracking-widest uppercase text-emerald-400 mb-3">Toolkit Peek</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight text-white">
+            <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight leading-tight text-white">
               What's in the box?
             </h2>
             <p className="text-stone-300 mt-3 text-base leading-relaxed">
@@ -516,43 +541,43 @@ export const LandingPage = ({ onSelectStudio }) => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
             {toolkitFeatures.map((feat, i) => (
               <div
                 key={i}
-                className="bg-stone-950/80 border border-stone-800 p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl transition-all flex flex-col justify-between gap-5 relative overflow-hidden group hover:border-emerald-500/60"
+                className="bg-stone-950/85 border border-stone-800 p-7 sm:p-8 rounded-t-[32px] rounded-bl-[32px] rounded-br-[64px] shadow-2xl transition-all duration-300 flex flex-col justify-between gap-6 relative overflow-hidden group hover:border-emerald-500/60 hover:shadow-glow-green"
               >
                 {/* Cultural pattern watermark */}
-                {feat.pattern === 'aso-oke' && <AsoOkeWeave style={{ opacity: 0.25 }} />}
-                {feat.pattern === 'ankara' && <AnkaraHex style={{ opacity: 0.25 }} />}
-                {feat.pattern === 'kente' && <KenteStripe style={{ opacity: 0.25 }} />}
-                {feat.pattern === 'adire' && <AdireDots style={{ opacity: 0.25 }} />}
+                {feat.pattern === 'aso-oke' && <AsoOkeWeave style={{ opacity: 0.22 }} />}
+                {feat.pattern === 'ankara' && <AnkaraHex style={{ opacity: 0.22 }} />}
+                {feat.pattern === 'kente' && <KenteStripe style={{ opacity: 0.22 }} />}
+                {feat.pattern === 'adire' && <AdireDots style={{ opacity: 0.22 }} />}
 
-                {/* Accent top stripe */}
-                <div
-                  style={{ backgroundColor: feat.accentColor }}
-                  className="h-[3px] w-full rounded-full relative z-10 opacity-70 group-hover:opacity-100 transition-opacity"
-                />
+                {/* Top accent badge + stripe */}
+                <div className="relative z-10 flex items-center justify-between">
+                  <div
+                    style={{ backgroundColor: feat.accentColor }}
+                    className="h-1.5 w-16 rounded-full opacity-80 group-hover:w-24 group-hover:opacity-100 transition-all duration-300"
+                  />
+                  <div className="w-10 h-10 rounded-2xl border border-stone-800 bg-stone-900/90 flex items-center justify-center text-white group-hover:border-emerald-500/50 transition-colors shadow-inner">
+                    <feat.icon className="w-5 h-5" style={{ color: feat.accentColor }} />
+                  </div>
+                </div>
 
-                <div className="relative z-10 space-y-4">
-                  <div className="w-12 h-12 rounded-xl border border-stone-800 bg-stone-900 flex items-center justify-center text-white group-hover:border-emerald-500/50 transition-colors">
-                    <feat.icon className="w-6 h-6" style={{ color: feat.accentColor }} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">
-                      {feat.title}
-                    </h3>
-                    <p className="text-sm text-stone-400 leading-relaxed">{feat.body}</p>
-                  </div>
+                <div className="relative z-10 space-y-3">
+                  <h3 className="text-xl font-display font-bold text-white group-hover:text-emerald-400 transition-colors leading-snug">
+                    {feat.title}
+                  </h3>
+                  <p className="text-sm text-stone-400 leading-relaxed">{feat.body}</p>
                 </div>
 
                 {/* Feature tags */}
                 {feat.tags && (
-                  <div className="relative z-10 flex flex-wrap gap-1.5 pt-3 border-t border-stone-800/80">
+                  <div className="relative z-10 pt-4 border-t border-stone-800/80 flex flex-wrap gap-1.5">
                     {feat.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="text-[11px] px-2 py-0.5 rounded-md bg-stone-900 border border-stone-800 text-stone-300 font-medium font-mono"
+                        className="text-[11px] px-2.5 py-0.5 rounded-full bg-stone-900/90 border border-stone-800 text-stone-300 font-medium font-mono"
                       >
                         {tag}
                       </span>
@@ -567,83 +592,96 @@ export const LandingPage = ({ onSelectStudio }) => {
       </section>
 
       {/* ─── MODELS ─── */}
-      <section className="py-20 sm:py-24">
+      <section className="py-20 sm:py-24 bg-parchment/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <div className="max-w-xl mb-12">
             <Label>The models</Label>
-            <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 leading-tight">
+            <h2 className="text-3xl sm:text-4xl font-display font-bold text-stone-900 leading-tight">
               Five models, one platform.
             </h2>
-            <p className="text-stone-500 mt-3 text-base leading-relaxed">
-              Every model is published open-weight on Hugging Face under the NCAIR1 organisation and available to test here instantly.
+            <p className="text-stone-600 mt-3 text-base leading-relaxed">
+              Every model is published open-weight on Hugging Face under the NCAIR organisation and available to test here instantly.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {hfModels.map((m) => (
               <div
                 key={m.id}
-                className="group bg-white rounded-2xl border border-stone-200 p-6 shadow-card hover:shadow-card-md hover:border-stone-300 transition-all flex flex-col justify-between relative overflow-hidden"
+                className={`group rounded-t-[32px] rounded-bl-[32px] rounded-br-[64px] border p-7 shadow-sm hover:shadow-card-md transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${m.cardBg} ${m.borderClass}`}
               >
                 {/* Ankara-hex honeycomb watermark */}
-                <AnkaraHex style={{ opacity: 0.6 }} />
+                <AnkaraHex style={{ opacity: 0.45 }} />
 
                 {/* Model identity top accent bar */}
                 <div
                   style={{ backgroundColor: m.accentColor }}
-                  className="h-[3px] w-full rounded-full mb-4 relative z-10 opacity-80 group-hover:opacity-100 transition-opacity"
+                  className="h-1.5 w-16 rounded-full mb-4 relative z-10 opacity-85 group-hover:w-24 group-hover:opacity-100 transition-all duration-300"
                 />
 
-                <div className="space-y-3 relative z-10">
+                <div className="space-y-3.5 relative z-10">
                   {/* Model name & subtitle */}
                   <div>
-                    <h3 className="text-[17px] font-bold text-stone-900 group-hover:text-federal-700 transition-colors">
+                    <h3 className="text-xl font-display font-bold text-stone-900 group-hover:text-stone-950 transition-colors">
                       {m.name}
                     </h3>
-                    <p className="text-xs text-stone-400 font-mono mt-0.5">{m.subtitle}</p>
+                    <p className="text-xs text-stone-500 font-mono mt-0.5">{m.subtitle}</p>
                   </div>
 
-                  <p className="text-sm text-stone-500 leading-relaxed">{m.description}</p>
+                  <p className="text-sm text-stone-600 leading-relaxed">{m.description}</p>
 
                   {/* Tags */}
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1.5 pt-1">
                     {m.tags.map(t => (
-                      <span key={t} className="text-[11px] px-2 py-0.5 rounded-md bg-stone-100 text-stone-500 font-medium">
+                      <span key={t} className={`text-[11px] px-2.5 py-0.5 rounded-full border font-medium font-mono ${m.pillBadge || 'bg-stone-100 text-stone-600 border-stone-200'}`}>
                         {t}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="mt-6 pt-4 border-t border-stone-100 flex items-center gap-2">
+                {/* Actions with signature bottom corner button matching the reference design */}
+                <div className="mt-6 pt-4 border-t border-stone-200/60 flex items-center justify-between gap-3 relative z-10">
                   <button
                     onClick={() => onSelectStudio(m.action)}
-                    className="flex-1 py-2 rounded-lg bg-federal-600 hover:bg-federal-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-all"
+                    className="text-xs font-bold uppercase tracking-wider text-stone-700 hover:text-stone-950 transition-colors flex items-center gap-1.5"
                   >
-                    Try it <ChevronRight className="w-3.5 h-3.5" />
+                    <span>Explore model</span>
                   </button>
-                  <a
-                    href={m.hfUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-500 transition-colors"
-                    title="View on Hugging Face"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={m.hfUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-2 rounded-xl bg-white/80 hover:bg-white border border-stone-200 text-stone-600 hover:text-stone-900 transition-colors shadow-xs"
+                      title="View on Hugging Face"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                    <button
+                      onClick={() => onSelectStudio(m.action)}
+                      className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-sm ${m.buttonClass}`}
+                      title={`Try ${m.name}`}
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
 
             {/* CTA card */}
-            <div className="bg-federal-950 rounded-2xl border border-federal-900 p-6 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-federal-800 flex items-center justify-center">
-                  <Globe2 className="w-5 h-5 text-federal-300" />
+            <div className="bg-federal-950 rounded-t-[32px] rounded-bl-[32px] rounded-br-[64px] border border-federal-900 p-7 flex flex-col justify-between shadow-card-md relative overflow-hidden group">
+              <AsoOkeWeave className="opacity-20" />
+              <div className="space-y-4 relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-federal-800/80 border border-federal-700/60 flex items-center justify-center shadow-inner">
+                  <Globe2 className="w-6 h-6 text-federal-300" />
                 </div>
-                <h3 className="text-lg font-bold text-white">NCAIR1 on Hugging Face</h3>
-                <p className="text-sm text-federal-300 leading-relaxed">
+                <div>
+                  <h3 className="text-xl font-display font-bold text-white">NCAIR on Hugging Face</h3>
+                  <p className="text-xs text-federal-300 font-mono mt-1">Open weights · Apache / Research</p>
+                </div>
+                <p className="text-sm text-federal-200 leading-relaxed">
                   All five models are open-weight and downloadable. Explore the full repository, model cards, and evaluation benchmarks.
                 </p>
               </div>
@@ -651,9 +689,9 @@ export const LandingPage = ({ onSelectStudio }) => {
                 href="https://huggingface.co/NCAIR1"
                 target="_blank"
                 rel="noreferrer"
-                className="mt-6 flex items-center gap-2 text-sm font-semibold text-ochre-400 hover:text-ochre-300 transition-colors"
+                className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ochre-400 hover:text-ochre-300 transition-colors relative z-10"
               >
-                Browse all models <ArrowRight className="w-4 h-4" />
+                Browse all models <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </a>
             </div>
           </div>
@@ -672,7 +710,7 @@ export const LandingPage = ({ onSelectStudio }) => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-8 space-y-14">
           <div className="max-w-2xl">
             <p className="text-xs font-mono font-bold tracking-widest uppercase text-emerald-400 mb-3">Core Technology</p>
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight text-white">
+            <h2 className="text-3xl sm:text-5xl font-display font-bold tracking-tight leading-tight text-white">
               Built for real Nigerian words, voices, and workflows.
             </h2>
             <p className="mt-4 text-stone-300 text-sm sm:text-base leading-relaxed">
@@ -682,12 +720,12 @@ export const LandingPage = ({ onSelectStudio }) => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Card 1: Indigenous Acoustic Models */}
-            <div className="bg-stone-950/80 border border-stone-800 rounded-2xl sm:rounded-3xl overflow-hidden hover:border-emerald-500/60 transition-all group flex flex-col justify-between shadow-2xl">
+            <div className="bg-stone-950/80 border border-stone-800 rounded-3xl overflow-hidden hover:border-emerald-500/60 transition-all group flex flex-col justify-between shadow-2xl">
               <div>
                 <div className="relative overflow-hidden aspect-[16/10] bg-stone-900 border-b border-stone-800/80">
                   <img
-                    src="/assets/audio_speech.jpg"
-                    alt="Indigenous Acoustic Models - Studio Recording"
+                    src="/assets/indigenous_acoustic_model.jpg"
+                    alt="Indigenous Acoustic Models - Nigerian Speech Recognition"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
@@ -716,12 +754,12 @@ export const LandingPage = ({ onSelectStudio }) => {
             </div>
 
             {/* Card 2: Multilingual Language Model */}
-            <div className="bg-stone-950/80 border border-stone-800 rounded-2xl sm:rounded-3xl overflow-hidden hover:border-amber-500/60 transition-all group flex flex-col justify-between shadow-2xl">
+            <div className="bg-stone-950/80 border border-stone-800 rounded-3xl overflow-hidden hover:border-amber-500/60 transition-all group flex flex-col justify-between shadow-2xl">
               <div>
                 <div className="relative overflow-hidden aspect-[16/10] bg-stone-900 border-b border-stone-800/80">
                   <img
-                    src="/assets/sovereign_voice.jpg"
-                    alt="N-ATLaS Sovereign Intelligence Topology"
+                    src="/assets/multilingual_llm.jpg"
+                    alt="N-ATLaS Multilingual LLM Topology across Nigeria's six geopolitical zones"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
@@ -750,7 +788,7 @@ export const LandingPage = ({ onSelectStudio }) => {
             </div>
 
             {/* Card 3: Developer & SDK */}
-            <div className="bg-stone-950/80 border border-stone-800 rounded-2xl sm:rounded-3xl overflow-hidden hover:border-federal-400 transition-all group flex flex-col justify-between shadow-2xl">
+            <div className="bg-stone-950/80 border border-stone-800 rounded-3xl overflow-hidden hover:border-federal-400 transition-all group flex flex-col justify-between shadow-2xl">
               <div>
                 <div className="relative overflow-hidden aspect-[16/10] bg-stone-900 border-b border-stone-800/80">
                   <img
@@ -803,7 +841,7 @@ export const LandingPage = ({ onSelectStudio }) => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-8">
           <div className="max-w-2xl mb-12">
             <Label>Capabilities</Label>
-            <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 leading-tight">
+            <h2 className="text-3xl sm:text-4xl font-display font-bold text-stone-900 leading-tight">
               Built for how Nigerians actually communicate.
             </h2>
             <p className="mt-3 text-stone-500 text-sm sm:text-base leading-relaxed">
@@ -811,32 +849,32 @@ export const LandingPage = ({ onSelectStudio }) => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {capabilities.map((c, i) => {
               const Icon = c.icon;
               return (
                 <div
                   key={i}
-                  className="group relative overflow-hidden bg-stone-50/70 hover:bg-white border border-stone-200/90 hover:border-federal-300 rounded-2xl p-6 transition-all duration-300 hover:shadow-card-md flex flex-col justify-between"
+                  className="group relative overflow-hidden bg-stone-50/70 hover:bg-white border border-stone-200/90 hover:border-federal-300 rounded-3xl p-7 transition-all duration-300 hover:shadow-card-md flex flex-col justify-between"
                 >
                   {/* Ankara hexagonal weave watermark: visible at rest, elevates on hover */}
-                  <AnkaraHex className="opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
+                  <AnkaraHex className="opacity-50 group-hover:opacity-90 transition-opacity duration-300" />
 
                   <div className="relative z-10 space-y-4">
                     <div className="flex items-center justify-between">
-                      <div className="w-11 h-11 rounded-xl bg-white group-hover:bg-federal-50 border border-stone-200/80 group-hover:border-federal-200 flex items-center justify-center transition-colors shadow-xs">
+                      <div className="w-12 h-12 rounded-2xl bg-white group-hover:bg-federal-50 border border-stone-200/80 group-hover:border-federal-200 flex items-center justify-center transition-colors shadow-xs">
                         <Icon className="w-5 h-5 text-federal-700 group-hover:text-federal-800 transition-colors" />
                       </div>
-                      <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 border border-stone-200 group-hover:bg-federal-50 group-hover:text-federal-700 group-hover:border-federal-200 transition-colors">
+                      <span className="text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-500 border border-stone-200 group-hover:bg-federal-50 group-hover:text-federal-700 group-hover:border-federal-200 transition-colors">
                         0{i + 1}
                       </span>
                     </div>
 
                     <div>
-                      <h3 className="text-base font-bold text-stone-900 group-hover:text-federal-900 transition-colors">
+                      <h3 className="text-lg font-bold text-stone-900 group-hover:text-federal-900 transition-colors">
                         {c.title}
                       </h3>
-                      <p className="text-xs sm:text-sm text-stone-500 mt-2 leading-relaxed">
+                      <p className="text-sm text-stone-500 mt-2.5 leading-relaxed">
                         {c.body}
                       </p>
                     </div>
@@ -859,7 +897,7 @@ export const LandingPage = ({ onSelectStudio }) => {
             <AsoOkeWeave className="opacity-20" />
 
             <div className="max-w-lg relative z-10">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+              <h2 className="text-3xl sm:text-4xl font-display font-bold text-white leading-tight">
                 Trained on Nigerian voices. Built for Nigerian words.
               </h2>
               <p className="text-stone-300 mt-3 text-base leading-relaxed">
@@ -890,32 +928,68 @@ export const LandingPage = ({ onSelectStudio }) => {
       {/* ─── ABOUT / INSTITUTION ─── */}
       <section className="pb-20 sm:pb-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            <div>
-              <Label>About</Label>
-              <h2 className="text-3xl font-bold text-stone-900 leading-tight mb-4">
-                National Centre for Artificial Intelligence & Robotics
-              </h2>
-              <p className="text-stone-500 text-sm leading-relaxed mb-3">
-                NCAIR is a special purpose vehicle of NITDA, under Nigeria's Federal Ministry of Communications, Innovation, and Digital Economy (FMCIDE). Its mandate is to build the research and engineering capacity for AI in Nigeria.
-              </p>
-              <p className="text-stone-500 text-sm leading-relaxed">
-                N-ATLaS was developed in collaboration with Awarri Technologies under the Nigerian Languages AI Initiative, a programme to build AI infrastructure that serves Nigerian citizens in their own languages.
-              </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
+            {/* Left Column: Text & Consortium Partner Cards */}
+            <div className="lg:col-span-7 flex flex-col justify-between">
+              <div>
+                <Label>About</Label>
+                <h2 className="text-3xl sm:text-4xl font-display font-bold text-stone-900 leading-tight mb-4">
+                  National Centre for Artificial Intelligence & Robotics
+                </h2>
+                <p className="text-stone-600 text-sm sm:text-base leading-relaxed mb-3">
+                  NCAIR is a special purpose vehicle of NITDA, under Nigeria's Federal Ministry of Communications, Innovation, and Digital Economy (FMCIDE). Its mandate is to build the research and engineering capacity for AI in Nigeria.
+                </p>
+                <p className="text-stone-600 text-sm sm:text-base leading-relaxed mb-6">
+                  N-ATLaS was developed in collaboration with Awarri Technologies under the Nigerian Languages AI Initiative, a programme to build AI infrastructure that serves Nigerian citizens in their own languages.
+                </p>
+              </div>
+
+              {/* Partner Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
+                {[
+                  { label: 'Technical Maintainer', name: 'Awarri Technologies', sub: 'Model training & deployment', accent: 'bg-red-500' },
+                  { label: 'Research & Governance', name: 'NCAIR / NITDA', sub: 'National AI policy & research', accent: 'bg-emerald-600' },
+                  { label: 'Federal Ministry', name: 'FMCIDE', sub: 'Digital Economy of Nigeria', accent: 'bg-ochre-500' },
+                ].map(card => (
+                  <div
+                    key={card.name}
+                    className="relative bg-white rounded-2xl p-4 border border-stone-200/90 shadow-card hover:shadow-card-md hover:border-stone-300 transition-all flex flex-col justify-between overflow-hidden"
+                  >
+                    {/* Clean top accent bar */}
+                    <div className={`h-1 w-full ${card.accent} absolute top-0 left-0 right-0`} />
+                    <div className="pt-1">
+                      <p className="text-[10px] uppercase tracking-wider font-semibold text-stone-400 mb-1.5">{card.label}</p>
+                      <p className="text-sm font-bold text-stone-900 leading-snug">{card.name}</p>
+                      <p className="text-xs text-stone-500 mt-1 leading-relaxed">{card.sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[
-                { label: 'Technical Maintainer', name: 'Awarri Technologies', sub: 'Model training & deployment' },
-                { label: 'Research & Governance', name: 'NCAIR / NITDA', sub: 'National AI policy & research' },
-                { label: 'Federal Ministry', name: 'FMCIDE', sub: 'Digital Economy of Nigeria' },
-              ].map(card => (
-                <div key={card.name} className="bg-white border border-stone-200 rounded-2xl p-5 shadow-card">
-                  <p className="text-[10px] uppercase tracking-widest font-semibold text-stone-400 mb-2">{card.label}</p>
-                  <p className="text-sm font-bold text-stone-900">{card.name}</p>
-                  <p className="text-xs text-stone-400 mt-0.5">{card.sub}</p>
+            {/* Right Column: Sovereign Voice Card */}
+            <div className="lg:col-span-5 flex flex-col justify-center">
+              <div className="relative w-full rounded-3xl overflow-hidden border border-stone-200/90 shadow-card-md bg-stone-950 group">
+                <img
+                  src="/assets/sovereign_voice.jpg"
+                  alt="N-ATLaS Sovereign Intelligence Topology"
+                  className="w-full h-auto aspect-[16/9] object-contain bg-stone-950 group-hover:scale-102 transition-transform duration-500 block"
+                  loading="lazy"
+                />
+                <div className="p-4 sm:p-5 bg-stone-900 border-t border-stone-800 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-600/90 text-emerald-50 border border-emerald-400/40">
+                      Sovereign Voice
+                    </span>
+                    <span className="text-[11px] text-stone-400 font-mono">
+                      Nigeria 2026
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                    Multilingual intelligence engineered for over 220 million Nigerians across Yoruba, Hausa, Igbo, and English.
+                  </p>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
