@@ -33,10 +33,6 @@ RUN pip install --no-cache-dir \
     "numpy>=1.26.0" \
     "scipy>=1.11.0"
 
-# Copy SDK and install
-COPY python-sdk /app/python-sdk
-RUN pip install --no-cache-dir -e /app/python-sdk
-
 # Copy application files
 COPY natlas_engine.py /app/
 
