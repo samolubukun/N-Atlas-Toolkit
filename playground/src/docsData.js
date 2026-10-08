@@ -27,7 +27,6 @@ export const DOCS_NAV = [
     category: "LLM Capabilities",
     items: [
       { id: "llm-chat", title: "Chat & SSE Streaming", icon: "MessageSquare" },
-      { id: "llm-translation", title: "Native Cultural Translation", icon: "Globe" },
     ]
   },
   {
@@ -105,13 +104,12 @@ The **N-ATLaS Toolkit** is an open, production-ready developer platform designed
 
 ### 1. Environment Setup & API Keys
 
-Set your API key and endpoint URLs:
+Set your API key and unified endpoint URL (serves both LLM and ASR):
 
 \`\`\`bash
 # Set in terminal or your project's .env file:
 export NATLAS_API_KEY="your-api-key"
 export NATLAS_BASE_URL="https://<workspace>--natlas-engine-natlasapi-serve.modal.run"
-export NATLAS_API_URL="https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run"
 \`\`\`
 
 ### 2. Python SDK Installation
@@ -155,14 +153,14 @@ tools.web_search("Nigerian AI news")   # DuckDuckGo, no key
 ### 3. JavaScript / TypeScript SDK Installation
 
 Install directly from npm in your Node.js, Bun, Next.js, or web application:
-```bash
+\`\`\`bash
 npm install natlas-sdk
 # or pnpm / bun / yarn:
 # pnpm add natlas-sdk / bun add natlas-sdk / yarn add natlas-sdk
-```
+\`\`\`
 
 #### Your First TypeScript Chat:
-```typescript
+\`\`\`typescript
 import { NatlasClient, systemPrompt, YO } from "natlas-sdk";
 
 const client = new NatlasClient({
@@ -175,17 +173,17 @@ const response = await client.chat([
 ]);
 
 console.log(response.message.content);
-```
+\`\`\`
 
 #### Built-in Zero-Key Tools:
-```typescript
+\`\`\`typescript
 import { nigeriaGazetteer, fxRates, webSearch, mathEval } from "natlas-sdk/tools";
 
 nigeriaGazetteer("Kano");              // offline, instant
 mathEval("(200000 * 0.075) + 500");   // offline, instant
 await fxRates("USD", "NGN");          // free, no key
 await webSearch("Lagos tech news");    // free, no key
-```
+\`\`\`
     `
   },
 
@@ -209,8 +207,19 @@ await webSearch("Lagos tech news");    // free, no key
 - \`yo\` - Yorùbá
 - \`ha\` - Hausa
 - \`ig\` - Igbo
-- \`en\` - English
-- \`en\` - Nigerian English
+- \`en\` - English / Nigerian English
+
+---
+
+### Gated Model Access & HF_TOKEN
+
+> **Important**: \`NCAIR1/N-ATLaS\` is a gated repository on Hugging Face.
+> When deploying private instances or running local in-process inference:
+> 1. Visit [huggingface.co/NCAIR1/N-ATLaS](https://huggingface.co/NCAIR1/N-ATLaS) and click **"Agree and access repository"**.
+> 2. Generate a Read token at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens).
+> 3. Export \`HF_TOKEN="hf_..."\` in your environment or Modal secrets.
+> 
+> *(The four sovereign Whisper speech models are open-access and do not require gated approval).*
     `
   },
 
@@ -220,7 +229,17 @@ await webSearch("Lagos tech news");    // free, no key
     badge: "Python 3.9+",
     studioLink: "chat",
     content: `
-### Installation & Client Initialization
+### Installation
+
+Install directly from PyPI:
+\`\`\`bash
+pip install natlas-sdk
+
+# Or with optional local GPU/PyTorch in-process inference support:
+pip install "natlas-sdk[local]"
+\`\`\`
+
+### Client Initialization
 
 \`\`\`python
 import natlas
@@ -340,7 +359,7 @@ for await (const chunk of stream) {
 
 ### 2. Audio Transcription (Node.js & Browser)
 
-```typescript
+\`\`\`typescript
 import { NatlasClient } from "natlas-sdk";
 import * as fs from "node:fs";
 
@@ -354,13 +373,13 @@ const result = await client.audio.transcriptions.create(audioBuffer, {
 });
 
 console.log("Transcribed Text:", result.text);
-```
+\`\`\`
 
 ### 3. Built-in Agent Tools (Zero-Key)
 
-All 7 tools work immediately after `npm install natlas-sdk` — no API keys:
+All 7 tools work immediately after \`npm install natlas-sdk\` — no API keys:
 
-```typescript
+\`\`\`typescript
 import { nigeriaGazetteer, mathEval, webSearch, fxRates,
          weatherLookup, wikipediaLookup, fetchWebpage,
          getOpenAITools, executeTool, registerTool } from "natlas-sdk/tools";
@@ -389,29 +408,30 @@ const result  = await executeTool("fx_rates", { base: "USD", target: "NGN" });
     subtitle: "Command-line interface for testing models, streaming audio, and verifying gateway status.",
     badge: "CLI v0.1.0",
     content: `
-### Running the CLI from this Repository
+### Running the CLI with Hosted Packages
 
-You can run either the **Python CLI** or the **Node.js / JavaScript CLI** directly from this cloned repository:
+You can run the unified CLI instantly via **npm (npx)** or **PyPI**:
 
-#### Option 1: Python CLI
+#### Option 1: Node.js / npm (Zero-Install with \`npx\`)
 \`\`\`bash
-# Direct run:
-python python-sdk/src/cli.py --help
+# Run instantly with npx (fetches hosted natlas-sdk package directly):
+npx natlas-sdk --help
 
-# Or install editable in local venv:
+# Or install globally from npm:
+npm install -g natlas-sdk
+natlas --help
+\`\`\`
+
+#### Option 2: Python (via PyPI \`pip\`)
+\`\`\`bash
+# Install package from PyPI:
 pip install natlas-sdk
+
+# Run CLI anywhere:
 natlas --help
 \`\`\`
 
-#### Option 2: Node.js / JavaScript CLI
-\`\`\`bash
-# Direct run:
-node js-sdk/bin/cli.mjs --help
-
-# Or link locally:
-cd js-sdk && npm link
-natlas --help
-\`\`\`
+---
 
 ### CLI Commands Reference
 
@@ -419,14 +439,15 @@ natlas --help
 # 1. Health check & live GPU inspection
 natlas health
 
-# 2. Interactive LLM Chat
+# 2. Interactive LLM Chat (with live language detection)
 natlas chat --lang yo
 
 # 3. Audio File Transcription with Word Timestamps
 natlas transcribe speech.wav --model NCAIR1/Yoruba-ASR --timestamps
 
-# 4. Quick Cultural Tone Adapter
-
+# 4. One-Shot Prompt with Streaming
+natlas chat "Sannu! Ka ba ni labari game da Kano." --lang ha
+\`\`\`
     `
   },
 
@@ -709,7 +730,6 @@ python eval/report.py --compare eval/comparison.json
 | \`GET\` | \`/v1/models\` | LLM | Model catalog discovery | \`Bearer <API_KEY>\` |
 | \`POST\` | \`/v1/chat/completions\` | LLM | Chat completion (SSE streaming supported) | \`Bearer <API_KEY>\` |
 | \`POST\` | \`/v1/completions\` | LLM | Raw prompt text completion | \`Bearer <API_KEY>\` |
-
 | \`POST\` | \`/v1/audio/transcriptions\` | ASR | Sovereign audio speech-to-text with word alignment | \`Bearer <API_KEY>\` |
     `
   },
@@ -719,36 +739,85 @@ python eval/report.py --compare eval/comparison.json
     subtitle: "Deploy scale-to-zero NVIDIA A10G / L4 endpoints on Modal in one command.",
     badge: "Cloud Serverless",
     content: `
-### Deploying the Complete Suite to Modal
+### Serverless Architecture on Modal
+
+The production serverless engine is fully defined in [\`natlas_engine.py\`](https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/natlas_engine.py):
+
+- **LLM Microservice (\`NATLaSAPI\`)**: Runs \`NCAIR1/N-ATLaS\` on dedicated NVIDIA A10G (24GB VRAM) with SDPA acceleration and continuous batching.
+- **Sovereign ASR Microservice (\`NATLaSASREngine\`)**: Serves Yoruba, Hausa, Igbo, and Nigerian Accented English Whisper Small models.
+- **Volume Caching (\`natlas-weights-cache\`)**: Preserves ~16GB weights across container lifecycles to eliminate cold download penalties.
+- **Scale-to-Zero Economics**: 300-second idle keep-warm lifecycle with sub-second warm execution.
+
+### Deploy in One Command
 
 \`\`\`bash
-# Authenticate Modal CLI
+# 1. Authenticate with your Modal account:
 modal setup
 
-# Deploy both LLM and ASR inference engines
+# 2. Deploy both microservices live to Modal:
 modal deploy natlas_engine.py
 \`\`\`
 
-Modal provisions auto-scaling GPU containers that scale to zero when idle, saving significant infrastructure costs.
+Once deployed, Modal provides secure, auto-scaling HTTPS endpoints for \`/v1/chat/completions\` and \`/v1/audio/transcriptions\`.
     `
   },
 
   "deploy-docker": {
-    title: "Deployment: Docker GPU & Gateway",
-    subtitle: "Run on-premises or sovereign private cloud with Docker Compose.",
+    title: "Deployment: Docker GPU & Unified Gateway",
+    subtitle: "Run on-premises or sovereign private cloud with unified reverse-proxy routing.",
     badge: "Self-Hosted",
     content: `
-### 1-Command Local/Private Docker Compose
+### On-Premise Sovereign Gateway Architecture
+
+For banking, healthcare, telecom, or air-gapped government environments requiring 100% data sovereignty, the entire N-ATLaS suite can be self-hosted via Docker.
+
+An integrated Nginx reverse-proxy unifies all microservices on port **\`8000\`**:
+- **Chat & Completions**: \`POST http://localhost:8000/v1/chat/completions\`
+- **Sovereign Speech-to-Text**: \`POST http://localhost:8000/v1/audio/transcriptions\`
+- **Real-Time Streaming STT**: \`WSS ws://localhost:8000/v1/audio/transcriptions/streaming\`
+- **Interactive OpenAPI Docs**: \`http://localhost:8000/docs\` (LLM) and \`http://localhost:8000/docs/asr\` (ASR)
+
+---
+
+### Option 1: Dedicated GPU Server (vLLM High-Throughput)
+
+For NVIDIA GPU servers with the NVIDIA Container Toolkit installed:
 
 \`\`\`bash
-# Copy and configure environment variables
+# 1. Set environment variables in .env:
 cp .env.example .env
 
-# Run local development stack
-docker compose -f docker-compose.local.yml up -d
+# 2. Launch high-throughput vLLM container stack:
+docker compose up -d --build
 \`\`\`
 
-Includes reverse proxy routing, CPU fallback for development, and NVIDIA Container Toolkit pass-through for production GPUs.
+---
+
+### Option 2: Apple Silicon (M-Series) & Standard CPU Laptops
+
+For local developer testing on MacBooks or laptops without an NVIDIA GPU:
+
+\`\`\`bash
+# Zero-NVIDIA requirement with CPU fallback:
+docker compose -f docker-compose.local.yml up -d --build
+\`\`\`
+
+---
+
+### Connect via SDK
+
+\`\`\`python
+import natlas
+
+# Point directly to your internal on-premise gateway:
+client = natlas.Client(
+    host="http://localhost:8000",
+    api_key="your-configured-key"
+)
+
+response = client.chat([{"role": "user", "content": "Sannu!"}])
+print(response.message.content)
+\`\`\`
     `
   },
 

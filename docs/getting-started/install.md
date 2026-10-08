@@ -15,13 +15,12 @@ Get started with N-ATLaS in your environment in minutes.
 
 ## 1. Environment Setup & API Keys
 
-Set your API key and endpoint URLs:
+Set your API key and unified endpoint URL (the engine serves both LLM and ASR from a single unified endpoint):
 
 ```bash
 # Set in terminal or your project's .env file:
 export NATLAS_API_KEY="your-api-key"
 export NATLAS_BASE_URL="https://<workspace>--natlas-engine-natlasapi-serve.modal.run"
-export NATLAS_API_URL="https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run"
 ```
 
 ---

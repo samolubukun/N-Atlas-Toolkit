@@ -18,6 +18,84 @@ npm install natlas-sdk       # JavaScript / TypeScript SDK
 
 ---
 
+## 🏛️ Sovereign Models & Architecture Catalog
+
+The N-ATLaS ecosystem comprises one 8B large language model and four specialized Whisper speech recognition models, fine-tuned across all six geopolitical zones of Nigeria:
+
+| Capability | Model Identifier | Base Architecture | Parameters | Training Corpus | Key Linguistic & Phonetic Strengths |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Multilingual LLM** | **[`NCAIR1/N-ATLaS`](https://huggingface.co/NCAIR1/N-ATLaS)** | Llama 3 Instruct | **8.03B** | 392M tokens (~918k instruction pairs) | Fluent code-switching, local idioms, date-aware grounding across Yoruba, Hausa, Igbo, English. |
+| **Yoruba Speech (ASR)** | **[`NCAIR1/Yoruba-ASR`](https://huggingface.co/NCAIR1/Yoruba-ASR)** | Whisper Small | **244M** | 120+ hours native audio | Preserves acute/grave tone diacritics (`é`, `è`) and sub-dots (`ẹ`, `ọ`, `ṣ`). |
+| **Hausa Speech (ASR)** | **[`NCAIR1/Hausa-ASR`](https://huggingface.co/NCAIR1/Hausa-ASR)** | Whisper Small | **244M** | 120+ hours native audio | Accurately models hooked implosive consonants (`ɓ`, `ɗ`, `ƙ`) and glottal stops. |
+| **Igbo Speech (ASR)** | **[`NCAIR1/Igbo-ASR`](https://huggingface.co/NCAIR1/Igbo-ASR)** | Whisper Small | **244M** | 120+ hours native audio | Sub-dot vowel harmony (`ị`, `ọ`, `ụ`) and complex nasal compounds (`ṅ`, `nw`, `ny`). |
+| **Nigerian English (ASR)** | **[`NCAIR1/NigerianAccentedEnglish`](https://huggingface.co/NCAIR1/NigerianAccentedEnglish)** | Whisper Small | **244M** | 120+ hours native audio | West African pitch, syllable-timed stress patterns, colloquial phrasing, and Nigerian Pidgin. |
+
+---
+
+## 🔑 Gated Model Access & Hugging Face Token Setup
+
+> [!IMPORTANT]
+> **`NCAIR1/N-ATLaS` is a gated model on the Hugging Face Hub.**
+> To download model weights for private deployment (Modal, Docker, Colab, or local in-process inference), you must complete the one-time access verification:
+
+1. **Request Access on Hugging Face**:
+   - Visit the official model page: **[huggingface.co/NCAIR1/N-ATLaS](https://huggingface.co/NCAIR1/N-ATLaS)**
+   - Click **"Agree and access repository"** to accept the sovereign terms (developed under the Nigerian Languages AI Initiative by FMCIDE & Awarri Technologies).
+   - Access is granted automatically upon submitting the form.
+
+2. **Generate a Read Token**:
+   - Navigate to **[huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)** and generate an Access Token with `Read` permissions.
+
+3. **Configure Your Environment**:
+   ```bash
+   # Set in terminal or your project's .env file:
+   export HF_TOKEN="hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   # Or alternatively:
+   export HUGGING_FACE_HUB_TOKEN="hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   ```
+
+4. **When Deploying on Modal**:
+   ```bash
+   # Create the Modal Secret containing your Hugging Face Token:
+   modal secret create hf-token HF_TOKEN="hf_xxxxxxxxxxxxxxxxxxxxxxxxx"
+
+   # Create the Modal Secret for your API Authentication:
+   modal secret create natlas-secrets NATLAS_API_KEY="your-secure-api-key"
+   ```
+
+*(Note: The four Sovereign Whisper ASR speech models—`Yoruba-ASR`, `Hausa-ASR`, `Igbo-ASR`, and `NigerianAccentedEnglish`—are publicly accessible and do not require gated approval).*
+
+---
+
+## 🚀 How to Deploy: Four Supported Deployment Targets
+
+Deploy N-ATLaS across cloud serverless, on-premise containers, or zero-cost GPU instances:
+
+```text
+┌────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                    N-ATLaS DEPLOYMENT SPECTRUM                                     │
+├──────────────────────────┬──────────────────────────┬──────────────────────────┬───────────────────┤
+│ 1. Modal Cloud           │ 2. Docker GPU / On-Prem  │ 3. Apple Silicon / CPU   │ 4. Google Colab   │
+│ • NVIDIA A10G Serverless │ • Turnkey Docker Compose │ • docker-compose.local   │ • 1-Click Jupyter │
+│ • Scale-to-Zero Keepwarm │ • vLLM Continuous Batch  │ • Zero NVIDIA needed     │ • Free T4 GPU     │
+│ • Unified LLM + ASR API  │ • Nginx Reverse Proxy    │ • Local CPU prototyping  │ • Cloudflare Tun. │
+└──────────────────────────┴──────────────────────────┴──────────────────────────┴───────────────────┘
+```
+
+1. **Modal Cloud Serverless (Unified Production)**:
+   - Command: `modal deploy natlas_engine.py`
+   - Unified API: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1`
+   - Scales to zero in 300s of inactivity; pre-caches ~16GB weights on persistent volume.
+2. **On-Premise Dedicated GPU Server (Docker Compose)**:
+   - Command: `docker compose up -d --build`
+   - Unified Endpoint: `http://localhost:8000/v1`
+   - High-throughput vLLM PagedAttention engine + Faster-Whisper behind unified Nginx proxy.
+3. **Local Apple Silicon & CPU Fallback**:
+   - Command: `docker compose -f docker-compose.local.yml up -d --build`
+   - Runs inference on MacBooks (M1/M2/M3/M4) or standard laptops without discrete NVIDIA GPUs.
+4. **Google Colab (Zero-Setup GPU Engine)**:
+   - Open [`notebooks/natlas_engine_colab.ipynb`](notebooks/natlas_engine_colab.ipynb) to launch on a free cloud GPU with a secure public Cloudflare Tunnel URL.
+
 ## 🚀 Live Production Deployment
 
 The engine is deployed, live, and fully operational on Modal:
@@ -46,9 +124,9 @@ N-ATLaS supports four production deployment targets:
    - Run in 1 click via [`notebooks/natlas_engine_colab.ipynb`](notebooks/natlas_engine_colab.ipynb).
    - Serves the LLM and creates a secure public URL via Cloudflare Tunnel.
 
-3. **Modal Cloud Deployment (2 Dedicated Microservices)**:
-   - **LLM Engine**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1`
-   - **Sovereign ASR Engine**: `https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1`
+3. **Modal Cloud Deployment (Unified Serverless Engine)**:
+   - **Unified API Base URL**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1`
+   - Serves both the 8.03B Multilingual LLM and all 4 Sovereign Whisper ASR models from a single unified serverless endpoint.
    - Dedicated NVIDIA A10G (24GB VRAM) with continuous batching and sub-second cold starts.
 
 4. **Local / On-Premise Docker Gateway (100% Unified)**:
@@ -220,15 +298,9 @@ The toolkit natively incorporates the four official sovereign **Whisper Small (2
 import os
 import natlas
 
-# On Modal: Point client directly to the dedicated ASR URL (or use NATLAS_API_URL env var)
-# On Docker: Point client to the unified gateway "http://localhost:8000"
-asr_base_url = os.environ.get(
-    "NATLAS_API_URL",
-    "https://<your-workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1",
-)
-
+# Reads NATLAS_BASE_URL (unified for both LLM and ASR) and NATLAS_API_KEY from environment
 client = natlas.Client(
-    base_url=asr_base_url,
+    base_url=os.environ.get("NATLAS_BASE_URL", "https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1"),
     api_key=os.environ.get("NATLAS_API_KEY", "<YOUR_API_KEY>"),
 )
 

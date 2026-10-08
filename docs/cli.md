@@ -19,7 +19,7 @@ The N-ATLaS toolkit provides unified command-line interfaces for both Python (`p
 === "Node.js / JavaScript CLI"
     ```bash
     # Option 1: Run instantly with npx (zero install):
-    npx natlas --help
+    npx natlas-sdk --help
 
     # Option 2: Install globally from npm:
     npm install -g natlas-sdk

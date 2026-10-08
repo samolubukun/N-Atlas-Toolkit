@@ -25,7 +25,7 @@ The system uses two dedicated microservices on Modal:
 With the Modal CLI installed and authenticated:
 
 ```bash
-# Deploy both microservices to your Modal account:
+# Deploy both microservices to your Modal account using [`natlas_engine.py`](https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/natlas_engine.py):
 modal deploy natlas_engine.py
 ```
 

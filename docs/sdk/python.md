@@ -4,18 +4,30 @@ The official typed Python SDK (`natlas`) provides synchronous and asynchronous c
 
 ---
 
+## Installation
+
+```bash
+pip install natlas-sdk
+```
+
+For local ONNX / PyTorch dependencies:
+```bash
+pip install "natlas-sdk[local]"
+```
+
+---
+
 ## Initialization
 
 ```python
 import natlas
 
-# Reads NATLAS_BASE_URL, NATLAS_API_URL, and NATLAS_API_KEY from environment
+# Reads NATLAS_BASE_URL and NATLAS_API_KEY from environment
 client = natlas.Client()
 
 # Or configure explicitly:
 client = natlas.Client(
     base_url="https://<workspace>--natlas-engine-natlasapi-serve.modal.run",
-    asr_url="https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run",
     api_key="your-key",
 )
 ```

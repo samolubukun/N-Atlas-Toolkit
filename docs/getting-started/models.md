@@ -19,6 +19,15 @@ Detailed architecture, training data, and intended use cases for all models in t
     - Cultural reasoning, translation, and localized educational content.
     - Document summarization in indigenous languages.
 
+!!! important "Gated Repository Access & Hugging Face Token"
+    `NCAIR1/N-ATLaS` is a **gated repository** on Hugging Face. To download weights or deploy private instances:
+    
+    1. Visit [huggingface.co/NCAIR1/N-ATLaS](https://huggingface.co/NCAIR1/N-ATLaS) and click **"Agree and access repository"** to accept terms.
+    2. Generate a Read token at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens).
+    3. Set `export HF_TOKEN="your_hf_token"` in your environment before downloading or building containers.
+    
+    *(The four sovereign Whisper speech models are fully open and do not require gated approval).*
+
 ---
 
 ## Sovereign Whisper ASR Speech Models

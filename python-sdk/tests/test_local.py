@@ -8,7 +8,14 @@ from typing import Any
 import pytest
 
 import src.local as local_module
-from src import ChatResponse, Client, ConfigurationError, GenerateResponse, LocalInferenceError, Message
+from src import (
+    ChatResponse,
+    Client,
+    ConfigurationError,
+    GenerateResponse,
+    LocalInferenceError,
+    Message,
+)
 from src._types import ChatRequest, GenerateRequest
 from src.local import LocalBackend, format_date_string
 
