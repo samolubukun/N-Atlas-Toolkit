@@ -42,6 +42,7 @@ export const DOCS_NAV = [
     items: [
       { id: "api-endpoints", title: "REST API Reference", icon: "Server" },
       { id: "deploy-modal", title: "Modal Cloud Serverless", icon: "Cloud" },
+      { id: "deploy-lightning", title: "Lightning AI Serverless", icon: "Zap" },
       { id: "deploy-docker", title: "Docker Self-Hosted", icon: "Box" },
     ]
   },
@@ -759,6 +760,62 @@ modal deploy natlas_engine.py
 \`\`\`
 
 Once deployed, Modal provides secure, auto-scaling HTTPS endpoints for \`/v1/chat/completions\` and \`/v1/audio/transcriptions\`.
+    `
+  },
+
+  "deploy-lightning": {
+    title: "Deployment: Lightning AI Serverless",
+    subtitle: "Deploy serverless NVIDIA T4 GPU inference on Lightning AI with zero-credit-card free tier.",
+    badge: "Free Tier Serverless",
+    content: `
+### Serverless Architecture on Lightning AI
+
+The Lightning AI serverless deployment is defined in [\`natlas_engine_lightning.py\`](https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/natlas_engine_lightning.py):
+
+- **Unified LLM & ASR**: Serves \`NCAIR1/N-ATLaS\` and all 4 Sovereign Whisper ASR models from a single container.
+- **Hardware**: Runs on NVIDIA T4 GPU (\`lit-t4-1\`) eligible under free promotional credits.
+- **Scale-to-Zero Economics**: Automatically scales to \`0\` replicas after 10 minutes of inactivity ($0/hour when idle).
+- **Fast Teardown**: Embedded OS signal handlers intercept \`SIGTERM\` for instantaneous container spin-down.
+
+---
+
+### Step-by-Step Deployment
+
+\`\`\`bash
+# 1. Install Lightning CLI & authenticate:
+pip install lightning-sdk
+lightning login
+
+# 2. Deploy serverless container to your cloudspace:
+lightning deployment create \\
+  --name natlas-engine \\
+  --studio scratch-studio-devbox \\
+  --command "uvicorn natlas_engine_lightning:app --host 0.0.0.0 --port 8000" \\
+  --machine lit-t4-1 \\
+  --min-replicas 0 \\
+  --max-replicas 1 \\
+  --ports 8000
+\`\`\`
+
+---
+
+### Drop-in OpenAI Client Example
+
+\`\`\`python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://8000-dep-<id>.cloudspaces.litng.ai/v1",
+    api_key="natlas-super-secret-key-2026"
+)
+
+# Chat Completion
+response = client.chat.completions.create(
+    model="NCAIR1/N-ATLaS",
+    messages=[{"role": "user", "content": "Báwo ni?"}]
+)
+print(response.choices[0].message.content)
+\`\`\`
     `
   },
 

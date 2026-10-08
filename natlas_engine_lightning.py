@@ -18,6 +18,7 @@ import io
 import json
 import logging
 import os
+import signal
 import sys
 import threading
 import time
@@ -458,7 +459,37 @@ engine = NATLaSEngine()
 
 @app.on_event("startup")
 def startup_event():
+    # Set up instant process termination on SIGTERM/SIGINT to prevent
+    # PyTorch/CUDA cleanup deadlocks from hanging cloud container downscaling
+    def _fast_shutdown_handler(signum, frame):
+        logger.info(f"Received signal {signum}. Forcefully exiting process for instant scale-to-zero.")
+        # Flush stdout/stderr
+        sys.stdout.flush()
+        sys.stderr.flush()
+        # Immediate OS exit to bypass thread/CUDA resource cleanup hangs
+        os._exit(0)
+
+    try:
+        if hasattr(signal, "SIGTERM"):
+            signal.signal(signal.SIGTERM, _fast_shutdown_handler)
+        if hasattr(signal, "SIGINT"):
+            signal.signal(signal.SIGINT, _fast_shutdown_handler)
+    except Exception as sig_err:
+        logger.warning(f"Failed to register custom fast shutdown signal handler: {sig_err}")
+
     engine.initialize()
+
+@app.on_event("shutdown")
+def shutdown_event():
+    logger.info("Application shutdown triggered. Freeing resources.")
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:
+        pass
+    # Instant process termination to satisfy orchestrator immediately
+    os._exit(0)
 
 @app.get("/healthz")
 def health_check():

@@ -103,6 +103,7 @@ nav:
       - Model Evaluation & Comparison: finetuning/evaluation.md
   - Deployment & Infrastructure:
       - Modal Cloud Serverless: deployment/modal.md
+      - Lightning AI Serverless: deployment/lightning.md
       - Docker GPU & CPU Gateway: deployment/docker.md
       - Performance & Quantization: deployment/performance.md
   - API Reference:
