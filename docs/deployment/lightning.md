@@ -34,18 +34,13 @@ lightning login
 
 ### 2. Launch Serverless Deployment
 
-From your repository root, run:
+From your repository root, run the pre-configured deployment script:
 
 ```bash
-lightning deployment create \
-  --name natlas-engine \
-  --studio scratch-studio-devbox \
-  --command "uvicorn natlas_engine_lightning:app --host 0.0.0.0 --port 8000" \
-  --machine lit-t4-1 \
-  --min-replicas 0 \
-  --max-replicas 1 \
-  --ports 8000
+bash deploy_lightning.sh
 ```
+
+*(This script automatically sets the correct T4 machine, scale-to-zero replicas, and Uvicorn commands to bypass terminal copy-paste errors).*
 
 ### 3. Configured Secrets
 

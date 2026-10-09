@@ -7,6 +7,14 @@ Welcome to the developer documentation for **N-ATLaS (NCAIR1/N-ATLaS)**, Nigeria
 
 ---
 
+### 🎥 Watch N-ATLaS in Action
+<p align="center">
+  <video src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/natlas-llm.mp4" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
+  <video src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/natlas-asr.mp4" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
+</p>
+
+---
+
 ## What is N-ATLaS?
 
 N-ATLaS is a sovereign AI suite engineered specifically for Nigerian linguistic structures, cultural idioms, accents, and tonal nuances.

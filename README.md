@@ -21,6 +21,7 @@
   <img src="https://img.shields.io/badge/Material%20for%20MkDocs-Documented-008751?logo=materialformkdocs&logoColor=white" alt="MkDocs" />
 </p>
 
+
 The **N-ATLaS Toolkit** is an open-source, production-ready engineering suite for Nigeria's sovereign AI initiative, spearheaded by the **National Centre for Artificial Intelligence and Robotics (NCAIR)**, the **Federal Ministry of Communications, Innovation and Digital Economy (FMCIDE)**, and **Awarri Technologies**. Built around the flagship **8.03B multilingual LLM (`NCAIR1/N-ATLaS`)** and four dedicated acoustic speech recognition models (**Yoruba, Hausa, Igbo, and Nigerian Accented English**), this monorepo provides everything developers and enterprises need to deploy, integrate, and scale indigenous AI: typed **Python** and **JavaScript/TypeScript SDKs**, high-performance **serverless cloud gateways** on Modal (`natlas_engine.py`) and Lightning AI (`natlas_engine_lightning.py`) offering unified OpenAI-compatible LLM streaming and Whisper audio transcription, containerized **Docker GPU/CPU deployments**, an interactive **Vite playground**, automated **fine-tuning and evaluation starter kits**, 7 built-in **zero-dependency Nigerian agent tools** (local gazetteer lookups, currency conversion, date formatting), and multilingual documentation across four national languages.
 
 ```bash
@@ -28,6 +29,15 @@ The **N-ATLaS Toolkit** is an open-source, production-ready engineering suite fo
 pip install natlas-sdk       # Python SDK
 npm install natlas-sdk       # JavaScript / TypeScript SDK
 ```
+
+---
+
+### 🎥 N-ATLaS Video Demos
+<p align="center">
+  <video src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/natlas-llm.mp4" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
+  <br>
+  <video src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/natlas-asr.mp4" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
+</p>
 
 ---
 
@@ -47,6 +57,7 @@ This repository is organized as a unified monorepo providing everything needed t
 | **[`notebooks/`](notebooks)** | **Google Colab (`natlas_engine_colab.ipynb`)**: 1-click cloud notebook that downloads model weights, spins up the LLM engine, and exposes a public endpoint via Cloudflare Tunnel. |
 | **[`natlas_engine.py`](natlas_engine.py)** | **Modal Serverless Engine**: Enterprise serverless deployment file defining container environments, GPU volume caching, FastAPI ASGI server, and WebSocket endpoints. |
 | **[`natlas_engine_lightning.py`](natlas_engine_lightning.py)** | **Lightning AI Serverless Engine**: Zero-credit-card, scale-to-zero serverless deployment on NVIDIA T4 GPU with full OpenAI `/v1/chat/completions` & Whisper `/v1/audio/transcriptions`. |
+| **[`deploy_lightning.sh`](deploy_lightning.sh)** | **Lightning Deployment Script**: 1-click bash script to securely push the Lightning deployment and bypass terminal formatting errors. |
 | **[`docker-compose.yml`](docker-compose.yml)** | **On-Premise NVIDIA GPU Stack**: Turnkey production Docker setup unifying LLM (vLLM continuous batching) and Sovereign ASR behind an Nginx gateway on port `8000`. |
 | **[`docker-compose.local.yml`](docker-compose.local.yml)** | **Local CPU & Apple Silicon Stack**: Zero-NVIDIA Docker stack for local testing on MacBooks and CPU laptops. |
 | **[`Dockerfile.llm`](Dockerfile.llm) & [`Dockerfile.asr`](Dockerfile.asr)** | Dedicated Docker container definitions for the LLM and Sovereign ASR microservices. |
@@ -167,7 +178,11 @@ Deploy N-ATLaS across cloud serverless, on-premise containers, or zero-cost GPU 
 
 ## 🚀 Live Production Deployment
 
-The engine is deployed, live, and fully operational on Modal and Lightning AI:
+<p align="center">
+  <img src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/natlas-engine-modal.png" alt="Modal Deployment Dashboard and Logs" style="max-height: 480px; border-radius: 8px;">
+</p>
+
+The engine is deployed, live, and fully operational on Modal:
 
 - **Modal API URL**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run` (NVIDIA A10G)
 - **Lightning AI API URL**: `https://<deployment-id>.cloudspaces.litng.ai` (NVIDIA T4 Serverless)
@@ -198,6 +213,13 @@ N-ATLaS supports five production deployment targets:
    - **Gradio Web UI + API**: `https://<workspace>-natlas-sovereign-engine.hf.space/v1`
    - ZeroGPU hardware acceleration, zero infrastructure cost, native `/v1/*` OpenAI endpoints.
    - Code & setup instructions located in [`hf_space/`](hf_space).
+
+   <p align="center">
+     <img src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/hf_screenshot_1.jpg" alt="HF Space Overview" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
+     <br>
+     <img src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/hf_screenshot_2.jpg" alt="HF Space Demo 1" style="width: 49%; border-radius: 8px; display: inline-block;">
+     <img src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/hf_screenshot_3.jpg" alt="HF Space Demo 2" style="width: 49%; border-radius: 8px; display: inline-block;">
+   </p>
 
 4. **Google Colab Notebook (Zero-Setup GPU Engine)**:
    - Run in 1 click via [`notebooks/natlas_engine_colab.ipynb`](notebooks/natlas_engine_colab.ipynb).
