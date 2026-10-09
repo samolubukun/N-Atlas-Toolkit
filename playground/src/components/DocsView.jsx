@@ -127,6 +127,22 @@ export const DocsView = ({ onSelectStudio }) => {
               </button>
             </div>
 
+            {/* Mobile MkDocs button */}
+            <div className="p-3 border-b border-stone-100 bg-stone-50">
+              <a
+                href="https://samolubukun.github.io/N-Atlas-Toolkit/"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between px-3 py-2 rounded-lg bg-federal-900 text-white hover:bg-federal-800 transition-all text-xs font-semibold shadow-xs"
+              >
+                <div className="flex items-center gap-2">
+                  <Globe className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Open Full MkDocs Site</span>
+                </div>
+                <ExternalLink className="w-3.5 h-3.5 text-white/70" />
+              </a>
+            </div>
+
             {/* Drawer Search */}
             <div className="p-3 border-b border-stone-100 bg-white">
               <div className="relative">
@@ -189,6 +205,20 @@ export const DocsView = ({ onSelectStudio }) => {
 
       {/* ── Left Sidebar Navigation (Desktop) ── */}
       <aside className="hidden lg:flex w-72 shrink-0 bg-white border border-stone-200 rounded-2xl p-4 shadow-card flex-col gap-4 sticky top-24 h-[calc(100vh-7.5rem)]">
+        {/* Link to Full MkDocs Site */}
+        <a
+          href="https://samolubukun.github.io/N-Atlas-Toolkit/"
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center justify-between px-3 py-2 rounded-xl bg-federal-900 text-white hover:bg-federal-800 transition-all text-xs font-semibold shadow-xs group border border-federal-700/60"
+        >
+          <div className="flex items-center gap-2">
+            <Globe className="w-3.5 h-3.5 text-emerald-400 group-hover:rotate-12 transition-transform" />
+            <span>Open Full MkDocs Site</span>
+          </div>
+          <ExternalLink className="w-3.5 h-3.5 text-white/70 group-hover:text-white" />
+        </a>
+
         {/* Search */}
         <div className="relative shrink-0">
           <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
