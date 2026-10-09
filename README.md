@@ -3,6 +3,8 @@
 <p align="center">
   <a href="https://pypi.org/project/natlas-sdk/"><img src="https://img.shields.io/pypi/v/natlas-sdk.svg?color=008751&label=PyPI%20package" alt="PyPI version" /></a>
   <a href="https://www.npmjs.com/package/natlas-sdk"><img src="https://img.shields.io/npm/v/natlas-sdk.svg?color=1E3A5F&label=npm%20package" alt="npm version" /></a>
+  <a href="https://natlas-toolkit-playground.vercel.app/"><img src="https://img.shields.io/badge/%F0%9F%8C%90%20Playground-Live%20App-008751?style=flat&logo=vercel" alt="Live Playground" /></a>
+  <a href="https://samolubukun.github.io/N-Atlas-Toolkit/"><img src="https://img.shields.io/badge/%F0%9F%93%9A%20Docs-GitHub%20Pages-008751?style=flat&logo=github" alt="Live Documentation" /></a>
   <a href="https://huggingface.co/spaces/samuelolubukun/NATLaS-Sovereign-Engine"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face%20Space-Live%20Demo-blue" alt="Hugging Face Space Live Demo" /></a>
   <a href="https://huggingface.co/NCAIR1"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-NCAIR1-yellow" alt="Hugging Face Org" /></a>
   <a href="https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" alt="License" /></a>
@@ -18,11 +20,16 @@
   <img src="https://img.shields.io/badge/Modal-Serverless-4ade80?logo=cloud&logoColor=black" alt="Modal" />
   <img src="https://img.shields.io/badge/Lightning%20AI-Serverless-792ee5?logo=lightning&logoColor=white" alt="Lightning AI" />
   <img src="https://img.shields.io/badge/Google%20Colab-Supported-F9AB00?logo=googlecolab&logoColor=white" alt="Google Colab" />
-  <img src="https://img.shields.io/badge/Material%20for%20MkDocs-Documented-008751?logo=materialformkdocs&logoColor=white" alt="MkDocs" />
+  <a href="https://samolubukun.github.io/N-Atlas-Toolkit/"><img src="https://img.shields.io/badge/Material%20for%20MkDocs-Live%20Docs-008751?logo=materialformkdocs&logoColor=white" alt="MkDocs" /></a>
 </p>
 
 
 The **N-ATLaS Toolkit** is an open-source, production-ready engineering suite for Nigeria's sovereign AI initiative, spearheaded by the **National Centre for Artificial Intelligence and Robotics (NCAIR)**, the **Federal Ministry of Communications, Innovation and Digital Economy (FMCIDE)**, and **Awarri Technologies**. Built around the flagship **8.03B multilingual LLM (`NCAIR1/N-ATLaS`)** and four dedicated acoustic speech recognition models (**Yoruba, Hausa, Igbo, and Nigerian Accented English**), this monorepo provides everything developers and enterprises need to deploy, integrate, and scale indigenous AI: typed **Python** and **JavaScript/TypeScript SDKs**, high-performance **serverless cloud gateways** on Modal (`natlas_engine.py`) and Lightning AI (`natlas_engine_lightning.py`) offering unified OpenAI-compatible LLM streaming and Whisper audio transcription, containerized **Docker GPU/CPU deployments**, an interactive **Vite playground**, automated **fine-tuning and evaluation starter kits**, 7 built-in **zero-dependency Nigerian agent tools** (local gazetteer lookups, currency conversion, date formatting), and multilingual documentation across four national languages.
+
+> 🌐 **Live Web Deployments:**
+> - **Interactive Playground**: [https://natlas-toolkit-playground.vercel.app/](https://natlas-toolkit-playground.vercel.app/)
+> - **Official Documentation**: [https://samolubukun.github.io/N-Atlas-Toolkit/](https://samolubukun.github.io/N-Atlas-Toolkit/)
+> - **Hugging Face Sovereign Space**: [https://huggingface.co/spaces/samuelolubukun/NATLaS-Sovereign-Engine](https://huggingface.co/spaces/samuelolubukun/NATLaS-Sovereign-Engine)
 
 ```bash
 # Official SDKs
@@ -38,6 +45,8 @@ npm install natlas-sdk       # JavaScript / TypeScript SDK
   <br>
   <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
 </p>
+
+*(Direct Video Links: [LLM Streaming Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSWcGgYDXLgTfpX463sKnubzmVaRQy0O9ACqc2) · [Sovereign ASR Audio Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj))*
 
 ---
 

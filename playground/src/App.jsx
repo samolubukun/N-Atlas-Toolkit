@@ -115,6 +115,12 @@ export function App() {
                   </button>
                 </li>
                 <li>
+                  <a href="https://samolubukun.github.io/N-Atlas-Toolkit/" target="_blank" rel="noreferrer" className="hover:text-emerald-300 transition-colors flex items-center gap-1.5">
+                    <span>Full MkDocs Site</span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">Live</span>
+                  </a>
+                </li>
+                <li>
                   <a href="https://huggingface.co/NCAIR1" target="_blank" rel="noreferrer" className="hover:text-emerald-300 transition-colors">
                     Hugging Face Organisation
                   </a>

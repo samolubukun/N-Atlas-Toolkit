@@ -13,6 +13,11 @@ Welcome to the developer documentation for **N-ATLaS (NCAIR1/N-ATLaS)**, Nigeria
   <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
 </p>
 
+<p align="center">
+  <a href="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSWcGgYDXLgTfpX463sKnubzmVaRQy0O9ACqc2" target="_blank">🎬 Watch LLM Streaming Demo (Direct Link)</a> &nbsp;·&nbsp;
+  <a href="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj" target="_blank">🎙️ Watch Sovereign ASR Demo (Direct Link)</a>
+</p>
+
 ---
 
 ## What is N-ATLaS?
