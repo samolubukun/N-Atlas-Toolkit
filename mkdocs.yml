@@ -77,8 +77,14 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.arithmatex:
+      generic: true
   - tables
   - attr_list
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
   - Getting Started:
@@ -93,7 +99,7 @@ nav:
       - Developer Cookbook: cookbook.md
   - ASR (Speech-to-Text):
       - Audio Transcriptions: asr/transcriptions.md
-      - Real-Time & Streaming: asr/streaming.md
+      - Voice Input & Audio Architecture: asr/streaming.md
       - ASR Benchmarks & WER/CER: asr/benchmarks.md
   - LLM Capabilities:
       - Chat & SSE Streaming: llm/chat.md

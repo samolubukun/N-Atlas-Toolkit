@@ -7,9 +7,10 @@ How to run scientific evaluations of the Sovereign ASR models against standardiz
 ## Metric Definitions
 
 1. **Word Error Rate (WER)**:
-   $$WER = \frac{\text{Substitutions} + \text{Deletions} + \text{Insertions}}{\text{Total Reference Words}}$$
+   $$\text{WER} = \frac{\text{Substitutions} + \text{Deletions} + \text{Insertions}}{\text{Total Reference Words}}$$
+
 2. **Character Error Rate (CER)**:
-   $$CER = \frac{\text{Levenshtein Edit Distance}}{\text{Total Reference Characters}}$$
+   $$\text{CER} = \frac{\text{Levenshtein Edit Distance}}{\text{Total Reference Characters}}$$
 
 !!! tip "Why CER is Critical in Nigerian ASR"
     Nigerian languages rely on tonal diacritics (e.g. Yoruba `ẹ̀kọ́` vs `ẹkọ`, Hausa hooked letters `ƙ` vs `k`). A missing tone accent is an entire word penalty in WER, but only a single-character difference in CER.
