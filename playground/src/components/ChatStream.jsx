@@ -561,13 +561,18 @@ export const ChatStream = ({ initialPrompt = '' }) => {
 
         {/* Live Audio Recording Status Banner */}
         {isRecording && (
-          <div className="px-3 py-2 bg-red-50 border-t border-red-200 flex items-center justify-between text-xs text-red-900 animate-pulse">
-            <div className="flex items-center gap-2 font-mono">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping" />
-              <span>Recording Voice Note... ({asrModelForChat.split('/')[1]})</span>
+          <div className="px-3 py-2 bg-red-50 border-t border-red-200 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 text-xs text-red-900">
+            <div className="flex items-center gap-2 font-mono min-w-0">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping shrink-0" />
+              <span className="truncate font-semibold text-[11px] sm:text-xs">
+                Recording Voice Note...
+              </span>
+              <span className="hidden xs:inline-block text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded border border-red-200 truncate max-w-[120px] sm:max-w-none">
+                {ASR_MODELS.find(m => m.id === asrModelForChat)?.badge || asrModelForChat.split('/')[1]}
+              </span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-24 h-2 bg-red-200 rounded-full overflow-hidden">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto sm:ml-0">
+              <div className="w-14 sm:w-24 h-2 bg-red-200 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-red-600 transition-all duration-75"
                   style={{ width: `${Math.min(100, audioLevel * 100)}%` }}
@@ -575,7 +580,7 @@ export const ChatStream = ({ initialPrompt = '' }) => {
               </div>
               <button
                 onClick={toggleRecording}
-                className="px-2 py-0.5 rounded bg-red-600 text-white font-bold text-[11px] hover:bg-red-700 transition-colors"
+                className="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-semibold text-[11px] whitespace-nowrap transition-colors shadow-2xs"
               >
                 Stop & Transcribe
               </button>
