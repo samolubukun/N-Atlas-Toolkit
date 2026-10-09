@@ -164,7 +164,7 @@ export const LandingPage = ({ onSelectStudio }) => {
       accentStripe: "bg-purple-600",
       pillBadge: "bg-purple-100/70 text-purple-950 border-purple-200",
       buttonClass: "bg-purple-700 hover:bg-purple-800 text-white",
-      tags: ["120h Training Data", "Pidgin & Colloquial", "en-NG Native"],
+      tags: ["120h Training Data", "Nigerian Accented English", "en-NG Native"],
     },
   ];
 

@@ -85,7 +85,7 @@ The N-ATLaS ecosystem comprises one 8B large language model and four specialized
 | **Yoruba Speech (ASR)** | **[`NCAIR1/Yoruba-ASR`](https://huggingface.co/NCAIR1/Yoruba-ASR)** | Whisper Small | **244M** | 120+ hours native audio | Preserves acute/grave tone diacritics (`é`, `è`) and sub-dots (`ẹ`, `ọ`, `ṣ`). |
 | **Hausa Speech (ASR)** | **[`NCAIR1/Hausa-ASR`](https://huggingface.co/NCAIR1/Hausa-ASR)** | Whisper Small | **244M** | 120+ hours native audio | Accurately models hooked implosive consonants (`ɓ`, `ɗ`, `ƙ`) and glottal stops. |
 | **Igbo Speech (ASR)** | **[`NCAIR1/Igbo-ASR`](https://huggingface.co/NCAIR1/Igbo-ASR)** | Whisper Small | **244M** | 120+ hours native audio | Sub-dot vowel harmony (`ị`, `ọ`, `ụ`) and complex nasal compounds (`ṅ`, `nw`, `ny`). |
-| **Nigerian English (ASR)** | **[`NCAIR1/NigerianAccentedEnglish`](https://huggingface.co/NCAIR1/NigerianAccentedEnglish)** | Whisper Small | **244M** | 120+ hours native audio | West African pitch, syllable-timed stress patterns, colloquial phrasing, and Nigerian Pidgin. |
+| **Nigerian English (ASR)** | **[`NCAIR1/NigerianAccentedEnglish`](https://huggingface.co/NCAIR1/NigerianAccentedEnglish)** | Whisper Small | **244M** | 120+ hours native audio | West African pitch, syllable-timed stress patterns, and Nigerian accented English pronunciation. |
 
 ---
 
