@@ -736,7 +736,7 @@ export const LandingPage = ({ onSelectStudio }) => {
               <div>
                 <div className="relative overflow-hidden aspect-[16/10] bg-stone-900 border-b border-stone-800/80">
                   <img
-                    src="/assets/indigenous_acoustic_model.jpg"
+                    src="/assets/indigenous_acoustic_model.webp"
                     alt="Indigenous Acoustic Models - Nigerian Speech Recognition"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
@@ -770,7 +770,7 @@ export const LandingPage = ({ onSelectStudio }) => {
               <div>
                 <div className="relative overflow-hidden aspect-[16/10] bg-stone-900 border-b border-stone-800/80">
                   <img
-                    src="/assets/multilingual_llm.jpg"
+                    src="/assets/multilingual_llm.webp"
                     alt="N-ATLaS Multilingual LLM Topology across Nigeria's six geopolitical zones"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
@@ -804,7 +804,7 @@ export const LandingPage = ({ onSelectStudio }) => {
               <div>
                 <div className="relative overflow-hidden aspect-[16/10] bg-stone-900 border-b border-stone-800/80">
                   <img
-                    src="/assets/developer_coding.jpg"
+                    src="/assets/developer_coding.webp"
                     alt="Developer coding with N-ATLaS SDK"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
@@ -983,7 +983,7 @@ export const LandingPage = ({ onSelectStudio }) => {
             <div className="lg:col-span-5 flex flex-col justify-center">
               <div className="relative w-full rounded-3xl overflow-hidden border-2 border-emerald-700/80 hover:border-emerald-500 shadow-xl shadow-emerald-950/20 bg-stone-950 group isolate transition-all duration-300">
                 <img
-                  src="/assets/sovereign_voice.jpg"
+                  src="/assets/sovereign_voice.webp"
                   alt="N-ATLaS Sovereign Intelligence Topology"
                   className="w-full h-auto aspect-[16/9] object-cover bg-stone-950 group-hover:scale-102 transition-transform duration-500 block"
                   loading="lazy"
