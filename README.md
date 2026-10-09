@@ -34,9 +34,9 @@ npm install natlas-sdk       # JavaScript / TypeScript SDK
 
 ### 🎥 N-ATLaS Video Demos
 <p align="center">
-  <video src="assets/natlas-llm.mp4" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
+  <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSWcGgYDXLgTfpX463sKnubzmVaRQy0O9ACqc2" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
   <br>
-  <video src="assets/natlas-asr.mp4" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
+  <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
 </p>
 
 ---

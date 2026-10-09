@@ -9,8 +9,8 @@ Welcome to the developer documentation for **N-ATLaS (NCAIR1/N-ATLaS)**, Nigeria
 
 ### 🎥 Watch N-ATLaS in Action
 <p align="center">
-  <video src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/natlas-llm.mp4" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
-  <video src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/natlas-asr.mp4" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
+  <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSWcGgYDXLgTfpX463sKnubzmVaRQy0O9ACqc2" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
+  <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
 </p>
 
 ---
