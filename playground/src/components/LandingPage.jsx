@@ -409,8 +409,13 @@ export const LandingPage = ({ onSelectStudio }) => {
                 alt="FMCIDE Logo"
                 className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
                 onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex';
+                  const fallback = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4HXpW6rodb7gm5YiPtyksOqGkFtKSOWWkUDyC0Ae2XQ&s=10";
+                  if (e.target.src !== fallback) {
+                    e.target.src = fallback;
+                  } else {
+                    e.target.style.display = 'none';
+                    if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                  }
                 }}
               />
               <div className="hidden items-center justify-center w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs border border-emerald-300">
@@ -976,20 +981,17 @@ export const LandingPage = ({ onSelectStudio }) => {
 
             {/* Right Column: Sovereign Voice Card */}
             <div className="lg:col-span-5 flex flex-col justify-center">
-              <div className="relative w-full rounded-3xl overflow-hidden border border-stone-200/90 shadow-card-md bg-stone-950 group">
+              <div className="relative w-full rounded-3xl overflow-hidden border-2 border-emerald-700/80 hover:border-emerald-500 shadow-xl shadow-emerald-950/20 bg-stone-950 group isolate transition-all duration-300">
                 <img
                   src="/assets/sovereign_voice.jpg"
                   alt="N-ATLaS Sovereign Intelligence Topology"
-                  className="w-full h-auto aspect-[16/9] object-contain bg-stone-950 group-hover:scale-102 transition-transform duration-500 block"
+                  className="w-full h-auto aspect-[16/9] object-cover bg-stone-950 group-hover:scale-102 transition-transform duration-500 block"
                   loading="lazy"
                 />
                 <div className="p-4 sm:p-5 bg-stone-900 border-t border-stone-800 space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-600/90 text-emerald-50 border border-emerald-400/40">
-                      Sovereign Voice
-                    </span>
-                    <span className="text-[11px] text-stone-400 font-mono">
-                      Nigeria 2026
+                      Sovereign AI
                     </span>
                   </div>
                   <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
