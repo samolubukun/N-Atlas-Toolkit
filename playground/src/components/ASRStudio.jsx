@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Mic, MicOff, Upload, ArrowRight, Play, CheckCircle2, RefreshCw } from 'lucide-react';
-import { ASR_MODELS, DEFAULT_ENDPOINTS } from '../constants';
+import { Mic, MicOff, Upload, ArrowRight, Play, CheckCircle2, RefreshCw, Languages, Sparkles, Copy, Check } from 'lucide-react';
+import { ASR_MODELS, DEFAULT_ENDPOINTS, LLM_LANGUAGES } from '../constants';
 import { AudioVisualizer } from './AudioVisualizer';
 
 // Helper: Encodes Float32Array PCM samples into standard 16kHz 16-bit Mono WAV Blob
@@ -58,11 +58,68 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
   const [errorMsg, setErrorMsg] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
 
+  // Translation Suggestion State
+  const [targetLang, setTargetLang] = useState('en');
+  const [translationText, setTranslationText] = useState('');
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [transCopied, setTransCopied] = useState(false);
+
   const mediaRecorderRef = useRef(null);
   const audioCtxRef = useRef(null);
   const isRecordingRef = useRef(false);
 
   const currentModelObj = ASR_MODELS.find(m => m.id === selectedModel) || ASR_MODELS[0];
+
+  // Request translation suggestion for transcription via N-ATLaS LLM
+  const handleTranslate = async (target = targetLang) => {
+    if (!transcript.trim()) return;
+    setIsTranslating(true);
+    setTranslationText('');
+    try {
+      const langNames = {
+        'en': 'English',
+        'yo': 'Yorùbá',
+        'ha': 'Hausa',
+        'ig': 'Igbo',
+      };
+      const destName = langNames[target] || 'English';
+      const prompt = `Translate the following ${currentModelObj.badge} transcription accurately into natural ${destName}. Maintain tone, context, and nuance. Output ONLY the translation without preamble:\n\n"${transcript.trim()}"`;
+
+      const res = await fetch(`${DEFAULT_ENDPOINTS.llmUrl}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${DEFAULT_ENDPOINTS.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'NCAIR1/N-ATLaS-7B',
+          messages: [
+            {
+              role: 'system',
+              content: `You are an expert translator specializing in Nigerian indigenous languages (Yoruba, Hausa, Igbo) and English. Translate accurately with proper tones and natural phrasing. Output only the direct translation.`
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.3,
+          max_tokens: 300,
+          stream: false,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const translated = data.choices?.[0]?.message?.content?.trim() || '';
+      setTranslationText(translated);
+    } catch (err) {
+      console.error('Translation error:', err);
+      setTranslationText(`Translation error: ${err.message}`);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   // Smart Utterance Recording (Push-to-Talk / Click-to-Speak)
   // Ensures 100% full-context accuracy of the N-ATLaS ASR model without chop degradation
@@ -288,8 +345,8 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
                 </span>
                 {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-white shrink-0" />}
               </div>
-              <h3 className={`font-bold text-xs sm:text-sm truncate ${isSelected ? 'text-white' : 'text-stone-900'}`}>{m.name}</h3>
-              <p className={`text-[11px] sm:text-xs mt-1 line-clamp-2 ${isSelected ? 'text-federal-100' : 'text-stone-400'}`}>{m.description}</p>
+              <h3 className={`font-bold text-xs sm:text-sm leading-snug ${isSelected ? 'text-white' : 'text-stone-900'}`}>{m.name}</h3>
+              <p className={`text-[11px] sm:text-xs mt-1 leading-relaxed ${isSelected ? 'text-federal-100' : 'text-stone-500'}`}>{m.description}</p>
             </div>
           );
         })}
@@ -316,7 +373,7 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
               }`}
             >
               {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-              <span>{isRecording ? 'Stop & Transcribe' : `Speak in ${currentModelObj.badge}`}</span>
+              <span>{isRecording ? 'Stop & Transcribe' : `Start Recording (${currentModelObj.badge})`}</span>
             </button>
 
             <label className="px-3.5 sm:px-4 py-2.5 rounded-xl font-semibold text-xs bg-federal-50 hover:bg-federal-100 text-federal-900 border border-federal-200 cursor-pointer flex items-center justify-center gap-2 transition-all flex-1 sm:flex-initial truncate">
@@ -394,11 +451,11 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
               <p className="text-red-600 font-mono text-xs">Error: {errorMsg}</p>
             ) : isRecording ? (
               <p className="text-emerald-700 italic animate-pulse">
-                Listening... Speak into your mic, then click "Stop & Transcribe" when finished.
+                Recording in progress... Speak into your mic, then click "Stop & Transcribe" when finished.
               </p>
             ) : (
               <p className="text-slate-400 italic">
-                Click "Speak in {currentModelObj.badge}" to record your voice, or upload an audio file.
+                Click "Start Recording ({currentModelObj.badge})" to record your voice, or upload an audio file.
               </p>
             )}
           </div>
@@ -420,6 +477,103 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
                   </span>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Translation Suggestion Section */}
+          {transcript && (
+            <div className="mt-4 pt-4 border-t border-federal-100/80 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="p-1.5 rounded-lg bg-federal-100 text-federal-800">
+                    <Languages className="w-4 h-4" />
+                  </span>
+                  <div>
+                    <h5 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      Translation Suggestion
+                      <span className="text-[10px] font-mono font-normal text-federal-600 bg-federal-50 border border-federal-200 px-1.5 py-0.5 rounded">
+                        Powered by N-ATLaS LLM
+                      </span>
+                    </h5>
+                    <p className="text-[11px] text-slate-500">
+                      Get an instant indigenous or English translation suggestion for this transcript
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <select
+                    value={targetLang}
+                    onChange={(e) => {
+                      setTargetLang(e.target.value);
+                      handleTranslate(e.target.value);
+                    }}
+                    className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-federal-500"
+                  >
+                    <option value="en">Translate to English</option>
+                    <option value="yo">Translate to Yorùbá</option>
+                    <option value="ha">Translate to Hausa</option>
+                    <option value="ig">Translate to Igbo</option>
+                  </select>
+
+                  <button
+                    onClick={() => handleTranslate(targetLang)}
+                    disabled={isTranslating}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-federal-700 hover:bg-federal-800 text-white flex items-center gap-1.5 transition-all disabled:opacity-50 shrink-0"
+                  >
+                    {isTranslating ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        Translating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-3.5 h-3.5" />
+                        Translate
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Translation Output Box */}
+              {isTranslating ? (
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center gap-2 animate-pulse">
+                  <RefreshCw className="w-4 h-4 animate-spin text-federal-600" />
+                  Generating accurate translation via N-ATLaS LLM...
+                </div>
+              ) : translationText ? (
+                <div className="p-3.5 rounded-xl bg-federal-50/70 border border-federal-200/80 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-federal-800">
+                      Suggested Translation
+                    </span>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(translationText);
+                        setTransCopied(true);
+                        setTimeout(() => setTransCopied(false), 2000);
+                      }}
+                      className="text-[11px] font-medium text-federal-700 hover:text-federal-900 flex items-center gap-1"
+                    >
+                      {transCopied ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          Copy
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed">
+                    {translationText}
+                  </p>
+                </div>
+              ) : null}
             </div>
           )}
         </div>
