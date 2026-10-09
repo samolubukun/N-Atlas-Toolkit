@@ -34,9 +34,9 @@ npm install natlas-sdk       # JavaScript / TypeScript SDK
 
 ### 🎥 N-ATLaS Video Demos
 <p align="center">
-  <video src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/natlas-llm.mp4" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
+  <video src="assets/natlas-llm.mp4" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
   <br>
-  <video src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/natlas-asr.mp4" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
+  <video src="assets/natlas-asr.mp4" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
 </p>
 
 ---
@@ -179,7 +179,7 @@ Deploy N-ATLaS across cloud serverless, on-premise containers, or zero-cost GPU 
 ## 🚀 Live Production Deployment
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/natlas-engine-modal.png" alt="Modal Deployment Dashboard and Logs" style="max-height: 480px; border-radius: 8px;">
+  <img src="assets/natlas-engine-modal.png" alt="Modal Deployment Dashboard and Logs" style="max-height: 480px; border-radius: 8px;">
 </p>
 
 The engine is deployed, live, and fully operational on Modal:
@@ -215,10 +215,10 @@ N-ATLaS supports five production deployment targets:
    - Code & setup instructions located in [`hf_space/`](hf_space).
 
    <p align="center">
-     <img src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/hf_screenshot_1.jpg" alt="HF Space Overview" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
+     <img src="assets/hf_screenshot_1.jpg" alt="HF Space Overview" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
      <br>
-     <img src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/hf_screenshot_2.jpg" alt="HF Space Demo 1" style="width: 49%; border-radius: 8px; display: inline-block;">
-     <img src="https://raw.githubusercontent.com/samolubukun/N-Atlas-Toolkit/main/assets/hf_screenshot_3.jpg" alt="HF Space Demo 2" style="width: 49%; border-radius: 8px; display: inline-block;">
+     <img src="assets/hf_screenshot_2.jpg" alt="HF Space Demo 1" style="width: 49%; border-radius: 8px; display: inline-block;">
+     <img src="assets/hf_screenshot_3.jpg" alt="HF Space Demo 2" style="width: 49%; border-radius: 8px; display: inline-block;">
    </p>
 
 4. **Google Colab Notebook (Zero-Setup GPU Engine)**:
