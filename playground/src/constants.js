@@ -1,8 +1,11 @@
+// Strip trailing slashes and trailing /v1 so `${baseUrl}/v1/chat/completions` always forms the correct path
+const rawUrl = (import.meta.env.VITE_NATLAS_API_URL || import.meta.env.NATLAS_API_URL || "").trim().replace(/\/+$/, "").replace(/\/v1$/, "");
+
 // N-ATLaS Endpoints strictly loaded from environment variables (.env)
 export const DEFAULT_ENDPOINTS = {
-  llmUrl: import.meta.env.VITE_NATLAS_API_URL || import.meta.env.NATLAS_API_URL || "",
-  asrUrl: import.meta.env.VITE_NATLAS_API_URL || import.meta.env.NATLAS_API_URL || "",
-  apiKey: import.meta.env.VITE_NATLAS_API_KEY || import.meta.env.NATLAS_API_KEY || "",
+  llmUrl: rawUrl,
+  asrUrl: rawUrl,
+  apiKey: (import.meta.env.VITE_NATLAS_API_KEY || import.meta.env.NATLAS_API_KEY || "").trim(),
 };
 
 // Returns true when the playground has the minimum config to make API calls
