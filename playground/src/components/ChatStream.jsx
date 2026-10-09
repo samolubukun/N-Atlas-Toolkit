@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { 
   Send, Bot, User, Sliders, RefreshCw, Copy, Check, 
-  Mic, MicOff, Paperclip, FileText, X, Volume2 
+  Mic, MicOff, Paperclip, FileText, X, Volume2, Sparkles, Eye,
+  ChevronDown, ChevronUp
 } from 'lucide-react';
 import { LLM_LANGUAGES, DEFAULT_ENDPOINTS, ASR_MODELS } from '../constants';
 import { extractTextFromFile } from '../documentParser';
@@ -22,6 +25,105 @@ export const ChatStream = ({ initialPrompt = '' }) => {
   const [showConfig, setShowConfig] = useState(false);
   const [ttft, setTtft] = useState(null);
   const [copiedIndex, setCopiedIndex] = useState(null);
+  const [previewDocModal, setPreviewDocModal] = useState(null);
+  const [isDiscoverCollapsed, setIsDiscoverCollapsed] = useState(true);
+
+  // Ready-to-review sample indigenous & reverse-localization documents
+  const SAMPLE_DOCS = {
+    yorubaChieftaincy: {
+      filename: 'Igbimo_Awon_Oloye_Resolution.pdf',
+      type: 'pdf',
+      sizeBytes: 2469,
+      url: '/docs/Igbimo_Awon_Oloye_Resolution.pdf',
+      text: `ÌGBÌMỌ̀ ÀWỌN OLÓYÈ ÀTI ÌJÒYÈ ILẸ̀ Ẹ̀GBÁ
+ÌPINLẸ̀ ÒGÙN, NÀÌJÍRÍÀ
+Ọjọ́ Kẹrìnlá Oṣù Kẹfà, 2024
+
+ÀKỌ́LÉ: ÌFIKÙNLUKÙN LÓRÍ ÈTÒ ÀÀBÒ ÀTI ÀTÚNTO ỌJÀ ỌBA L’ÁBẸ́ÒKÚTA
+
+Àkíyèsí pàtàkì sí gbogbo àwọn Ọlọ́jà, Alága ẹgbẹ́ àwọn oníṣòwò, àti àwọn Ọmọ Ìlú:
+
+1. Ìgbìmọ̀ ti fohùn ṣọ̀kan lẹ́yìn àpérò pẹ̀lú Aláké ti Ilẹ̀ Ẹ̀gbá pé kí gbogbo àwọn tó ń tajà lẹ́bàá títì wọ inú ọjà lọ láti dènà ìjànbá mọ́tò àti ìdínà ọ̀nà.
+2. Ẹnikẹ́ni tí a bá mú tí ó ń ta ọjà lẹ́yìn aago mẹ́sàn-án alẹ́ láì gba àṣẹ lọ́wọ́ Olórí Ọlọ́jà yóò san owó ìtanràn ẹgbàárún náírà (₦10,000).
+3. Òwe àwọn àgbà sọ pé: "Àgbájọ ọwọ́ la fi ń sọ̀yà; àjèjì ọwọ́ kan kò gbẹ́rù d'orí." A bẹ gbogbo ará ìlú láti fọwọ́sowọ́pọ̀ fún àlàáfíà àti ìtẹ̀síwájú agbègbè wa.
+
+Fọwọ́sí:
+Olóyè Bámigbóyè Òkè (Balógun Ilẹ̀ Ẹ̀gbá)
+Àkọ̀wé Ìgbìmọ̀ Àwọn Olóyè`
+    },
+    englishHealthAdvisory: {
+      filename: 'Federal_Ministry_Health_Cholera_Advisory.pdf',
+      type: 'pdf',
+      sizeBytes: 3000,
+      url: '/docs/Federal_Ministry_Health_Cholera_Advisory.pdf',
+      text: `FEDERAL MINISTRY OF HEALTH & SOCIAL WELFARE
+PUBLIC HEALTH EMERGENCY ADVISORY: CHOLERA & WATERBORNE EPIDEMIC PROTOCOL
+
+Target: Primary Healthcare Centres, Traditional Rulers, Community Development Associations.
+
+EPIDEMIOLOGICAL SUMMARY:
+Recent surveillance reports indicate clusters of acute watery diarrhea and suspected cholera outbreaks across high-density municipal markets and agrarian communities due to severe contamination of shallow well water during early flash flooding.
+
+DIRECTIVES FOR COMMUNITY HEALTH OFFICERS:
+1. Decontamination & Boiling: All households must boil borehole and open-well water vigorously for at least 3 minutes before consumption, or use certified chlorine water guard tablets (1 capful per 25-litre jerrycan).
+2. Food Hygiene: Ban open roadside hawking of unwashed sliced fruits (watermelons, pineapples) and raw vegetables without potable running water wash stations.
+3. Oral Rehydration Therapy (ORT): Immediately administer homemade ORS (1 level teaspoon of salt + 6 level teaspoons of sugar in 1 litre of boiled clean water) at the first onset of watery stool while evacuating the patient to the nearest primary health center. Do not wait for dehydration collapse.`
+    }
+  };
+
+  // Suggested Prompts: Balanced indigenous languages & Sovereign Document Intelligence
+  const SUGGESTED_PROMPTS = [
+    {
+      category: 'Document Intelligence',
+      icon: '📜',
+      title: 'Digest Chieftaincy Resolution',
+      desc: 'Yorùbá Document • Attached for Preview',
+      prompt: 'Translate and analyze this attached Yorùbá Chieftaincy resolution sentence-by-sentence into English. Highlight and explain the traditional proverbs and directives.',
+      attachedDoc: SAMPLE_DOCS.yorubaChieftaincy,
+      scenario: 'doc_yoruba'
+    },
+    {
+      category: 'Document Intelligence',
+      icon: '🏥',
+      title: 'Reverse Localize Health PDF',
+      desc: 'English Advisory • Attached for Preview',
+      prompt: 'Convert the attached Federal Health Ministry cholera advisory into simple, grassroot-friendly Nigerian Pidgin and Yorùbá so market women and community elders can easily follow the safety rules.',
+      attachedDoc: SAMPLE_DOCS.englishHealthAdvisory,
+      scenario: 'doc_english'
+    },
+    {
+      category: 'Lagos Life',
+      icon: '🛍️',
+      title: 'Balogun Market Haggling',
+      desc: 'Interactive Street Roleplay',
+      prompt: 'Act as an assertive Lagos textile trader in Balogun. I want 5 yards of Swiss voile lace for ₦25,000, but your first price was ₦60,000. Start by asking what design I want and challenge my budget in authentic Lagos street style!',
+      scenario: 'market'
+    },
+    {
+      category: 'Education (Yorùbá)',
+      icon: '👶',
+      title: 'Teach a Child Yorùbá',
+      desc: 'Pedagogy with Tone Marks',
+      prompt: 'Teach a 7-year-old child 5 everyday animals in Yorùbá with clear phonetic pronunciations, tone marks (Àmì Ohùn), and a simple catchy rhyme to remember them.',
+      scenario: 'tutor'
+    },
+    {
+      category: 'Education (Hausa)',
+      icon: '👶',
+      title: 'Teach a Child Hausa',
+      desc: 'Greetings & Etiquette',
+      prompt: 'Teach a beginner how to greet elders and friends in Hausa across morning, afternoon, and evening, with phonetic pronunciation and cultural respect etiquette.',
+      scenario: 'tutor'
+    },
+    {
+      category: 'Education (Igbo)',
+      icon: '👶',
+      title: 'Teach a Child Igbo',
+      desc: 'Family Titles & Kinship',
+      prompt: 'Teach a beginner 5 essential family relations in Igbo (such as Nne, Nna, Nwanne) with phonetic pronunciation and their cultural importance.',
+      scenario: 'tutor'
+    }
+  ];
 
   // Document Attachment State
   const [attachments, setAttachments] = useState([]);
@@ -222,22 +324,22 @@ export const ChatStream = ({ initialPrompt = '' }) => {
   // ---------------------------------------------------------------------------
   // Message Submission
   // ---------------------------------------------------------------------------
-  const handleSend = async (overrideText = null) => {
-    const textToSend = overrideText || input;
-    const hasAttachments = attachments.length > 0;
+  const handleSend = async (overrideText = null, overrideDocs = null) => {
+    const textToSend = overrideText !== null ? overrideText : input;
+    const attachedDocs = overrideDocs !== null ? overrideDocs : [...attachments];
+    const hasAttachments = attachedDocs.length > 0;
     if ((!textToSend.trim() && !hasAttachments) || isStreaming) return;
 
     let userPrompt = textToSend.trim();
     let displayPrompt = userPrompt;
-    const attachedDocs = [...attachments];
 
     // If documents are attached, format into structured context
     if (hasAttachments) {
       const docContextStrings = attachedDocs.map(doc => 
-        `--- DOCUMENT: ${doc.filename} ---\n${doc.text}`
+        `--- ATTACHED SOVEREIGN DOCUMENT: ${doc.filename} ---\n${doc.text}`
       ).join('\n\n');
 
-      userPrompt = `${docContextStrings}\n\nUser Question/Instruction:\n${userPrompt || 'Please analyze and summarize the attached document(s).'}`;
+      userPrompt = `${docContextStrings}\n\nUSER QUESTION / TASK:\n${userPrompt || 'Please translate, analyze, and explain the attached document.'}`;
       if (!displayPrompt) {
         displayPrompt = `Analyzed ${attachedDocs.length} attached document(s): ${attachedDocs.map(d => d.filename).join(', ')}`;
       }
@@ -463,6 +565,112 @@ export const ChatStream = ({ initialPrompt = '' }) => {
       {/* Chat Messages Box */}
       <div className="bg-white rounded-2xl border border-stone-200 shadow-card h-[58vh] sm:h-[480px] flex flex-col overflow-hidden">
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4">
+          {/* Suggested Prompts & "Lagos Life" Scenarios (Early ChatGPT Discovery Pattern) */}
+          {messages.length <= 1 && (
+            <div className={`mb-3 transition-all rounded-xl border border-stone-200/80 bg-cream-50 ${isDiscoverCollapsed ? 'p-2 sm:px-3' : 'p-3 sm:p-3.5 space-y-2.5'}`}>
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setIsDiscoverCollapsed(p => !p)}
+                  className="flex items-center gap-1.5 text-left group cursor-pointer focus:outline-none"
+                  title={isDiscoverCollapsed ? "Click to view prompt examples" : "Click to hide prompt examples"}
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-ochre-600 shrink-0" />
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700 group-hover:text-federal-700 transition-colors">
+                    Explore Example Prompts
+                  </span>
+                  <span className="text-[10px] text-stone-400 font-normal ml-0.5">
+                    ({SUGGESTED_PROMPTS.length})
+                  </span>
+                  {isDiscoverCollapsed ? (
+                    <ChevronDown className="w-3.5 h-3.5 text-stone-400 group-hover:text-stone-700 transition-transform" />
+                  ) : (
+                    <ChevronUp className="w-3.5 h-3.5 text-stone-400 group-hover:text-stone-700 transition-transform" />
+                  )}
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsDiscoverCollapsed(p => !p)}
+                    className="text-[11px] font-medium text-federal-700 hover:text-federal-900 bg-white hover:bg-stone-100 border border-stone-200/90 px-2 py-0.5 rounded-md transition-all shadow-2xs"
+                  >
+                    {isDiscoverCollapsed ? 'Show Prompts ▾' : 'Hide Prompts ▴'}
+                  </button>
+                </div>
+              </div>
+
+              {!isDiscoverCollapsed && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 animate-fade-down">
+                  {SUGGESTED_PROMPTS.map((item, pIdx) => {
+                    const hasDoc = Boolean(item.attachedDoc);
+                    return (
+                      <div
+                        key={pIdx}
+                        className="p-3 rounded-xl bg-white border border-stone-200 hover:border-federal-400 hover:shadow-xs transition-all group flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="text-base shrink-0">{item.icon}</span>
+                              <span className="text-xs font-bold text-slate-900 group-hover:text-federal-700 transition-colors truncate">
+                                {item.title}
+                              </span>
+                            </div>
+                            {hasDoc && (
+                              <span className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
+                                Doc Attached
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed mb-2.5">
+                            {item.prompt}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-1.5 pt-2 border-t border-stone-100">
+                          {hasDoc ? (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPreviewDocModal(item.attachedDoc);
+                              }}
+                              className="text-[11px] font-medium text-slate-600 hover:text-federal-700 flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-stone-100 transition-colors"
+                              title="Preview original document text"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-federal-600" />
+                              <span>Preview File</span>
+                            </button>
+                          ) : (
+                            <span className="text-[10px] text-stone-400 font-mono truncate">
+                              {item.desc || item.category}
+                            </span>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const docsToAttach = item.attachedDoc ? [item.attachedDoc] : null;
+                              if (docsToAttach) {
+                                setAttachments(docsToAttach);
+                              }
+                              setInput('');
+                              handleSend(item.prompt, docsToAttach);
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-federal-50 hover:bg-federal-600 text-federal-700 hover:text-white font-semibold text-xs transition-all shrink-0"
+                          >
+                            Run Prompt ↗
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
           {messages.map((m, idx) => {
             const isUser = m.role === 'user';
 
@@ -492,12 +700,44 @@ export const ChatStream = ({ initialPrompt = '' }) => {
                     </div>
                   )}
 
-                  <p className="whitespace-pre-wrap">{m.displayContent || m.content}</p>
+                  {isUser ? (
+                    <p className="whitespace-pre-wrap">{m.displayContent || m.content}</p>
+                  ) : (
+                    <div className="markdown-chat-content text-slate-800 text-xs sm:text-sm leading-relaxed space-y-2">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          h1: ({ children }) => <h1 className="text-base font-bold text-slate-900 mt-2 mb-1">{children}</h1>,
+                          h2: ({ children }) => <h2 className="text-sm font-bold text-slate-900 mt-2 mb-1">{children}</h2>,
+                          h3: ({ children }) => <h3 className="text-xs font-bold text-slate-900 mt-1.5 mb-0.5">{children}</h3>,
+                          p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                          strong: ({ children }) => <strong className="font-bold text-slate-900">{children}</strong>,
+                          ul: ({ children }) => <ul className="list-disc pl-4 space-y-1 my-1.5">{children}</ul>,
+                          ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1 my-1.5">{children}</ol>,
+                          li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                          hr: () => <hr className="my-3 border-stone-200" />,
+                          blockquote: ({ children }) => (
+                            <blockquote className="border-l-2 border-federal-500 pl-3 my-2 italic text-slate-700 bg-federal-50/50 py-1 rounded-r">
+                              {children}
+                            </blockquote>
+                          ),
+                          code: ({ inline, children }) => inline ? (
+                            <code className="px-1.5 py-0.5 rounded bg-cream-200 text-federal-800 font-mono text-[11px]">{children}</code>
+                          ) : (
+                            <pre className="p-2.5 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs overflow-x-auto my-2">{children}</pre>
+                          )
+                        }}
+                      >
+                        {m.content}
+                      </ReactMarkdown>
+                    </div>
+                  )}
 
                   {!isUser && m.content && (
                     <button
                       onClick={() => copyMessage(m.content, idx)}
                       className="absolute top-2 right-2 p-1 rounded hover:bg-cream-200 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Copy message"
                     >
                       {copiedIndex === idx ? <Check className="w-3.5 h-3.5 text-federal-600" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
@@ -660,6 +900,92 @@ export const ChatStream = ({ initialPrompt = '' }) => {
           </button>
         </div>
       </div>
+
+      {/* Document Review & Preview Modal */}
+      {previewDocModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-xl border border-stone-200 max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-scale-up">
+            <div className="p-4 border-b border-stone-100 flex items-center justify-between bg-stone-50/80">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="p-2 rounded-xl bg-federal-50 text-federal-700">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-bold text-slate-900 truncate">
+                    {previewDocModal.filename}
+                  </h3>
+                  <span className="text-[11px] font-mono text-stone-400">
+                    Sovereign Document Intelligence • {previewDocModal.type.toUpperCase()} ({(previewDocModal.sizeBytes / 1024).toFixed(1)} KB)
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setPreviewDocModal(null)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {previewDocModal.url ? (
+              <div className="flex-1 flex flex-col min-h-[380px] sm:min-h-[460px]">
+                <iframe
+                  src={previewDocModal.url}
+                  title={previewDocModal.filename}
+                  className="w-full flex-1 border-0 bg-stone-100"
+                />
+              </div>
+            ) : (
+              <div className="p-4 sm:p-5 overflow-y-auto flex-1 font-mono text-xs leading-relaxed text-slate-800 bg-cream-50/60 whitespace-pre-wrap select-text">
+                {previewDocModal.text}
+              </div>
+            )}
+
+            <div className="p-3 sm:p-4 border-t border-stone-100 bg-white flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                {previewDocModal.url && (
+                  <a
+                    href={previewDocModal.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs font-medium text-federal-700 hover:text-federal-900 underline flex items-center gap-1"
+                  >
+                    Open PDF in tab ↗
+                  </a>
+                )}
+                <span className="text-[11px] text-stone-400 font-sans hidden sm:inline">
+                  • Ingested into Sovereign LLM
+                </span>
+              </div>
+              <div className="flex items-center gap-2 ml-auto">
+                <button
+                  type="button"
+                  onClick={() => setPreviewDocModal(null)}
+                  className="px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600 hover:bg-stone-50 transition-colors"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const docToAttach = previewDocModal;
+                    setPreviewDocModal(null);
+                    setAttachments([docToAttach]);
+                    const matchedPrompt = SUGGESTED_PROMPTS.find(p => p.attachedDoc?.filename === docToAttach.filename);
+                    const promptText = matchedPrompt?.prompt || 'Please translate, analyze, and explain the attached document.';
+                    setInput('');
+                    handleSend(promptText, [docToAttach]);
+                  }}
+                  className="px-4 py-1.5 rounded-xl bg-federal-700 hover:bg-federal-800 text-white text-xs font-semibold shadow-2xs transition-all flex items-center gap-1.5"
+                >
+                  <span>Attach & Analyze</span>
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -70,18 +70,42 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
 
   const currentModelObj = ASR_MODELS.find(m => m.id === selectedModel) || ASR_MODELS[0];
 
+  const langNames = {
+    'en': 'English',
+    'yo': 'Yorùbá',
+    'ha': 'Hausa',
+    'ig': 'Igbo',
+  };
+
+  const allLangOptions = [
+    { code: 'en', label: 'English' },
+    { code: 'yo', label: 'Yorùbá' },
+    { code: 'ha', label: 'Hausa' },
+    { code: 'ig', label: 'Igbo' },
+  ];
+
+  // Exclude current spoken language from translation targets
+  const availableTargetLangs = allLangOptions.filter(opt => {
+    if (currentModelObj.lang === 'en-ng') return opt.code !== 'en';
+    return opt.code !== currentModelObj.lang;
+  });
+
+  // Auto-set sensible default target language when model changes
+  React.useEffect(() => {
+    if (currentModelObj.lang === 'en-ng') {
+      setTargetLang('yo');
+    } else {
+      setTargetLang('en');
+    }
+    setTranslationText('');
+  }, [selectedModel, currentModelObj.lang]);
+
   // Request translation suggestion for transcription via N-ATLaS LLM
   const handleTranslate = async (target = targetLang) => {
     if (!transcript.trim()) return;
     setIsTranslating(true);
     setTranslationText('');
     try {
-      const langNames = {
-        'en': 'English',
-        'yo': 'Yorùbá',
-        'ha': 'Hausa',
-        'ig': 'Igbo',
-      };
       const destName = langNames[target] || 'English';
       const prompt = `Translate the following ${currentModelObj.badge} transcription accurately into natural ${destName}. Maintain tone, context, and nuance. Output ONLY the translation without preamble:\n\n"${transcript.trim()}"`;
 
@@ -119,6 +143,12 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
     } finally {
       setIsTranslating(false);
     }
+  };
+
+  const handleSendTranslatePromptToLLM = (target = targetLang) => {
+    const destName = langNames[target] || 'English';
+    const prompt = `Translate this ${currentModelObj.badge} transcription to ${destName}:\n\n"${transcript}"`;
+    onSendToLLM?.(prompt);
   };
 
   // Smart Utterance Recording (Push-to-Talk / Click-to-Speak)
@@ -508,18 +538,19 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
                       setTargetLang(e.target.value);
                       handleTranslate(e.target.value);
                     }}
-                    className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-federal-500"
+                    className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-federal-500 shadow-2xs"
                   >
-                    <option value="en">Translate to English</option>
-                    <option value="yo">Translate to Yorùbá</option>
-                    <option value="ha">Translate to Hausa</option>
-                    <option value="ig">Translate to Igbo</option>
+                    {availableTargetLangs.map(opt => (
+                      <option key={opt.code} value={opt.code}>
+                        Translate to {opt.label}
+                      </option>
+                    ))}
                   </select>
 
                   <button
                     onClick={() => handleTranslate(targetLang)}
                     disabled={isTranslating}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-federal-700 hover:bg-federal-800 text-white flex items-center gap-1.5 transition-all disabled:opacity-50 shrink-0"
+                    className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-federal-700 hover:bg-federal-800 text-white flex items-center gap-1.5 transition-all disabled:opacity-50 shrink-0 shadow-2xs"
                   >
                     {isTranslating ? (
                       <>
@@ -538,15 +569,15 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
 
               {/* Translation Output Box */}
               {isTranslating ? (
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center gap-2 animate-pulse">
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center gap-2 animate-pulse">
                   <RefreshCw className="w-4 h-4 animate-spin text-federal-600" />
                   Generating accurate translation via N-ATLaS LLM...
                 </div>
               ) : translationText ? (
-                <div className="p-3.5 rounded-xl bg-federal-50/70 border border-federal-200/80 space-y-2">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-federal-50/70 border border-federal-200/80 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-federal-800">
-                      Suggested Translation
+                      Suggested Translation ({langNames[targetLang] || 'English'})
                     </span>
                     <button
                       onClick={() => {
@@ -554,7 +585,7 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
                         setTransCopied(true);
                         setTimeout(() => setTransCopied(false), 2000);
                       }}
-                      className="text-[11px] font-medium text-federal-700 hover:text-federal-900 flex items-center gap-1"
+                      className="text-[11px] font-medium text-federal-700 hover:text-federal-900 flex items-center gap-1 px-2 py-0.5 rounded hover:bg-federal-100 transition-colors"
                     >
                       {transCopied ? (
                         <>
@@ -572,6 +603,24 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
                   <p className="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed">
                     {translationText}
                   </p>
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-federal-200/60">
+                    <button
+                      onClick={() => handleSendTranslatePromptToLLM(targetLang)}
+                      className="text-xs text-slate-600 hover:text-federal-800 flex items-center gap-1 transition-all py-1 px-2 rounded-lg hover:bg-federal-100/50"
+                      title="Open in N-ATLaS LLM chat as an interactive translation prompt"
+                    >
+                      <span>Ask LLM to translate further in Chat</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => onSendToLLM?.(translationText)}
+                      className="text-xs font-semibold text-white bg-federal-700 hover:bg-federal-800 shadow-2xs flex items-center gap-1.5 transition-all py-1.5 px-3.5 rounded-lg"
+                      title="Send this translated text directly into the chat prompt"
+                    >
+                      <span>Continue in Chat with Translation</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               ) : null}
             </div>

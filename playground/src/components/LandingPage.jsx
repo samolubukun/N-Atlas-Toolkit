@@ -348,6 +348,13 @@ export const LandingPage = ({ onSelectStudio }) => {
               Open the Chat
             </button>
             <button
+              onClick={() => onSelectStudio('translate')}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-card"
+            >
+              <Languages className="w-4 h-4 text-federal-600" />
+              Try Translator
+            </button>
+            <button
               onClick={() => onSelectStudio('asr')}
               className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-card"
             >

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { ASRStudio } from './ASRStudio';
 import { ChatStream } from './ChatStream';
-
+import { TranslationStudio } from './TranslationStudio';
 
 import { isConfigured } from '../constants';
 
@@ -34,8 +34,13 @@ const studios = [
     sub: 'Batch audio transcription',
     icon: Radio,
   },
-
-
+  {
+    id: 'translate',
+    name: 'Translator',
+    full: 'Cultural Translator',
+    sub: 'Bi-directional with tone marks',
+    icon: Languages,
+  },
 ];
 
 export const PlaygroundView = ({ activeStudio = 'chat', selectedModelId = null, onStudioChange, onBackToLanding, onSelectDocs }) => {
@@ -211,6 +216,7 @@ export const PlaygroundView = ({ activeStudio = 'chat', selectedModelId = null, 
         {/* Studio content */}
         <div className="animate-fade-up">
           {activeStudio === 'chat'       && <ChatStream initialPrompt={transferredPrompt} />}
+          {activeStudio === 'translate'  && <TranslationStudio onSendToChat={handleSendToLLM} />}
           {activeStudio === 'asr'        && <ASRStudio initialModelId={selectedModelId} onSendToLLM={handleSendToLLM} />}
         </div>
       </section>
