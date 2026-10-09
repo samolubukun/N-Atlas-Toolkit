@@ -1,26 +1,25 @@
 # N-ATLaS Toolkit & Production Serverless Deployment Suite
 
 <p align="center">
-  <a href="https://pypi.org/project/natlas-sdk/"><img src="https://img.shields.io/pypi/v/natlas-sdk.svg?color=008751&label=PyPI%20package" alt="PyPI version" /></a>
-  <a href="https://www.npmjs.com/package/natlas-sdk"><img src="https://img.shields.io/npm/v/natlas-sdk.svg?color=1E3A5F&label=npm%20package" alt="npm version" /></a>
-  <a href="https://natlas-toolkit-playground.vercel.app/"><img src="https://img.shields.io/badge/%F0%9F%8C%90%20Playground-Live%20App-008751?style=flat&logo=vercel" alt="Live Playground" /></a>
-  <a href="https://samolubukun.github.io/N-Atlas-Toolkit/"><img src="https://img.shields.io/badge/%F0%9F%93%9A%20Docs-GitHub%20Pages-008751?style=flat&logo=github" alt="Live Documentation" /></a>
-  <a href="https://huggingface.co/spaces/samuelolubukun/NATLaS-Sovereign-Engine"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face%20Space-Live%20Demo-blue" alt="Hugging Face Space Live Demo" /></a>
-  <a href="https://huggingface.co/NCAIR1"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-NCAIR1-yellow" alt="Hugging Face Org" /></a>
-  <a href="https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" alt="License" /></a>
-  <a href="https://github.com/samolubukun/N-Atlas-Toolkit/actions"><img src="https://img.shields.io/badge/CI-Passing-brightgreen.svg" alt="CI Status" /></a>
+  <a href="https://pypi.org/project/natlas-sdk/"><img src="https://img.shields.io/pypi/v/natlas-sdk?style=for-the-badge&logo=pypi&logoColor=white&color=008751&label=PyPI" alt="PyPI version" /></a>
+  <a href="https://www.npmjs.com/package/natlas-sdk"><img src="https://img.shields.io/npm/v/natlas-sdk?style=for-the-badge&logo=npm&logoColor=white&color=CB3837&label=npm" alt="npm version" /></a>
+  <a href="https://natlas-toolkit-playground.vercel.app/"><img src="https://img.shields.io/badge/Playground-Live%20App-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Playground" /></a>
+  <a href="https://samolubukun.github.io/N-Atlas-Toolkit/"><img src="https://img.shields.io/badge/Docs-GitHub%20Pages-181717?style=for-the-badge&logo=github&logoColor=white" alt="Live Documentation" /></a>
+  <a href="https://huggingface.co/spaces/samuelolubukun/NATLaS-Sovereign-Engine"><img src="https://img.shields.io/badge/HuggingFace-Live%20Space-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" alt="Hugging Face Space Live Demo" /></a>
+  <a href="https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge" alt="License" /></a>
+  <a href="https://github.com/samolubukun/N-Atlas-Toolkit/actions"><img src="https://img.shields.io/badge/CI-Passing-2ea44f.svg?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI Status" /></a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB?logo=python&logoColor=white" alt="Python" />
-  <img src="https://img.shields.io/badge/JavaScript-ES2022-F7DF1E?logo=javascript&logoColor=black" alt="JavaScript" />
-  <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React" />
-  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white" alt="Docker" />
-  <img src="https://img.shields.io/badge/Modal-Serverless-4ade80?logo=cloud&logoColor=black" alt="Modal" />
-  <img src="https://img.shields.io/badge/Lightning%20AI-Serverless-792ee5?logo=lightning&logoColor=white" alt="Lightning AI" />
-  <img src="https://img.shields.io/badge/Google%20Colab-Supported-F9AB00?logo=googlecolab&logoColor=white" alt="Google Colab" />
-  <a href="https://samolubukun.github.io/N-Atlas-Toolkit/"><img src="https://img.shields.io/badge/Material%20for%20MkDocs-Live%20Docs-008751?logo=materialformkdocs&logoColor=white" alt="MkDocs" /></a>
+  <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/JavaScript-ES2022-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/Modal-Serverless-00C7B7?style=for-the-badge&logo=cloud&logoColor=black" alt="Modal" />
+  <img src="https://img.shields.io/badge/Lightning%20AI-Serverless-792EE5?style=for-the-badge&logo=lightning&logoColor=white" alt="Lightning AI" />
+  <img src="https://img.shields.io/badge/Google%20Colab-Supported-F9AB00?style=for-the-badge&logo=googlecolab&logoColor=white" alt="Google Colab" />
+  <a href="https://samolubukun.github.io/N-Atlas-Toolkit/"><img src="https://img.shields.io/badge/MkDocs-Material-526CFE?style=for-the-badge&logo=materialformkdocs&logoColor=white" alt="MkDocs" /></a>
 </p>
 
 
