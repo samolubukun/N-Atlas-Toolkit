@@ -41,7 +41,7 @@ npm install natlas-sdk       # JavaScript / TypeScript SDK
 ### 🎥 N-ATLaS Video Demos
 <p align="center">
   <strong>🌟 Complete Tour & Playground Walkthrough [Updated]</strong><br>
-  <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSX2iA7Sd4tAcuLWESojvzO8rKCJiP6InGxBT5" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
+  <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSS1VU1lWOWuF5jsvYkEQACcqhN7Blgo38fGm6" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
   <br>
   <strong>💬 LLM Chat & Indigenous Stream Demo</strong><br>
   <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSWcGgYDXLgTfpX463sKnubzmVaRQy0O9ACqc2" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
@@ -53,7 +53,7 @@ npm install natlas-sdk       # JavaScript / TypeScript SDK
   <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSUnZRyJjWD0rgFHScjZwCGehi4ABas5blmkyI" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
 </p>
 
-*(Direct Video Links: [Full Playground Walkthrough [Updated]](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSX2iA7Sd4tAcuLWESojvzO8rKCJiP6InGxBT5) · [LLM Streaming Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSWcGgYDXLgTfpX463sKnubzmVaRQy0O9ACqc2) · [Sovereign ASR Audio Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj) · [Interactive Landing Page Tour](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSUnZRyJjWD0rgFHScjZwCGehi4ABas5blmkyI))*
+*(Direct Video Links: [Full Playground Walkthrough [Updated]](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSS1VU1lWOWuF5jsvYkEQACcqhN7Blgo38fGm6) · [LLM Streaming Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSWcGgYDXLgTfpX463sKnubzmVaRQy0O9ACqc2) · [Sovereign ASR Audio Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj) · [Interactive Landing Page Tour](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSUnZRyJjWD0rgFHScjZwCGehi4ABas5blmkyI))*
 
 ---
 
@@ -68,6 +68,7 @@ This repository is organized as a unified monorepo providing everything needed t
 | **[`playground/`](playground)** | **Interactive Web Application**: React + Vite playground UI with Chat Studio, Audio Recording & Transcription Studio, Model Catalog explorer, and live interactive documentation. |
 | **[`docs/`](docs) & [`mkdocs.yml`](mkdocs.yml)** | **Developer Documentation Site**: Comprehensive documentation built with Material for MkDocs, featuring API specifications, developer tutorials, and bilingual guides (Yorùbá, Hausa, Igbo). |
 | **[`finetune-starter-kit/`](finetune-starter-kit)** | **Domain Adaptation Suite**: LoRA/QLoRA and Unsloth fine-tuning recipes for adapting N-ATLaS to custom enterprise, healthcare, and educational datasets on consumer GPUs. |
+| **[`templates/`](templates)** | **Turnkey Starter Kits**: Full-stack application boilerplates including WhatsApp/Telegram Multilingual AI CRM and React + NestJS chat app. |
 | **[`cookbook/`](cookbook)** | **Production Recipes**: Copy-pasteable application templates including WhatsApp voice & text bots, banking dispute classifiers, and agent loops. |
 | **[`hf_space/`](hf_space)** | **Hugging Face ZeroGPU Space ([`NATLaS-Sovereign-Engine`](https://huggingface.co/spaces/samuelolubukun/NATLaS-Sovereign-Engine))**: Turnkey Gradio Web UI and embedded `/v1/*` OpenAI endpoints for free deployment on Hugging Face Spaces. |
 | **[`notebooks/`](notebooks)** | **Google Colab (`natlas_engine_colab.ipynb`)**: 1-click cloud notebook that downloads model weights, spins up the LLM engine, and exposes a public endpoint via Cloudflare Tunnel. |
@@ -524,6 +525,32 @@ print(response.message.content)
 ```
 
 ---
+
+## 📦 Starter Kits & Production Templates (`templates/`)
+
+The repository includes production-ready application boilerplates pre-configured to connect to Sovereign N-ATLaS LLM & ASR endpoints:
+
+### 1. [WhatsApp & Telegram Multilingual AI Agent & CRM Template](templates/whatsapp-telegram-crm)
+- **Stack**: FastAPI, Async SQLAlchemy (SQLite/PostgreSQL), Meta WhatsApp Cloud API, Telegram Bot API.
+- **Voice Notes**: Ingests audio voice notes (`.ogg`/`.opus`) and transcribes them via N-ATLaS Whisper ASR models (**Yorùbá**, **Hausa**, **Igbo**, and **English**).
+- **Multilingual CRM Agent**: Autonomous lead qualification, consultation scheduling, and real-time dark-mode Admin CRM Dashboard with live human agent takeover.
+- **Run**:
+  ```bash
+  cd templates/whatsapp-telegram-crm
+  pip install -r requirements.txt
+  uvicorn main:app --reload --port 8080
+  ```
+
+### 2. [React + NestJS Multilingual Chatbot App](templates/react-nestjs-chatbot)
+- **Stack**: React (Vite) frontend + NestJS backend.
+- **Sovereign Provider**: Pre-wired Axios provider connecting to N-ATLaS `/v1/chat/completions` with authentic cultural prompts in Yorùbá, Hausa, Igbo, and English.
+- **Run**:
+  ```bash
+  # Backend
+  cd templates/react-nestjs-chatbot/backend && npm install && npm run start:dev
+  # Frontend
+  cd templates/react-nestjs-chatbot/frontend && npm install && npm run dev
+  ```
 
 ---
 

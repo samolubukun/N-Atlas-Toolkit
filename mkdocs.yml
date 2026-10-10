@@ -98,6 +98,7 @@ nav:
       - Built-in Agent Tools: sdk/tools.md
       - Unified CLI Reference: cli.md
       - Developer Cookbook: cookbook.md
+      - Starter Kits & Templates: templates.md
   - LLM Capabilities:
       - Chat & SSE Streaming: llm/chat.md
   - ASR (Speech-to-Text):

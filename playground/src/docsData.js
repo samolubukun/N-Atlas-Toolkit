@@ -15,6 +15,7 @@ export const DOCS_NAV = [
       { id: "sdk-tools", title: "Built-in Agent Tools", icon: "Wrench" },
       { id: "cli", title: "Unified CLI Reference", icon: "Terminal" },
       { id: "cookbook", title: "Developer Cookbook", icon: "Compass" },
+      { id: "templates", title: "Starter Kits & Templates", icon: "Layout" },
     ]
   },
   {
@@ -518,6 +519,49 @@ python python-sdk/src/mcp_server.py
     }
   }
 }
+\`\`\`
+    `
+  },
+
+  "templates": {
+    title: "Starter Kits & Production Templates",
+    subtitle: "Production-grade boilerplates for WhatsApp/Telegram AI CRM bots and React/NestJS chat apps.",
+    badge: "Starter Kits",
+    content: `
+### 1. WhatsApp & Telegram Multilingual AI CRM Template
+
+Located in [\`templates/whatsapp-telegram-crm/\`](https://github.com/samolubukun/N-Atlas-Toolkit/tree/main/templates/whatsapp-telegram-crm):
+
+- **Asynchronous Webhooks**: Meta WhatsApp Cloud API and Telegram Bot API.
+- **Voice Notes (ASR)**: Ingests \`.ogg\`/\`.opus\` audio and transcribes it via **N-ATLaS Whisper ASR** (\`Yoruba-ASR\`, \`Hausa-ASR\`, \`Igbo-ASR\`, \`NigerianAccentedEnglish\`).
+- **Autonomous Tool Calling**: Automatically qualifies leads and books consultations into SQLite/PostgreSQL.
+- **Admin Control Hub**: Real-time dark-mode CRM dashboard with live human takeover.
+
+\`\`\`bash
+cd templates/whatsapp-telegram-crm
+pip install -r requirements.txt
+cp .env.example .env
+uvicorn main:app --reload --port 8080
+\`\`\`
+
+### 2. React + NestJS Multilingual Chatbot App
+
+Located in [\`templates/react-nestjs-chatbot/\`](https://github.com/samolubukun/N-Atlas-Toolkit/tree/main/templates/react-nestjs-chatbot):
+
+- **Full-Stack Chat**: Modern React (Vite) frontend with Markdown rendering and user/assistant message bubbles.
+- **NestJS Service**: Clean \`POST /chat\` API routing requests to N-ATLaS \`/v1/chat/completions\`.
+- **Wazobia Cultural System Prompts**: Fluent in **Yorùbá**, **Hausa**, **Igbo**, and **English**.
+
+\`\`\`bash
+# Backend Setup
+cd templates/react-nestjs-chatbot/backend
+npm install
+npm run start:dev
+
+# Frontend Setup (in a new terminal)
+cd templates/react-nestjs-chatbot/frontend
+npm install
+npm run dev
 \`\`\`
     `
   },
