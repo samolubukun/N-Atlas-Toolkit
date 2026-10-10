@@ -23,6 +23,39 @@ Welcome to the developer documentation for **N-ATLaS (NCAIR1/N-ATLaS)**, Nigeria
 
 ---
 
+## ⚡ Deployment Infrastructure & Cloud Gateways
+
+N-ATLaS runs across high-performance sovereign cloud runtimes with zero-downtime scaling:
+
+### 1. Modal Cloud Unified Serverless Engine
+Full-stack serverless deployment running the 8.03B Multilingual LLM alongside 4 Whisper ASR models on NVIDIA A10G (24GB VRAM) with continuous batching.
+
+<p align="center">
+  <img src="assets/natlas-engine-modal.png" alt="N-ATLaS Engine on Modal Cloud" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); margin-bottom: 24px;">
+</p>
+
+### 2. Hugging Face Spaces (ZeroGPU Free Tier)
+Gradio interface with native `/v1/*` OpenAI-compliant API gateways hosted on ZeroGPU:
+
+<p align="center">
+  <img src="assets/hf_screenshot_1.jpg" alt="Hugging Face Space Overview" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); margin-bottom: 12px;">
+</p>
+
+<div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+  <img src="assets/hf_screenshot_2.jpg" alt="Hugging Face Space Chat & ASR" style="flex: 1 1 48%; min-width: 280px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+  <img src="assets/hf_screenshot_3.jpg" alt="Hugging Face Space Interactive Test" style="flex: 1 1 48%; min-width: 280px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+</div>
+
+### 3. Lightning AI (Serverless Cloudspaces)
+Scale-to-zero NVIDIA T4 containerized inference runtime with unified live monitoring:
+
+<div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+  <img src="assets/lightning_ai_overview.jpg" alt="Lightning AI Deployment Overview" style="flex: 1 1 48%; min-width: 280px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+  <img src="assets/lightning_ai_logs.jpg" alt="Lightning AI Studio Inference Logs" style="flex: 1 1 48%; min-width: 280px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+</div>
+
+---
+
 ## What is N-ATLaS?
 
 N-ATLaS is a sovereign AI suite engineered specifically for Nigerian linguistic structures, cultural idioms, accents, and tonal nuances.

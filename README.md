@@ -217,6 +217,11 @@ N-ATLaS supports five production deployment targets:
    - Scale-to-zero NVIDIA T4 GPU container serving OpenAI-compliant chat completions and Whisper ASR.
    - Code & requirements: [`natlas_engine_lightning.py`](natlas_engine_lightning.py) and [`requirements-lightning.txt`](requirements-lightning.txt).
 
+   <p align="center">
+     <img src="assets/lightning_ai_overview.jpg" alt="Lightning AI Deployment Overview" style="width: 49%; border-radius: 8px; display: inline-block;">
+     <img src="assets/lightning_ai_logs.jpg" alt="Lightning AI Studio Inference Logs" style="width: 49%; border-radius: 8px; display: inline-block;">
+   </p>
+
 2. **Modal Cloud Deployment (Unified Serverless Engine)**:
    - **Unified API Base URL**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1`
    - Serves both the 8.03B Multilingual LLM and all 4 Sovereign Whisper ASR models from a single unified serverless endpoint.

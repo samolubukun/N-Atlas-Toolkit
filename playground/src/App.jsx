@@ -126,6 +126,11 @@ export function App() {
                     Speech Studio (ASR)
                   </button>
                 </li>
+                <li>
+                  <button onClick={() => navigateTo('/playground', 'translate')} className="hover:text-emerald-300 transition-colors">
+                    Translation Studio
+                  </button>
+                </li>
               </ul>
             </div>
 
