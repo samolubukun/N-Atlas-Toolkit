@@ -9,9 +9,17 @@ Welcome to the developer documentation for **N-ATLaS (NCAIR1/N-ATLaS)**, Nigeria
 
 ### 🎥 Watch N-ATLaS in Action
 <p align="center">
+  <strong>🌟 Complete Tour & Playground Walkthrough</strong><br>
+  <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSX2iA7Sd4tAcuLWESojvzO8rKCJiP6InGxBT5" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
+  <br>
+  <strong>💬 LLM Chat & Indigenous Stream Demo</strong><br>
   <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSWcGgYDXLgTfpX463sKnubzmVaRQy0O9ACqc2" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
+  <br>
+  <strong>🎙️ Sovereign ASR Multi-Dialect Speech Demo</strong><br>
   <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
 </p>
+
+*(Direct Video Links: [Full Playground Walkthrough](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSX2iA7Sd4tAcuLWESojvzO8rKCJiP6InGxBT5) · [LLM Streaming Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSWcGgYDXLgTfpX463sKnubzmVaRQy0O9ACqc2) · [Sovereign ASR Audio Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj))*
 
 ---
 
