@@ -34,8 +34,13 @@ N-ATLaS runs across high-performance sovereign cloud runtimes with zero-downtime
 Full-stack serverless deployment running the 8.03B Multilingual LLM alongside 4 Whisper ASR models on NVIDIA A10G (24GB VRAM) with continuous batching.
 
 <p align="center">
-  <img src="assets/natlas-engine-modal.png" alt="N-ATLaS Engine on Modal Cloud" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); margin-bottom: 24px;">
+  <img src="assets/natlas-engine-modal.png" alt="N-ATLaS Engine on Modal Cloud" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); margin-bottom: 12px;">
 </p>
+
+<div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+  <img src="assets/modal_request_logs_1.jpg" alt="Modal Serverless Engine Request Logs & Invocations" style="flex: 1 1 48%; min-width: 280px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+  <img src="assets/modal_request_logs_2.jpg" alt="Modal Serverless Engine Request Logs & Invocations" style="flex: 1 1 48%; min-width: 280px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+</div>
 
 ### 2. Hugging Face Spaces (ZeroGPU Free Tier)
 Gradio interface with native `/v1/*` OpenAI-compliant API gateways hosted on ZeroGPU:

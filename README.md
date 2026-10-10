@@ -230,6 +230,11 @@ N-ATLaS supports five production deployment targets:
    - Serves both the 8.03B Multilingual LLM and all 4 Sovereign Whisper ASR models from a single unified serverless endpoint.
    - Dedicated NVIDIA A10G (24GB VRAM) with continuous batching and sub-second cold starts.
 
+   <p align="center">
+     <img src="assets/modal_request_logs_1.jpg" alt="Modal Serverless Engine Request Logs & Invocations 1" style="width: 49%; border-radius: 8px; display: inline-block;">
+     <img src="assets/modal_request_logs_2.jpg" alt="Modal Serverless Engine Request Logs & Invocations 2" style="width: 49%; border-radius: 8px; display: inline-block;">
+   </p>
+
 3. **Hugging Face Spaces (ZeroGPU Free Tier)**:
    - **Gradio Web UI + API**: `https://<workspace>-natlas-sovereign-engine.hf.space/v1`
    - ZeroGPU hardware acceleration, zero infrastructure cost, native `/v1/*` OpenAI endpoints.

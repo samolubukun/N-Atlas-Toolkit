@@ -5,6 +5,7 @@ site_url: https://samolubukun.github.io/N-Atlas-Toolkit/
 repo_name: samolubukun/N-Atlas-Toolkit
 repo_url: https://github.com/samolubukun/N-Atlas-Toolkit
 use_directory_urls: false
+copyright: 'Built by <a href="http://samuelolubukun.com/" target="_blank" rel="noopener">Samuel Olubukun</a>'
 
 theme:
   name: material
