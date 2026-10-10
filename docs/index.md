@@ -62,6 +62,19 @@ Scale-to-zero NVIDIA T4 containerized inference runtime with unified live monito
   <img src="assets/lightning_ai_logs.jpg" alt="Lightning AI Studio Inference Logs" style="flex: 1 1 48%; min-width: 280px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
 </div>
 
+### 4. Google Colab (Zero-Setup GPU Engine)
+Run the entire Sovereign Engine on free or Pro T4/A100 Google Colab instances in 1 click, exposing an OpenAI-compatible public API through Cloudflare tunnels:
+
+- **Notebook Path**: [`notebooks/natlas_engine_colab.ipynb`](https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/notebooks/natlas_engine_colab.ipynb)
+- **Features**: Auto-mounts Google Drive cache, installs runtime dependencies, provisions Cloudflare secure ingress, and exposes live health and streaming endpoints.
+
+### 5. Local & On-Premise Docker Gateway (100% Unified)
+Run fully sovereign, air-gapped on-premise deployments using Docker Compose with GPU acceleration or CPU fallback:
+
+- **Gateway URL**: `http://localhost:8000/v1`
+- **Reverse Proxy**: Nginx unified reverse proxy routing chat completions to vLLM/Transformers and audio transcriptions to the Whisper ASR engine.
+- **Guide**: Detailed setup and configuration in [Docker & Self-Hosting Guide](deployment/docker.md).
+
 ---
 
 ## What is N-ATLaS?
@@ -88,15 +101,19 @@ N-ATLaS is a sovereign AI suite engineered specifically for Nigerian linguistic 
 
 ## Key Highlights
 
-1. **Dual SDK Support**: First-class, fully typed [`python-sdk`](sdk/python.md) and [`js-sdk`](sdk/javascript.md) (Universal TS/JS for Node, Next.js, and Browsers).
-2. **Sovereign Speech-to-Text (ASR)**:
-    - **Yoruba**: `NCAIR1/Yoruba-ASR` (trained on 120+ hours)
-    - **Hausa**: `NCAIR1/Hausa-ASR` (trained on 120+ hours)
-    - **Igbo**: `NCAIR1/Igbo-ASR` (trained on 120+ hours)
-    - **Nigerian English**: `NCAIR1/NigerianAccentedEnglish` (trained on 120+ hours)
-3. **High-Accuracy Audio Transcription**: Millisecond word-level timestamps and multi-format audio support (WAV, MP3, WebM, FLAC).
+1. **Sovereign Multilingual LLM (`NCAIR1/N-ATLaS`)**: Flagship 8.03B parameter instruction-tuned model (based on Llama 3) fine-tuned on 392M tokens (~918k instruction pairs) across Yoruba, Hausa, Igbo, and Nigerian Accented English. Fluent in indigenous idioms, localized reasoning, code-switching, and cultural context.
+2. **Dual SDK Support**: First-class, fully typed [`python-sdk`](sdk/python.md) and [`js-sdk`](sdk/javascript.md) (Universal TS/JS for Node, Next.js, and Browsers).
+3. **Sovereign Speech-to-Text (ASR)**: Dedicated Whisper Small (244M) models fine-tuned on 120+ hours per language:
+    - **Yoruba**: `NCAIR1/Yoruba-ASR` (preserves acute/grave tone diacritics and sub-dots)
+    - **Hausa**: `NCAIR1/Hausa-ASR` (hooked implosive consonants `ɓ`, `ɗ`, `ƙ`, and glottal stops)
+    - **Igbo**: `NCAIR1/Igbo-ASR` (vowel harmony `ị`, `ọ`, `ụ`, and nasal compounds)
+    - **Nigerian English**: `NCAIR1/NigerianAccentedEnglish` (Nigerian syllable timing and pitch)
+4. **High-Accuracy Audio Transcription**: Millisecond word-level timestamps and multi-format audio support (WAV, MP3, WebM, FLAC).
 5. **Flexible Deployment**:
     - **Live Modal Cloud**: Zero-server setup with scale-to-zero economics.
+    - **Hugging Face Spaces**: ZeroGPU free tier with OpenAI-compliant endpoints.
+    - **Lightning AI**: Containerized T4 Cloudspaces with live logs.
+    - **Google Colab**: 1-click execution with secure Cloudflare ingress.
     - **Self-Hosted Docker**: 1-command Docker Compose gateway with NVIDIA vLLM or CPU fallback.
 
 ---
@@ -107,6 +124,7 @@ N-ATLaS is a sovereign AI suite engineered specifically for Nigerian linguistic 
 - [**Model Catalog**](getting-started/models.md): Understand the models, datasets, and architecture.
 - [**Python SDK Guide**](sdk/python.md): Synchronous, Asynchronous, and Streaming client.
 - [**JavaScript / TypeScript SDK**](sdk/javascript.md): Universal client with SSE.
+- [**LLM Capabilities & Chat**](llm/chat.md): Streaming conversational completions and prompt formatting.
 - [**Audio Transcriptions (ASR)**](asr/transcriptions.md): Batch and voice note speech-to-text with word alignment.
 - [**Docker & Self-Hosting**](deployment/docker.md): On-premises private deployment.
 - [**API Reference**](api/endpoints.md): Complete REST endpoint documentation.
