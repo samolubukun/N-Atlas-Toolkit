@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Mic, MicOff, Upload, ArrowRight, Play, CheckCircle2, RefreshCw, Languages, Sparkles, Copy, Check } from 'lucide-react';
+import { Mic, MicOff, Upload, ArrowRight, Play, CheckCircle2, RefreshCw, Languages, Sparkles, Copy, Check, Music } from 'lucide-react';
 import { ASR_MODELS, DEFAULT_ENDPOINTS, LLM_LANGUAGES } from '../constants';
 import { AudioVisualizer } from './AudioVisualizer';
 
@@ -90,7 +90,8 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
     return opt.code !== currentModelObj.lang;
   });
 
-  // Auto-set sensible default target language when model changes
+  // When user switches model card, clear previous language audio/transcript/translations
+  // so mismatched audio (e.g. Yoruba audio on Hausa model) is not retained
   React.useEffect(() => {
     if (currentModelObj.lang === 'en-ng') {
       setTargetLang('yo');
@@ -98,7 +99,18 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
       setTargetLang('en');
     }
     setTranslationText('');
-  }, [selectedModel, currentModelObj.lang]);
+    setTranscript('');
+    setWords([]);
+    setErrorMsg(null);
+    setLatency(null);
+
+    // If an audio was previously loaded, clear it so state stays clean across language tabs
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+      setAudioUrl(null);
+      setSelectedFile(null);
+    }
+  }, [selectedModel]);
 
   // Request translation suggestion for transcription via N-ATLaS LLM
   const handleTranslate = async (target = targetLang) => {
@@ -419,9 +431,11 @@ export const ASRStudio = ({ initialModelId = null, onSendToLLM }) => {
 
             <button
               onClick={loadSampleAudio}
-              className="px-3 sm:px-3.5 py-2.5 rounded-xl font-medium text-xs bg-cream-100 hover:bg-cream-200 text-slate-700 border border-cream-300 transition-all shrink-0"
+              className="px-3.5 sm:px-4 py-2.5 rounded-xl font-bold text-xs bg-amber-50 hover:bg-amber-100 text-amber-900 border-2 border-amber-300 hover:border-amber-400 flex items-center justify-center gap-2 transition-all shadow-xs shrink-0 group cursor-pointer"
+              title={`Load official ${currentModelObj.badge} pre-recorded native audio snippet`}
             >
-              Load Sample
+              <Music className="w-4 h-4 text-amber-700 group-hover:scale-110 transition-transform" />
+              <span>Try {currentModelObj.badge} Sample 🎵</span>
             </button>
 
             {audioUrl && !isProcessing && !isRecording && (
