@@ -50,3 +50,8 @@ modal_*.py
 modal_run.py
 modal_notebook_run.py
 modal_docker_verify.py
+
+# Application submission artifacts & raw review files
+application_artifacts/
+drive-download-*/
+*.zip
