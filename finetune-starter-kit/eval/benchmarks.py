@@ -146,10 +146,12 @@ def load_benchmark(name, language, split="test", limit=0, cache_dir=None):
     """
     from datasets import load_dataset
 
+    token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
     try:
-        ds = load_dataset(name, language, split=split, cache_dir=cache_dir)
+        ds = load_dataset(name, language, split=split, cache_dir=cache_dir, token=token)
     except Exception as exc:
         return [], f"skipped {name}/{language}: {type(exc).__name__}: {exc}"
+
 
     rows = []
     for raw in ds:

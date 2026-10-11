@@ -278,11 +278,15 @@ def run_benchmark(
             model_id = SOVEREIGN_MODELS.get(lang.lower(), "NCAIR1/NigerianAccentedEnglish")
 
             print(f"\n>>> Loading [{lang.upper()}] test split from {dataset_name} (streamed)...")
+            hf_token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
             try:
-                ds = load_dataset(dataset_name, config, split="test", streaming=True)
+                from datasets import Audio as HFAudio
+                ds = load_dataset(dataset_name, config, split="test", streaming=True, token=hf_token)
+                ds = ds.cast_column("audio", HFAudio(decode=False))
             except Exception as e:
                 print(f"Failed to stream dataset for {lang}: {e}")
                 continue
+
 
             lang_evals = []
             count = 0
