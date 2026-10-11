@@ -14,7 +14,7 @@ python cookbook/whatsapp_bot.py
 ---
 
 ## 2. Customer Support & Dispute Classifier (`cookbook/customer_support_router.py`)
-Demonstrates automating bank ticket resolution (POS decline, transfer delays, account queries) across Hausa, Igbo, Yoruba, 
+Demonstrates automating bank ticket resolution (POS decline, transfer delays, account queries) across Hausa, Igbo, Yoruba, and English.
 
 ```bash
 python cookbook/customer_support_router.py
@@ -22,11 +22,25 @@ python cookbook/customer_support_router.py
 
 ---
 
-Demonstrates a multi-stage AI pipeline:
+## 3. Micro-Retail Voice-to-Ledger (`cookbook/micro_retail_ledger.py`)
+Extracts structured accounting data (`customer_name`, `total_amount_ngn`, `amount_paid_ngn`, `outstanding_debt_ngn`, `due_date_hint`) from spoken voice notes for Nigerian market vendors, kiosk owners, and POS agents using `client.extract()`.
+
+```bash
+python cookbook/micro_retail_ledger.py
+```
 
 ---
 
-## 4. Autonomous Agentic Tool Calling (`cookbook/agentic_tools.py`)
+## 4. Financial Fraud & Social Engineering Analyzer (`cookbook/financial_fraud_detector.py`)
+Evaluates suspicious SMS and chat messages against known Nigerian banking fraud patterns (fake BVN block, fake credit alerts, Ponzi schemes) and outputs risk categories, confidence scores, and safety guidance.
+
+```bash
+python cookbook/financial_fraud_detector.py
+```
+
+---
+
+## 5. Autonomous Agentic Tool Calling (`cookbook/agentic_tools.py`)
 Demonstrates OpenAI-compatible multi-turn tool calling and function resolution with Nigerian-localized tools (`get_cbn_fx_rate`, `get_market_commodity_price`):
 
 ```bash
@@ -35,7 +49,7 @@ python cookbook/agentic_tools.py
 
 ---
 
-## 5. Built-in Zero-Key Agent Tools
+## 6. Built-in Zero-Key Agent Tools
 
 All 7 tools ship inside the SDK — no API key or sign-up required:
 

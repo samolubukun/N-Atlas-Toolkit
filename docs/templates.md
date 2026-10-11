@@ -10,7 +10,7 @@ A production-ready FastAPI boilerplate for deploying autonomous, sovereign multi
 
 ### Key Highlights
 - **Native Voice Note Transcription**: Accepts `.ogg`/`.opus` audio messages from WhatsApp and Telegram, routing them through N-ATLaS Whisper ASR models (**Yorùbá**, **Hausa**, **Igbo**, and **English**).
-- **Sovereign Wazobia Multilingual Reasoning**: N-ATLaS answers with culturally authentic responses (slang/broken Pidgin is strictly restricted).
+- **Sovereign Wazobia Multilingual Reasoning**: N-ATLaS answers with culturally authentic responses.
 - **Autonomous Lead Qualification & Booking**:
   - `save_qualified_lead`: Persists contact info, niche, budget, and intent score (`HOT`, `WARM`, `COLD`).
   - `book_service_consultation`: Schedules appointments in SQLite/PostgreSQL.
