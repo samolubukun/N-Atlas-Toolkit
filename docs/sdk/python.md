@@ -78,13 +78,82 @@ for word in result.words:
 
 ---
 
-## 3. Language Helpers & Presets
+## 3. High-Level Semantic Helpers
+
+The SDK includes high-level convenience methods for common workflows:
+
+### Translation
+```python
+translated = client.translate(
+    "Good morning, how are you and your family?",
+    target_language="hausa",
+)
+print(translated)
+```
+
+### Summarization
+```python
+summary = client.summarize(
+    long_article_text,
+    max_words=60,
+    language="yoruba",
+)
+```
+
+### Scam & Financial Fraud Classification
+```python
+result = client.classify_scam(
+    "Your BVN has been blocked by CBN. Call 08012345678 immediately to unblock your account."
+)
+print("Is Scam:", result["is_scam"])
+print("Reason:", result["reason"])
+```
+
+### Full-Duplex Voice Chat (`voice_chat`)
+Transcribes input audio via sovereign ASR, feeds the text to the sovereign LLM, and returns the response:
+```python
+with open("user_speech.wav", "rb") as f:
+    resp = client.voice_chat(f.read(), language="yoruba")
+    print("User said:", resp["user_text"])
+    print("Assistant replied:", resp["assistant_text"])
+```
+
+---
+
+## 4. Structured Extraction (`client.extract`)
+
+Extract type-safe structured data conforming to a Pydantic schema with automatic JSON repair and error feedback retries:
+
+```python
+from pydantic import BaseModel, Field
+
+class VendorLedgerEntry(BaseModel):
+    customer_name: str
+    items_purchased: list[str] = Field(default_factory=list)
+    total_amount_ngn: float
+    amount_paid_ngn: float
+    outstanding_debt_ngn: float
+
+# Automatically extracts and coerces into VendorLedgerEntry
+entry = client.extract(
+    response_model=VendorLedgerEntry,
+    prompt="Madam Blessing came to buy 3 bags of rice and 2 cartons of indomie for 120,000 naira. She paid 80k cash, remaining 40k tomorrow."
+)
+
+print(entry.customer_name)        # "Madam Blessing"
+print(entry.total_amount_ngn)     # 120000.0
+print(entry.outstanding_debt_ngn) # 40000.0
+```
+
+---
+
+## 5. Language Helpers & Presets
 
 ```python
 import natlas
 
 phrase = "Ndị be anyị, kedu ka unu mere?"
-detected_lang = natlas.detect_language(phrase) # "igbo"
+detected_lang = natlas.detect_language(phrase)  # "igbo"
 
 # Prepend sovereign cultural system message
 messages = [
@@ -95,7 +164,7 @@ messages = [
 
 ---
 
-## 4. Agentic Tool Calling (Function Calling)
+## 6. Agentic Tool Calling (Function Calling)
 
 N-ATLaS 8B supports OpenAI-compatible function calling for autonomous multi-turn agents and tool execution:
 
@@ -135,7 +204,7 @@ if response.message.tool_calls:
 
 ---
 
-## 5. Built-in Agent Tools (Zero-Key)
+## 7. Built-in Agent Tools (Zero-Key)
 
 All 7 tools are available immediately after `pip install natlas-sdk` — no external API keys required:
 

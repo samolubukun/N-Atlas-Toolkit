@@ -71,7 +71,108 @@ console.log("Word timestamps:", result.words);
 
 ---
 
-## 3. Agentic Tool Calling (Function Calling)
+## 3. High-Level Semantic Helpers
+
+The JavaScript SDK includes high-level convenience methods:
+
+### Translation
+```typescript
+const translated = await client.translate(
+  "Good morning, how are you?",
+  { targetLanguage: "yoruba" }
+);
+console.log(translated);
+```
+
+### Summarization
+```typescript
+const summary = await client.summarize(longText, {
+  maxWords: 50,
+  language: "hausa",
+});
+```
+
+### Scam & Fraud Classification
+```typescript
+const result = await client.classifyScam(
+  "Your BVN has been blocked. Call 08012345678 immediately to unblock your account."
+);
+console.log("Is scam:", result.is_scam);
+console.log("Risk category:", result.risk_category);
+```
+
+### Voice Chat
+```typescript
+import * as fs from "node:fs";
+
+const audioBuffer = fs.readFileSync("voice_note.wav");
+const chatResult = await client.voiceChat(audioBuffer, { language: "igbo" });
+console.log("User:", chatResult.user_text);
+console.log("Assistant:", chatResult.assistant_text);
+```
+
+---
+
+## 4. Structured Extraction (`client.extract`)
+
+Extract JSON conforming to a JSON Schema with automatic recovery and repair retries:
+
+```typescript
+const ledgerSchema = {
+  type: "object",
+  properties: {
+    customer_name: { type: "string" },
+    total_amount_ngn: { type: "number" },
+    amount_paid_ngn: { type: "number" },
+    outstanding_debt_ngn: { type: "number" },
+  },
+  required: ["customer_name", "total_amount_ngn", "amount_paid_ngn", "outstanding_debt_ngn"],
+};
+
+const entry = await client.extract({
+  prompt: "Alhaji Musa bought 2 bags of fertilizer for 70,000 naira and paid 50,000 cash.",
+  schema: ledgerSchema,
+});
+
+console.log(entry.customer_name);        // "Alhaji Musa"
+console.log(entry.total_amount_ngn);     // 70000
+console.log(entry.outstanding_debt_ngn); // 20000
+```
+
+---
+
+## 5. Typed Errors Hierarchy
+
+The SDK exports dedicated error subclasses for robust API error handling:
+
+```typescript
+import {
+  NatlasClient,
+  AuthError,
+  RateLimitError,
+  BadRequestError,
+  ServerError,
+  APIConnectionError,
+} from "natlas-sdk";
+
+try {
+  await client.chat([{ role: "user", content: "Hello" }]);
+} catch (err) {
+  if (err instanceof AuthError) {
+    console.error("Invalid API Key (HTTP 401)");
+  } else if (err instanceof RateLimitError) {
+    console.error("Rate limit reached (HTTP 429). Retry after:", err.retryAfter);
+  } else if (err instanceof BadRequestError) {
+    console.error("Bad request payload (HTTP 400):", err.message);
+  } else if (err instanceof ServerError) {
+    console.error("Remote gateway error (HTTP 5xx):", err.statusCode);
+  }
+}
+```
+
+---
+
+## 6. Agentic Tool Calling (Function Calling)
 
 N-ATLaS 8B supports OpenAI-compatible tool calling for building autonomous agents:
 
@@ -111,7 +212,7 @@ if (response.message.tool_calls) {
 
 ---
 
-## 4. Built-in Agent Tools (Zero-Key)
+## 7. Built-in Agent Tools (Zero-Key)
 
 All 7 tools are available immediately after `npm install natlas-sdk` — no external API keys needed:
 

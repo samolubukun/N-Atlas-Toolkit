@@ -59,16 +59,27 @@ natlas transcribe speech_hausa.mp3 --language hausa
 natlas transcribe speech_yoruba.wav --language yoruba --timestamps
 ```
 
----
+## 3. Language Detection (`natlas detect`)
 
+Detect Nigerian indigenous languages from text:
 
 ```bash
+natlas detect "E kaaro o, bawo ni gbogbo nkan?"
+# Output: yoruba (confidence: 0.98)
 ```
 
 ---
 
+## 4. Zero-Key Built-in Tools (`natlas tools`)
+
+Query offline Nigerian gazetteer or execute utilities directly from the CLI:
 
 ```bash
+# Query LGA or state data
+natlas tool nigeria_gazetteer "Ikeja"
+
+# Query live currency rates
+natlas tool fx_rates "USD" "NGN"
 ```
 
 ---
