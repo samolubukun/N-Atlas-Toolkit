@@ -17,7 +17,7 @@ N-ATLaS ASR uses an encoder-decoder sequence architecture (Whisper-based) optimi
 
 ## Audio Transcription Endpoint
 
-* **Modal Live Cloud**: `https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1/audio/transcriptions`
+* **Modal Live Cloud**: `https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1/audio/transcriptions`
 * **Docker / On-Premises**: `http://localhost:8000/v1/audio/transcriptions`
 
 ### Supported Input Formats

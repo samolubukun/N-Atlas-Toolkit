@@ -39,12 +39,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEFAULT_BASE_URL = os.environ.get(
     "NATLAS_BASE_URL",
-    "https://<workspace>--natlas-engine-natlasapi-serve.modal.run",
+    os.environ.get("NATLAS_API_URL", "http://localhost:8000"),
 ).rstrip("/")
 
+# Unified endpoint: ASR lives at /v1/audio/transcriptions on the same base server
 DEFAULT_ASR_URL = os.environ.get(
-    "NATLAS_API_URL",
-    "https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run",
+    "NATLAS_ASR_URL",
+    DEFAULT_BASE_URL,
 ).rstrip("/")
 
 API_KEY = os.environ.get("NATLAS_API_KEY", "")
@@ -219,20 +220,23 @@ def benchmark_asr(asr_url: str, api_key: str) -> Dict[str, Any]:
 
 def main():
     parser = argparse.ArgumentParser(description="Run complete N-ATLaS Testing & Benchmarking Suite")
-    parser.add_argument("--base-url", default=DEFAULT_BASE_URL)
-    parser.add_argument("--asr-url", default=DEFAULT_ASR_URL)
+    parser.add_argument("--base-url", default=DEFAULT_BASE_URL, help="Base server URL for LLM and unified API")
+    parser.add_argument("--asr-url", default=None, help="Optional separate ASR URL (defaults to --base-url)")
     parser.add_argument("--api-key", default=API_KEY)
     parser.add_argument("--output", default="benchmark_report.json")
     args = parser.parse_args()
 
+    asr_url = (args.asr_url or DEFAULT_ASR_URL or args.base_url).rstrip("/")
+    base_url = args.base_url.rstrip("/")
+
     print("=" * 75)
     print("N-ATLaS REPRODUCIBLE TESTING & BENCHMARKING SUITE")
-    print(f"LLM Base URL : {args.base_url}")
-    print(f"ASR Base URL : {args.asr_url}")
+    print(f"LLM Base URL : {base_url}")
+    print(f"ASR Base URL : {asr_url}")
     print("=" * 75)
 
-    llm_metrics = benchmark_llm(args.base_url, args.api_key)
-    asr_metrics = benchmark_asr(args.asr_url, args.api_key)
+    llm_metrics = benchmark_llm(base_url, args.api_key)
+    asr_metrics = benchmark_asr(asr_url, args.api_key)
 
     report = {
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),

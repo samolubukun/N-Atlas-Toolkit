@@ -1160,9 +1160,10 @@ def main():
 
 def create_asr_app():
     """Factory for local standalone uvicorn deployment of ASR engine."""
-    engine = NATLaSASREngine()
-    engine.load_asr_models()
-    return engine.serve()
+    api = NATLaSAPI()
+    api.load_engine()
+    return api.serve()
+
 
 
 def create_llm_app():

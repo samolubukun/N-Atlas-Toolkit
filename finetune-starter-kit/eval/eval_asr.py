@@ -38,8 +38,10 @@ if sys.platform == "win32":
 # Default Modal cloud endpoints
 DEFAULT_ASR_ENDPOINT = os.environ.get(
     "NATLAS_API_URL",
-    "https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run/v1/audio/transcriptions",
+    os.environ.get("NATLAS_BASE_URL", "https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1/audio/transcriptions"),
 )
+
+
 if not DEFAULT_ASR_ENDPOINT.endswith("/v1/audio/transcriptions"):
     DEFAULT_ASR_ENDPOINT = f"{DEFAULT_ASR_ENDPOINT.rstrip('/')}/v1/audio/transcriptions"
 

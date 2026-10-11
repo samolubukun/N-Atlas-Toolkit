@@ -37,7 +37,7 @@ print("Audio Duration:", res.duration)
 ## 2. Using cURL (REST API)
 
 ```bash
-curl -X POST https://<workspace>--natlas-engine-natlasasrengine-serve.modal.run/v1/audio/transcriptions \
+curl -X POST https://<workspace>--natlas-engine-natlasapi-serve.modal.run/v1/audio/transcriptions \
   -H "Authorization: Bearer $NATLAS_API_KEY" \
   -F "file=@hausa_sample.mp3" \
   -F "model=NCAIR1/Hausa-ASR" \

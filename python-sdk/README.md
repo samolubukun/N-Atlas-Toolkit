@@ -301,14 +301,12 @@ The SDK provides first-class support for sovereign Nigerian speech recognition a
 import os
 import natlas
 
-# Supports deterministic dual URL routing:
-# base_url -> LLM endpoint
-# asr_url  -> Sovereign ASR endpoint (or defaults to NATLAS_API_URL)
+# Unified endpoint (base_url handles both LLM and ASR):
 client = natlas.Client(
     base_url=os.environ.get("NATLAS_BASE_URL", "https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run"),
-    asr_url=os.environ.get("NATLAS_API_URL", "https://samuelolubukun--natlas-engine-natlasasrengine-serve.modal.run"),
     api_key=os.environ.get("NATLAS_API_KEY", "<YOUR_API_KEY>"),
 )
+
 
 # Hosted Transcription:
 with open("yoruba_sample.wav", "rb") as audio_file:
