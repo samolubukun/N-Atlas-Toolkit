@@ -13,7 +13,7 @@ Features native voice note audio transcription (Yorùbá, Hausa, Igbo, English),
   - Accepts audio voice notes (`.ogg`, `.opus`) from WhatsApp and Telegram.
   - Automatically routes audio through **N-ATLaS Whisper ASR** models fine-tuned on native Nigerian accents: **Yorùbá**, **Hausa**, **Igbo**, and **Nigerian English**.
 - **Sovereign Wazobia Multilingual Intelligence**:
-  - Automatically detects and mirrors customer language with authentic native responses in **Yorùbá**, **Hausa**, **Igbo**, or polished **English** (unnatural/slang Pidgin is strictly restricted).
+  - Automatically detects and mirrors customer language with authentic native responses in **Yorùbá**, **Hausa**, **Igbo**, or polished **English** .
 - **Autonomous Tool Calling**:
   - `save_qualified_lead`: Captures client details, company niche, requested service packages, budget, intent score (`HOT`, `WARM`, `COLD`), and qualification notes.
   - `book_service_consultation`: Schedules consultations and strategy sessions directly into the database.

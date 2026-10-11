@@ -87,7 +87,7 @@ DIRECTIVES FOR COMMUNITY HEALTH OFFICERS:
       icon: '🏥',
       title: 'Reverse Localize Health PDF',
       desc: 'English Advisory • Attached for Preview',
-      prompt: 'Convert the attached Federal Health Ministry cholera advisory into simple, grassroot-friendly Nigerian Pidgin and Yorùbá so market women and community elders can easily follow the safety rules.',
+      prompt: 'Convert the attached Federal Health Ministry cholera advisory into simple, grassroot-friendly Hausa and Yorùbá so market women and community elders can easily follow the safety rules.',
       attachedDoc: SAMPLE_DOCS.englishHealthAdvisory,
       scenario: 'doc_english'
     },

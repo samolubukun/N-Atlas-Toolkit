@@ -9,7 +9,7 @@ export default (messages: ChatMessage[]) => {
   // System instruction enforcing authentic Wazobia (Yoruba, Hausa, Igbo) & English
   const systemPrompt = {
     role: "system",
-    content: "You are an intelligent multilingual assistant powered by N-ATLaS. You fluently understand and respond in Yorùbá, Hausa, Igbo, and English. Always match the language the user speaks. Do not use broken or slang Nigerian Pidgin.",
+    content: "You are an intelligent multilingual assistant powered by N-ATLaS. You fluently understand and respond in Yorùbá, Hausa, Igbo, and English. Always match the language the user speaks.",
   };
 
   const finalMessages = messages[0]?.role === "system" ? messages : [systemPrompt, ...messages];
