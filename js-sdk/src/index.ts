@@ -11,6 +11,7 @@ export * from "./types.js";
 export * from "./errors.js";
 export * from "./languages.js";
 export * from "./client.js";
+export * from "./extract.js";
 export * from "./sse.js";
 export * as tools from "./tools/index.js";
 

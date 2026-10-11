@@ -10,10 +10,13 @@ N-ATLaS is an initiative of the Federal Ministry of Communications, Innovation a
 
 - **Universal Runtime Support**: Works seamlessly in Node.js (>= 18), Bun, Deno, Next.js, and modern browser environments using standard `fetch` and Web Streams.
 - **Full TypeScript Types**: Complete TypeScript typings with strict type safety for chat completions, completions, speech-to-text, and token usages.
+- **Typed Error Hierarchy**: Standard error subclasses mapping to HTTP status codes (`AuthError`, `RateLimitError`, `BadRequestError`, `ServerError`, `AbortError`).
+- **Resilient Structured JSON Extraction (`client.extract()`)**: Handles markdown code blocks, cleans single quotes/trailing commas, validates against JSON schemas, and self-corrects via error feedback retry loops.
+- **Semantic Task Helpers**: Thin client helpers for `translate()`, `summarize()`, `classify()`, `classifyScam()`, and pipelined `voiceChat()`.
 - **Real-time SSE Streaming**: Async iterable streaming (`stream: true`) with Server-Sent Events (SSE).
 - **Audio Speech-to-Text (ASR)**: Sovereign multilingual audio transcription endpoint (`client.audio.transcriptions.create`) for Hausa, Igbo, Nigerian English, and Yoruba.
 - **Language Detection & System Prompts**: Built-in deterministic language detection heuristics and culturally aligned sovereign system prompts (`EN_NG`, `HA`, `IG`, `YO`).
-- **Flexible Deployment**: Connects to the hosted cloud endpoint on Modal or any self-hosted private on-premises vLLM / Docker instance.
+- **Flexible Deployment**: Connects to the hosted cloud endpoint on Modal, Lightning AI, Hugging Face Spaces, or any self-hosted private on-premises vLLM / Docker instance.
 - **Built-in Agent Tools**: 7 free, zero-API-key tools (`web_search`, `weather_lookup`, `fx_rates`, `nigeria_gazetteer`, `wikipedia_lookup`, `fetch_webpage`, `math_eval`) — no external credentials required.
 
 ---

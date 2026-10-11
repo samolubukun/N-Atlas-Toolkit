@@ -71,6 +71,44 @@ export class APIResponseValidationError extends NatlasError {
   }
 }
 
+export class AuthError extends APIStatusError {
+  constructor(message = "Authentication failed (401)", options?: any) {
+    super(message, { statusCode: 401, ...options });
+    this.name = "AuthError";
+  }
+}
+
+export class RateLimitError extends APIStatusError {
+  public readonly retryAfter?: number;
+
+  constructor(message = "Rate limit exceeded (429)", options?: any) {
+    super(message, { statusCode: 429, ...options });
+    this.name = "RateLimitError";
+    this.retryAfter = options?.retryAfter;
+  }
+}
+
+export class BadRequestError extends APIStatusError {
+  constructor(message = "Bad request (400)", options?: any) {
+    super(message, { statusCode: 400, ...options });
+    this.name = "BadRequestError";
+  }
+}
+
+export class ServerError extends APIStatusError {
+  constructor(message = "Internal server error", options?: any) {
+    super(message, { statusCode: options?.statusCode ?? 500, ...options });
+    this.name = "ServerError";
+  }
+}
+
+export class AbortError extends NatlasError {
+  constructor(message = "Request was aborted") {
+    super(message);
+    this.name = "AbortError";
+  }
+}
+
 export class StreamProtocolError extends NatlasError {
   constructor(message: string) {
     super(message);

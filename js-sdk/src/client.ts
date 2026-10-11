@@ -736,6 +736,131 @@ export class NatlasClient {
       body: body ? JSON.stringify(body) : undefined,
     });
   }
+
+  /**
+   * Extract structured data conforming to a schema with error feedback retries.
+   */
+  public async extract<T = any>(
+    options: {
+      prompt: string | Message[];
+      schema?: Record<string, any>;
+      systemInstruction?: string;
+      maxRetries?: number;
+      temperature?: number;
+      validate?: (parsed: any) => T;
+    }
+  ): Promise<T> {
+    const { extract } = await import("./extract.js");
+    return extract<T>(this, options);
+  }
+
+  /**
+   * Translate text into or from Nigerian languages.
+   */
+  public async translate(
+    text: string,
+    targetLanguage: string,
+    sourceLanguage?: string
+  ): Promise<string> {
+    const src = sourceLanguage ? ` from ${sourceLanguage}` : "";
+    const sysMsg = `You are a professional linguistic translator specializing in Nigerian languages and cultural nuances. Translate the provided text${src} into ${targetLanguage}. Maintain original intent, tone, and idioms. Output ONLY the translated text without extra commentary.`;
+
+    const res = await this.chat([
+      { role: "system", content: sysMsg },
+      { role: "user", content: text },
+    ], { temperature: 0.1 });
+    return (res.message?.content || "").trim();
+  }
+
+  /**
+   * Summarize text concisely while preserving cultural context.
+   */
+  public async summarize(
+    text: string,
+    options: { maxWords?: number; language?: string } = {}
+  ): Promise<string> {
+    const langClause = options.language ? ` in ${options.language}` : "";
+    const maxWords = options.maxWords ?? 80;
+    const sysMsg = `Summarize the provided text concisely${langClause}. Keep your summary under approximately ${maxWords} words. Capture key facts, numbers, and intent.`;
+
+    const res = await this.chat([
+      { role: "system", content: sysMsg },
+      { role: "user", content: text },
+    ], { temperature: 0.1 });
+    return (res.message?.content || "").trim();
+  }
+
+  /**
+   * Classify text into one of designated categories.
+   */
+  public async classify(
+    text: string,
+    labels: string[],
+    instruction = "Classify the following text into exactly one of the provided categories."
+  ): Promise<string> {
+    const labelsStr = labels.map((l) => `"${l}"`).join(", ");
+    const sysMsg = `${instruction}\nAvailable categories: [${labelsStr}].\nRespond strictly with the single chosen category name, and nothing else.`;
+
+    const res = await this.chat([
+      { role: "system", content: sysMsg },
+      { role: "user", content: text },
+    ], { temperature: 0.0 });
+    const choice = (res.message?.content || "").trim().replace(/^["']|["']$/g, "");
+    for (const label of labels) {
+      if (label.toLowerCase() === choice.toLowerCase()) {
+        return label;
+      }
+    }
+    return choice;
+  }
+
+  /**
+   * Check message for Nigerian financial fraud, phishing, and social engineering.
+   */
+  public async classifyScam(
+    text: string
+  ): Promise<{ is_scam: boolean; confidence: number; category: string; explanation: string }> {
+    const sysMsg =
+      'You are a specialized security analyst inspecting messages for Nigerian financial fraud, phishing, fake bank alerts, BVN scams, and deceptive social engineering.\nRespond ONLY with a JSON object in this format:\n{"is_scam": boolean, "confidence": float, "category": string, "explanation": string}';
+
+    const res = await this.chat([
+      { role: "system", content: sysMsg },
+      { role: "user", content: text },
+    ], { temperature: 0.0 });
+    const raw = res.message?.content || "{}";
+    const { cleanAndParseJson } = await import("./extract.js");
+    try {
+      return cleanAndParseJson(raw);
+    } catch {
+      return { is_scam: false, confidence: 0, category: "unknown", explanation: "Failed to parse analysis" };
+    }
+  }
+
+  /**
+   * Transcribe speech and stream/generate LLM chat completion in one step.
+   */
+  public async voiceChat(
+    file: Blob | Uint8Array | ArrayBuffer | { buffer: ArrayBuffer; name?: string },
+    options: { language?: string; systemPrompt?: string } = {}
+  ): Promise<{ transcription: string; response: string }> {
+    const asr = await this.transcribe(file, { language: options.language });
+    const text = asr.text?.trim() || "";
+    if (!text) {
+      return { transcription: "", response: "Could not detect clear speech in the provided audio." };
+    }
+
+    const messages: Message[] = [];
+    if (options.systemPrompt) {
+      messages.push({ role: "system", content: options.systemPrompt });
+    }
+    messages.push({ role: "user", content: text });
+
+    const chatRes = await this.chat(messages);
+    return {
+      transcription: text,
+      response: (chatRes.message?.content || "").trim(),
+    };
+  }
 }
 
 // Module-level convenience client alias
