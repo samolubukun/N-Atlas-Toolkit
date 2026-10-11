@@ -1988,7 +1988,7 @@
 </code></pre></div>
 <hr />
 <h2 id="2-using-curl-rest-api">2. Using cURL (REST API)</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://&lt;workspace&gt;--natlas-engine-natlasasrengine-serve.modal.run/v1/audio/transcriptions<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://&lt;workspace&gt;--natlas-engine-natlasapi-serve.modal.run/v1/audio/transcriptions<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$NATLAS_API_KEY</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;file=@hausa_sample.mp3&quot;</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;model=NCAIR1/Hausa-ASR&quot;</span><span class="w"> </span><span class="se">\</span>

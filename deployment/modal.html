@@ -1941,28 +1941,23 @@
 <p>How the N-ATLaS production architecture is deployed on Modal with automated scaling and GPU volume caching.</p>
 <hr />
 <h2 id="architecture-overview">Architecture Overview</h2>
-<p>The system uses two dedicated microservices on Modal:</p>
-<ol>
-<li><strong><code>NATLaSAPI</code> (LLM Microservice)</strong>:</li>
-<li>Hardware: NVIDIA A10G (24GB VRAM)</li>
-<li>Volume: <code>natlas-weights-cache</code> (persistent ~16GB weights)</li>
-<li>Engine: PyTorch / Transformers bfloat16 + SDPA &amp; native vLLM</li>
-<li>Idle Keep-Warm: 300 seconds (scale-to-zero economics)</li>
-<li><strong><code>NATLaSASREngine</code> (Sovereign ASR Microservice)</strong>:</li>
-<li>Hardware: NVIDIA T4 / A10G</li>
-<li>Serves Yoruba, Hausa, Igbo, and Nigerian English Whisper Small models.</li>
-<li>Provides batch REST and WebSocket streaming.</li>
-</ol>
+<p>The system runs on a high-throughput, unified engine on Modal:</p>
+<ul>
+<li><strong>Hardware</strong>: NVIDIA A10G (24GB VRAM)</li>
+<li><strong>Volume</strong>: <code>natlas-weights-cache</code> (persistent ~16GB weights)</li>
+<li><strong>LLM Engine</strong>: PyTorch / Transformers bfloat16 + SDPA &amp; native vLLM continuous batching</li>
+<li><strong>ASR Gateway</strong>: Serves Yoruba, Hausa, Igbo, and Nigerian English Whisper models at <code>/v1/audio/transcriptions</code></li>
+<li><strong>Idle Keep-Warm</strong>: 300 seconds (scale-to-zero economics)</li>
+</ul>
 <hr />
 <h2 id="deploying-your-own-instance">Deploying Your Own Instance</h2>
 <p>With the Modal CLI installed and authenticated:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Deploy both microservices to your Modal account using [`natlas_engine.py`](https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/natlas_engine.py):</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Deploy to your Modal account using natlas_engine.py:</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>modal<span class="w"> </span>deploy<span class="w"> </span>natlas_engine.py
 </code></pre></div>
 <h3 id="output-endpoints">Output Endpoints</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a> Created App: natlas-engine
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a> Deployed web function: NATLaSAPI.serve -&gt; https://&lt;workspace&gt;--natlas-engine-natlasapi-serve.modal.run
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a> Deployed web function: NATLaSASREngine.serve -&gt; https://&lt;workspace&gt;--natlas-engine-natlasasrengine-serve.modal.run
 </code></pre></div>
 
 
