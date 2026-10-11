@@ -340,6 +340,64 @@ class NATLaSEngine:
                 "words": [],
             }
 
+        # For long audio (>30s), segment audio at silence pauses to avoid Whisper 30s truncation
+        if duration_sec > 30.0:
+            chunk_length_samples = 28 * 16000  # 28-second target windows
+            chunks = []
+            start_idx = 0
+            while start_idx < len(audio_array):
+                end_idx = min(start_idx + chunk_length_samples, len(audio_array))
+                if end_idx < len(audio_array):
+                    search_start = max(start_idx + 20 * 16000, end_idx - 5 * 16000)
+                    search_slice = audio_array[search_start:end_idx]
+                    frame_len = 1600  # 100ms
+                    if len(search_slice) >= frame_len:
+                        energies = [
+                            np.mean(search_slice[k : k + frame_len] ** 2)
+                            for k in range(0, len(search_slice) - frame_len, frame_len)
+                        ]
+                        min_frame = int(np.argmin(energies))
+                        cut_point = search_start + (min_frame * frame_len)
+                        end_idx = cut_point
+                chunks.append((start_idx, end_idx, audio_array[start_idx:end_idx]))
+                start_idx = end_idx
+
+            transcription_parts = []
+            all_words = []
+            for c_start, c_end, chunk_arr in chunks:
+                if len(chunk_arr) < 16000 * 0.4:
+                    continue
+                c_feats = processor(
+                    chunk_arr,
+                    sampling_rate=16000,
+                    return_tensors="pt"
+                ).input_features.to(self.device).to(self.dtype)
+                with torch.inference_mode():
+                    p_ids = model.generate(c_feats, return_timestamps=False, no_repeat_ngram_size=3)
+                c_text = processor.batch_decode(p_ids, skip_special_tokens=True)[0].strip()
+                if c_text:
+                    transcription_parts.append(c_text)
+                    c_offset = c_start / 16000.0
+                    c_dur = len(chunk_arr) / 16000.0
+                    w_list = c_text.split()
+                    step = c_dur / max(1, len(w_list))
+                    for idx, w in enumerate(w_list):
+                        all_words.append({
+                            "word": w,
+                            "start": round(c_offset + idx * step, 2),
+                            "end": round(c_offset + (idx + 1) * step, 2),
+                            "confidence": 0.95,
+                        })
+
+            full_transcription = " ".join(transcription_parts)
+            return {
+                "text": full_transcription,
+                "duration": round(duration_sec, 2),
+                "model": model_id,
+                "language": language or "auto",
+                "words": all_words if return_timestamps else [],
+            }
+
         input_features = processor(
             audio_array,
             sampling_rate=16000,
