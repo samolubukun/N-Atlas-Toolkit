@@ -112,7 +112,10 @@ python inference.py --checkpoint outputs/checkpoints/final_adapters --prompt "Sa
 python save_export.py --checkpoint outputs/checkpoints/final_adapters
 ```
 
-> **Colab Quickstart**: If you are training on Google Colab (free T4 GPU), open and run [`notebooks/quickstart.ipynb`](notebooks/quickstart.ipynb).
+> **Interactive Notebooks & Colab Quickstarts**:
+> - [`notebooks/quickstart.ipynb`](notebooks/quickstart.ipynb) — Thin Colab wrapper for running the end-to-end pipeline scripts on a free T4 GPU.
+> - [`notebooks/fine-tune-natlas-8b-on-medical-dataset.ipynb`](notebooks/fine-tune-natlas-8b-on-medical-dataset.ipynb) — Complete standalone QLoRA fine-tuning walkthrough on medical / clinical dialogue (`ruslanmv/ai-medical-chatbot`).
+> - [`notebooks/natlas_finetune_own_data.ipynb`](notebooks/natlas_finetune_own_data.ipynb) — Guide for adapting N-ATLaS to specialized Nigerian domains (healthcare, agriculture, civic literacy) with custom JSONL data.
 
 
 `eval/compare.py` is the main entry point for evaluation — see

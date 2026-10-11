@@ -53,3 +53,16 @@ You are a helpful assistant.<|eot_id|>
 ```
 
 The fine-tuning kit defaults to `data.use_tokenizer_template: true` in `config/config.yaml`, ensuring your training data is formatted identically to the base model's native template without drift.
+
+---
+
+## Interactive Notebooks
+
+For interactive experimentation in Google Colab, Kaggle, or Jupyter environments:
+
+| Notebook | Focus | Target Environment |
+| :--- | :--- | :--- |
+| **[`quickstart.ipynb`](https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/finetune-starter-kit/notebooks/quickstart.ipynb)** | End-to-end pipeline wrapper using Unsloth LoRA | Google Colab (Free T4 GPU) |
+| **[`fine-tune-natlas-8b-on-medical-dataset.ipynb`](https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/notebooks/fine-tune-natlas-8b-on-medical-dataset.ipynb)** | Medical dialogue QLoRA fine-tuning (`ruslanmv/ai-medical-chatbot`) | Kaggle / Google Colab (16GB+ VRAM) |
+| **[`natlas_finetune_own_data.ipynb`](https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/notebooks/natlas_finetune_own_data.ipynb)** | Domain adaptation on custom JSONL (health, civic literacy, agriculture) | Local / Cloud GPU (24GB VRAM) |
+
