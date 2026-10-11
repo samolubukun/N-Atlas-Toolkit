@@ -1022,6 +1022,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#interactive-notebooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactive Notebooks
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1905,6 +1916,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#interactive-notebooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interactive Notebooks
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1965,6 +1987,35 @@
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>You are a helpful assistant.&lt;|eot_id|&gt;
 </code></pre></div>
 <p>The fine-tuning kit defaults to <code>data.use_tokenizer_template: true</code> in <code>config/config.yaml</code>, ensuring your training data is formatted identically to the base model's native template without drift.</p>
+<hr />
+<h2 id="interactive-notebooks">Interactive Notebooks</h2>
+<p>For interactive experimentation in Google Colab, Kaggle, or Jupyter environments:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Notebook</th>
+<th style="text-align: left;">Focus</th>
+<th style="text-align: left;">Target Environment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong><a href="https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/finetune-starter-kit/notebooks/quickstart.ipynb"><code>quickstart.ipynb</code></a></strong></td>
+<td style="text-align: left;">End-to-end pipeline wrapper using Unsloth LoRA</td>
+<td style="text-align: left;">Google Colab (Free T4 GPU)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><a href="https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/notebooks/fine-tune-natlas-8b-on-medical-dataset.ipynb"><code>fine-tune-natlas-8b-on-medical-dataset.ipynb</code></a></strong></td>
+<td style="text-align: left;">Medical dialogue QLoRA fine-tuning (<code>ruslanmv/ai-medical-chatbot</code>)</td>
+<td style="text-align: left;">Kaggle / Google Colab (16GB+ VRAM)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><a href="https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/notebooks/natlas_finetune_own_data.ipynb"><code>natlas_finetune_own_data.ipynb</code></a></strong></td>
+<td style="text-align: left;">Domain adaptation on custom JSONL (health, civic literacy, agriculture)</td>
+<td style="text-align: left;">Local / Cloud GPU (24GB VRAM)</td>
+</tr>
+</tbody>
+</table>
 
 
 
