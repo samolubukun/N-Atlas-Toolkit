@@ -16,7 +16,9 @@ This `python-sdk/` directory is the complete Python SDK project inside the N-ATL
 - Synchronous `Client` and `AsyncClient`
 - Typed `ChatResponse`, `GenerateResponse`, `Message`, and `Usage` models
 - Synchronous and asynchronous streaming with `stream=True`
-- Module-level `chat()` and `generate()` convenience functions
+- Module-level `chat()`, `generate()`, `extract()`, `translate()`, `summarize()`, `classify()`, `classify_scam()`, and `voice_chat()` convenience functions
+- **Resilient Structured JSON Extraction (`client.extract()`)**: Validates against Pydantic schemas, strips code blocks/dirty markdown, fixes comma/quote formatting, and feeds validation errors back to the model for automatic retry loops.
+- **Semantic Task Helpers**: Thin contextual wrappers: `translate()`, `summarize()`, `classify()`, `classify_scam()`, and full ASR-to-LLM pipelined `voice_chat()`.
 - Automatic N-ATLaS `date_string` chat-template handling
 - Hausa, Igbo, Nigerian English, and Yoruba presets
 - Deterministic language detection and language-specific system prompts

@@ -249,6 +249,157 @@ class Client:
             raise ConfigurationError("HTTP escape hatches are only available in hosted mode")
         return self._hosted.post(path, body=body, cast_to=cast_to)
 
+    def extract(
+        self,
+        response_model: type[T],
+        prompt: list[MessageInput] | str,
+        system_instruction: str = "Extract information according to the requested schema.",
+        max_retries: int = 2,
+        temperature: float = 0.1,
+        **kwargs: Any,
+    ) -> T:
+        """Extract structured data adhering to a Pydantic schema with automatic validation retry."""
+        from .extract import extract_sync
+        return extract_sync(
+            self,
+            response_model=response_model,
+            messages=prompt,
+            system_instruction=system_instruction,
+            max_retries=max_retries,
+            temperature=temperature,
+            **kwargs,
+        )
+
+    def translate(
+        self,
+        text: str,
+        target_language: str,
+        source_language: str | None = None,
+        **kwargs: Any,
+    ) -> str:
+        """Translate text to or from Nigerian languages (Yoruba, Hausa, Igbo, Nigerian English)."""
+        src = f" from {source_language}" if source_language else ""
+        sys_msg = (
+            f"You are a professional linguistic translator specializing in Nigerian languages and cultural nuances. "
+            f"Translate the provided text{src} into {target_language}. Maintain original intent, tone, and idioms. "
+            "Output ONLY the translated text without extra commentary or explanation."
+        )
+        resp = self.chat(
+            messages=[
+                {"role": "system", "content": sys_msg},
+                {"role": "user", "content": text},
+            ],
+            temperature=0.1,
+            **kwargs,
+        )
+        assert isinstance(resp, ChatResponse)
+        return (resp.message.content or "").strip()
+
+    def summarize(
+        self,
+        text: str,
+        max_words: int = 80,
+        language: str | None = None,
+        **kwargs: Any,
+    ) -> str:
+        """Summarize text concisely while preserving cultural context."""
+        lang_clause = f" in {language}" if language else ""
+        sys_msg = (
+            f"Summarize the provided text concisely{lang_clause}. "
+            f"Keep your summary under approximately {max_words} words. Capture the key facts, numbers, and intent."
+        )
+        resp = self.chat(
+            messages=[
+                {"role": "system", "content": sys_msg},
+                {"role": "user", "content": text},
+            ],
+            temperature=0.1,
+            **kwargs,
+        )
+        assert isinstance(resp, ChatResponse)
+        return (resp.message.content or "").strip()
+
+    def classify(
+        self,
+        text: str,
+        labels: list[str],
+        instruction: str = "Classify the following text into exactly one of the provided categories.",
+        **kwargs: Any,
+    ) -> str:
+        """Classify text into one of the designated categories."""
+        labels_str = ", ".join(f'"{label}"' for label in labels)
+        sys_msg = (
+            f"{instruction}\n"
+            f"Available categories: [{labels_str}].\n"
+            "Respond strictly with the single chosen category name, and nothing else."
+        )
+        resp = self.chat(
+            messages=[
+                {"role": "system", "content": sys_msg},
+                {"role": "user", "content": text},
+            ],
+            temperature=0.0,
+            **kwargs,
+        )
+        assert isinstance(resp, ChatResponse)
+        choice = (resp.message.content or "").strip().strip('"').strip("'")
+        for label in labels:
+            if label.lower() == choice.lower():
+                return label
+        return choice
+
+    def classify_scam(
+        self,
+        text: str,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
+        """Analyze message for potential financial fraud, phishing, or social engineering targeting Nigerians."""
+        sys_msg = (
+            "You are a specialized security analyst inspecting messages for Nigerian financial fraud, "
+            "phishing, fake bank alerts, BVN scams, and deceptive social engineering.\n"
+            "Respond ONLY with a JSON object in this format:\n"
+            '{"is_scam": boolean, "confidence": float, "category": string, "explanation": string}'
+        )
+        resp = self.chat(
+            messages=[
+                {"role": "system", "content": sys_msg},
+                {"role": "user", "content": text},
+            ],
+            temperature=0.0,
+            **kwargs,
+        )
+        assert isinstance(resp, ChatResponse)
+        from .extract import clean_and_parse_json
+        try:
+            return clean_and_parse_json(resp.message.content or "{}")
+        except Exception:
+            return {"is_scam": False, "confidence": 0.0, "category": "unknown", "explanation": "Failed to parse analysis"}
+
+    def voice_chat(
+        self,
+        audio: Any,
+        language: str | None = None,
+        system_prompt: str | None = None,
+        **kwargs: Any,
+    ) -> dict[str, str]:
+        """Transcribe audio note and generate an AI response in one pipeline call."""
+        asr_res = self.transcribe(audio=audio, language=language)
+        transcribed_text = asr_res.text
+        if not transcribed_text.strip():
+            return {"transcription": "", "response": "Could not detect clear speech in the provided audio."}
+
+        msgs: list[MessageInput] = []
+        if system_prompt:
+            msgs.append({"role": "system", "content": system_prompt})
+        msgs.append({"role": "user", "content": transcribed_text})
+
+        chat_res = self.chat(messages=msgs, **kwargs)
+        assert isinstance(chat_res, ChatResponse)
+        return {
+            "transcription": transcribed_text,
+            "response": (chat_res.message.content or "").strip(),
+        }
+
     def close(self) -> None:
         if self._hosted is not None:
             self._hosted.close()
@@ -470,6 +621,157 @@ class AsyncClient:
         if self._hosted is None:
             raise ConfigurationError("HTTP escape hatches are only available in hosted mode")
         return await self._hosted.post(path, body=body, cast_to=cast_to)
+
+    async def extract(
+        self,
+        response_model: type[T],
+        prompt: list[MessageInput] | str,
+        system_instruction: str = "Extract information according to the requested schema.",
+        max_retries: int = 2,
+        temperature: float = 0.1,
+        **kwargs: Any,
+    ) -> T:
+        """Asynchronously extract structured data adhering to a Pydantic schema with automatic validation retry."""
+        from .extract import extract_async
+        return await extract_async(
+            self,
+            response_model=response_model,
+            messages=prompt,
+            system_instruction=system_instruction,
+            max_retries=max_retries,
+            temperature=temperature,
+            **kwargs,
+        )
+
+    async def translate(
+        self,
+        text: str,
+        target_language: str,
+        source_language: str | None = None,
+        **kwargs: Any,
+    ) -> str:
+        """Asynchronously translate text to or from Nigerian languages."""
+        src = f" from {source_language}" if source_language else ""
+        sys_msg = (
+            f"You are a professional linguistic translator specializing in Nigerian languages and cultural nuances. "
+            f"Translate the provided text{src} into {target_language}. Maintain original intent, tone, and idioms. "
+            "Output ONLY the translated text without extra commentary or explanation."
+        )
+        resp = await self.chat(
+            messages=[
+                {"role": "system", "content": sys_msg},
+                {"role": "user", "content": text},
+            ],
+            temperature=0.1,
+            **kwargs,
+        )
+        assert isinstance(resp, ChatResponse)
+        return (resp.message.content or "").strip()
+
+    async def summarize(
+        self,
+        text: str,
+        max_words: int = 80,
+        language: str | None = None,
+        **kwargs: Any,
+    ) -> str:
+        """Asynchronously summarize text concisely while preserving cultural context."""
+        lang_clause = f" in {language}" if language else ""
+        sys_msg = (
+            f"Summarize the provided text concisely{lang_clause}. "
+            f"Keep your summary under approximately {max_words} words. Capture the key facts, numbers, and intent."
+        )
+        resp = await self.chat(
+            messages=[
+                {"role": "system", "content": sys_msg},
+                {"role": "user", "content": text},
+            ],
+            temperature=0.1,
+            **kwargs,
+        )
+        assert isinstance(resp, ChatResponse)
+        return (resp.message.content or "").strip()
+
+    async def classify(
+        self,
+        text: str,
+        labels: list[str],
+        instruction: str = "Classify the following text into exactly one of the provided categories.",
+        **kwargs: Any,
+    ) -> str:
+        """Asynchronously classify text into one of the designated categories."""
+        labels_str = ", ".join(f'"{label}"' for label in labels)
+        sys_msg = (
+            f"{instruction}\n"
+            f"Available categories: [{labels_str}].\n"
+            "Respond strictly with the single chosen category name, and nothing else."
+        )
+        resp = await self.chat(
+            messages=[
+                {"role": "system", "content": sys_msg},
+                {"role": "user", "content": text},
+            ],
+            temperature=0.0,
+            **kwargs,
+        )
+        assert isinstance(resp, ChatResponse)
+        choice = (resp.message.content or "").strip().strip('"').strip("'")
+        for label in labels:
+            if label.lower() == choice.lower():
+                return label
+        return choice
+
+    async def classify_scam(
+        self,
+        text: str,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
+        """Asynchronously analyze message for financial fraud or deceptive social engineering."""
+        sys_msg = (
+            "You are a specialized security analyst inspecting messages for Nigerian financial fraud, "
+            "phishing, fake bank alerts, BVN scams, and deceptive social engineering.\n"
+            "Respond ONLY with a JSON object in this format:\n"
+            '{"is_scam": boolean, "confidence": float, "category": string, "explanation": string}'
+        )
+        resp = await self.chat(
+            messages=[
+                {"role": "system", "content": sys_msg},
+                {"role": "user", "content": text},
+            ],
+            temperature=0.0,
+            **kwargs,
+        )
+        assert isinstance(resp, ChatResponse)
+        from .extract import clean_and_parse_json
+        try:
+            return clean_and_parse_json(resp.message.content or "{}")
+        except Exception:
+            return {"is_scam": False, "confidence": 0.0, "category": "unknown", "explanation": "Failed to parse analysis"}
+
+    async def voice_chat(
+        self,
+        audio: Any,
+        language: str | None = None,
+        system_prompt: str | None = None,
+        **kwargs: Any,
+    ) -> dict[str, str]:
+        """Asynchronously transcribe audio note and generate an AI response in one pipeline call."""
+        asr_res = await self.transcribe(audio=audio, language=language)
+        transcribed_text = asr_res.text
+        if not transcribed_text.strip():
+            return {"transcription": "", "response": "Could not detect clear speech in the provided audio."}
+
+        msgs: list[MessageInput] = []
+        if system_prompt:
+            msgs.append({"role": "system", "content": system_prompt})
+        msgs.append({"role": "user", "content": transcribed_text})
+
+        chat_res = await self.chat(messages=msgs, **kwargs)
+        assert isinstance(chat_res, ChatResponse)
+        return {
+            "transcription": transcribed_text,
+            "response": (chat_res.message.content or "").strip(),
+        }
 
     async def close(self) -> None:
         if self._hosted is not None:

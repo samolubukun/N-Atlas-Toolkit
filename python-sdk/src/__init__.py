@@ -40,7 +40,7 @@ from .exceptions import (
 from .hosted import DEFAULT_BASE_URL, DEFAULT_MODEL
 from .languages import EN_NG, HA, IG, SUPPORTED_LANGUAGES, YO, detect_language, system_prompt
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 ATTRIBUTION = (
     "N-ATLaS is an initiative of the Federal Ministry of Communications, Innovation and Digital "
     "Economy, and powered by Awarri Technologies."
@@ -139,6 +139,96 @@ def transcribe(
     )
 
 
+def extract(
+    response_model: Any,
+    prompt: list[MessageInput] | str,
+    system_instruction: str = "Extract information according to the requested schema.",
+    max_retries: int = 2,
+    temperature: float = 0.1,
+    **kwargs: Any,
+) -> Any:
+    """Extract structured data adhering to a Pydantic schema using default client."""
+    return _get_default_client().extract(
+        response_model=response_model,
+        prompt=prompt,
+        system_instruction=system_instruction,
+        max_retries=max_retries,
+        temperature=temperature,
+        **kwargs,
+    )
+
+
+def translate(
+    text: str,
+    target_language: str,
+    source_language: str | None = None,
+    **kwargs: Any,
+) -> str:
+    """Translate text using default client."""
+    return _get_default_client().translate(
+        text=text,
+        target_language=target_language,
+        source_language=source_language,
+        **kwargs,
+    )
+
+
+def summarize(
+    text: str,
+    max_words: int = 80,
+    language: str | None = None,
+    **kwargs: Any,
+) -> str:
+    """Summarize text using default client."""
+    return _get_default_client().summarize(
+        text=text,
+        max_words=max_words,
+        language=language,
+        **kwargs,
+    )
+
+
+def classify(
+    text: str,
+    labels: list[str],
+    instruction: str = "Classify the following text into exactly one of the provided categories.",
+    **kwargs: Any,
+) -> str:
+    """Classify text using default client."""
+    return _get_default_client().classify(
+        text=text,
+        labels=labels,
+        instruction=instruction,
+        **kwargs,
+    )
+
+
+def classify_scam(
+    text: str,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """Check message for fraud/scams using default client."""
+    return _get_default_client().classify_scam(
+        text=text,
+        **kwargs,
+    )
+
+
+def voice_chat(
+    audio: Any,
+    language: str | None = None,
+    system_prompt: str | None = None,
+    **kwargs: Any,
+) -> dict[str, str]:
+    """Pipeline audio transcription to chat using default client."""
+    return _get_default_client().voice_chat(
+        audio=audio,
+        language=language,
+        system_prompt=system_prompt,
+        **kwargs,
+    )
+
+
 __all__ = [
     "APIConnectionError",
     "APIError",
@@ -176,9 +266,15 @@ __all__ = [
     "YO",
     "__version__",
     "chat",
+    "classify",
+    "classify_scam",
     "detect_language",
+    "extract",
     "generate",
+    "summarize",
     "system_prompt",
     "tools",
     "transcribe",
+    "translate",
+    "voice_chat",
 ]
