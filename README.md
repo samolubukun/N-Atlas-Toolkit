@@ -79,7 +79,7 @@ This repository is organized as a unified monorepo providing everything needed t
 | **[`docker-compose.local.yml`](docker-compose.local.yml)** | **Local CPU & Apple Silicon Stack**: Zero-NVIDIA Docker stack for local testing on MacBooks and CPU laptops. |
 | **[`Dockerfile.llm`](Dockerfile.llm) & [`Dockerfile.asr`](Dockerfile.asr)** | Dedicated Docker container definitions for the LLM and Sovereign ASR microservices. |
 | **[`tests/`](tests)** | Comprehensive end-to-end integration tests and real multilingual audio samples (`hausa.mp3`, `yoruba.mp3`, `igbo.mp3`, `english.mp3`). |
-| **[`scripts/`](file:///c:/Users/USER/Downloads/natlas-toolkit/scripts)** | Benchmarking and evaluation harnesses measuring WER/CER, Time to First Token (TTFT), throughput (tok/s), and latency. |
+| **[`scripts/`](scripts)** | **[`benchmark_suite.py`](scripts/benchmark_suite.py)** (throughput/latency/WER evaluation harness) and **[`export_natlas_gguf.py`](scripts/export_natlas_gguf.py)** (LoRA merger, GGUF converter, and Ollama Modelfile generator). |
 | **[`.github/workflows/`](file:///c:/Users/USER/Downloads/natlas-toolkit/.github/workflows)** | CI/CD automated workflow running multi-version matrix tests for Python, Node.js, and MkDocs site builds. |
 
 ---

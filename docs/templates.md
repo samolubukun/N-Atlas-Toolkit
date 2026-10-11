@@ -60,3 +60,26 @@ npm run dev
 ```
 
 Open your browser at `http://localhost:5173`.
+
+---
+
+## 3. Multilingual Clinical Triage Assistant (`templates/clinical-triage-assistant/`)
+
+A production-ready healthcare consultation and patient triage starter template powered by **N-ATLaS** (`NCAIR1/N-ATLaS` and the fine-tuned `natlas-8b-medical-doctor` LoRA adapter).
+
+### Key Highlights
+- **Multilingual Healthcare Consultations**: Full dialogue support in **Yoruba, Hausa, Igbo, and English**.
+- **Automated Urgency Triage**: Urgency classification (`Emergency`, `Moderate`, `Standard`, `Non-Urgent`).
+- **Specialist Routing**: Directs patients to appropriate medical departments (e.g. Dermatology, Emergency, Internal Medicine).
+- **FastAPI Async Backend & Standalone UI**: Single-page consultation app with dark-mode aesthetic, triage badges, and clinical safety disclaimers.
+
+### Quickstart
+
+```bash
+cd templates/clinical-triage-assistant
+pip install -r requirements.txt
+python main.py
+```
+
+Access the triage portal at `http://localhost:8005`.
+

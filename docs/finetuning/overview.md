@@ -66,3 +66,23 @@ For interactive experimentation in Google Colab, Kaggle, or Jupyter environments
 | **[`fine-tune-natlas-8b-on-medical-dataset.ipynb`](https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/notebooks/fine-tune-natlas-8b-on-medical-dataset.ipynb)** | Medical dialogue QLoRA fine-tuning (`ruslanmv/ai-medical-chatbot`) | Kaggle / Google Colab (16GB+ VRAM) |
 | **[`natlas_finetune_own_data.ipynb`](https://github.com/samolubukun/N-Atlas-Toolkit/blob/main/notebooks/natlas_finetune_own_data.ipynb)** | Domain adaptation on custom JSONL (health, civic literacy, agriculture) | Local / Cloud GPU (24GB VRAM) |
 
+---
+
+## Local GGUF & Ollama Export
+
+To run your fine-tuned N-ATLaS model on laptops (Apple Silicon / Windows / Linux) or Ollama without high-end cloud GPUs:
+
+```bash
+# 1. Merge any trained LoRA adapter and generate an Ollama Modelfile
+python scripts/export_natlas_gguf.py \
+    --base-model NCAIR1/N-ATLaS \
+    --adapter-dir path/to/your/lora-adapter \
+    --output-dir outputs/export
+
+# 2. Deploy directly to Ollama
+ollama create natlas-custom -f outputs/export/Modelfile
+ollama run natlas-custom
+```
+
+
+
