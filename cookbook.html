@@ -661,10 +661,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-autonomous-agentic-tool-calling-cookbookagentic_toolspy" class="md-nav__link">
+  <a href="#3-micro-retail-voice-to-ledger-cookbookmicro_retail_ledgerpy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Autonomous Agentic Tool Calling (cookbook/agentic_tools.py)
+        3. Micro-Retail Voice-to-Ledger (cookbook/micro_retail_ledger.py)
       
     </span>
   </a>
@@ -672,10 +672,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-built-in-zero-key-agent-tools" class="md-nav__link">
+  <a href="#4-financial-fraud-social-engineering-analyzer-cookbookfinancial_fraud_detectorpy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Built-in Zero-Key Agent Tools
+        4. Financial Fraud &amp; Social Engineering Analyzer (cookbook/financial_fraud_detector.py)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-autonomous-agentic-tool-calling-cookbookagentic_toolspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Autonomous Agentic Tool Calling (cookbook/agentic_tools.py)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-built-in-zero-key-agent-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Built-in Zero-Key Agent Tools
       
     </span>
   </a>
@@ -1917,10 +1939,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-autonomous-agentic-tool-calling-cookbookagentic_toolspy" class="md-nav__link">
+  <a href="#3-micro-retail-voice-to-ledger-cookbookmicro_retail_ledgerpy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Autonomous Agentic Tool Calling (cookbook/agentic_tools.py)
+        3. Micro-Retail Voice-to-Ledger (cookbook/micro_retail_ledger.py)
       
     </span>
   </a>
@@ -1928,10 +1950,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-built-in-zero-key-agent-tools" class="md-nav__link">
+  <a href="#4-financial-fraud-social-engineering-analyzer-cookbookfinancial_fraud_detectorpy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Built-in Zero-Key Agent Tools
+        4. Financial Fraud &amp; Social Engineering Analyzer (cookbook/financial_fraud_detector.py)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-autonomous-agentic-tool-calling-cookbookagentic_toolspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Autonomous Agentic Tool Calling (cookbook/agentic_tools.py)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-built-in-zero-key-agent-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Built-in Zero-Key Agent Tools
       
     </span>
   </a>
@@ -1978,47 +2022,55 @@
 </code></pre></div>
 <hr />
 <h2 id="2-customer-support-dispute-classifier-cookbookcustomer_support_routerpy">2. Customer Support &amp; Dispute Classifier (<code>cookbook/customer_support_router.py</code>)</h2>
-<p>Demonstrates automating bank ticket resolution (POS decline, transfer delays, account queries) across Hausa, Igbo, Yoruba, </p>
+<p>Demonstrates automating bank ticket resolution (POS decline, transfer delays, account queries) across Hausa, Igbo, Yoruba, and English.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>cookbook/customer_support_router.py
 </code></pre></div>
 <hr />
-<p>Demonstrates a multi-stage AI pipeline:</p>
-<hr />
-<h2 id="4-autonomous-agentic-tool-calling-cookbookagentic_toolspy">4. Autonomous Agentic Tool Calling (<code>cookbook/agentic_tools.py</code>)</h2>
-<p>Demonstrates OpenAI-compatible multi-turn tool calling and function resolution with Nigerian-localized tools (<code>get_cbn_fx_rate</code>, <code>get_market_commodity_price</code>):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>cookbook/agentic_tools.py
+<h2 id="3-micro-retail-voice-to-ledger-cookbookmicro_retail_ledgerpy">3. Micro-Retail Voice-to-Ledger (<code>cookbook/micro_retail_ledger.py</code>)</h2>
+<p>Extracts structured accounting data (<code>customer_name</code>, <code>total_amount_ngn</code>, <code>amount_paid_ngn</code>, <code>outstanding_debt_ngn</code>, <code>due_date_hint</code>) from spoken voice notes for Nigerian market vendors, kiosk owners, and POS agents using <code>client.extract()</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>cookbook/micro_retail_ledger.py
 </code></pre></div>
 <hr />
-<h2 id="5-built-in-zero-key-agent-tools">5. Built-in Zero-Key Agent Tools</h2>
+<h2 id="4-financial-fraud-social-engineering-analyzer-cookbookfinancial_fraud_detectorpy">4. Financial Fraud &amp; Social Engineering Analyzer (<code>cookbook/financial_fraud_detector.py</code>)</h2>
+<p>Evaluates suspicious SMS and chat messages against known Nigerian banking fraud patterns (fake BVN block, fake credit alerts, Ponzi schemes) and outputs risk categories, confidence scores, and safety guidance.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>cookbook/financial_fraud_detector.py
+</code></pre></div>
+<hr />
+<h2 id="5-autonomous-agentic-tool-calling-cookbookagentic_toolspy">5. Autonomous Agentic Tool Calling (<code>cookbook/agentic_tools.py</code>)</h2>
+<p>Demonstrates OpenAI-compatible multi-turn tool calling and function resolution with Nigerian-localized tools (<code>get_cbn_fx_rate</code>, <code>get_market_commodity_price</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>cookbook/agentic_tools.py
+</code></pre></div>
+<hr />
+<h2 id="6-built-in-zero-key-agent-tools">6. Built-in Zero-Key Agent Tools</h2>
 <p>All 7 tools ship inside the SDK — no API key or sign-up required:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Python</label><label for="__tabbed_1_2">JavaScript</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">natlas</span><span class="w"> </span><span class="kn">import</span> <span class="n">tools</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Offline</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">result</span> <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">nigeria_gazetteer</span><span class="p">(</span><span class="s2">&quot;Ogun&quot;</span><span class="p">)</span>  <span class="c1"># state info + LGAs</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">calc</span>   <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">math_eval</span><span class="p">(</span><span class="s2">&quot;(200000 * 0.075) + 500&quot;</span><span class="p">)</span>  <span class="c1"># NGN VAT calc</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># Free live tools</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">news</span>   <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">web_search</span><span class="p">(</span><span class="s2">&quot;Nigerian AI startup funding 2025&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">rates</span>  <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">fx_rates</span><span class="p">(</span><span class="s2">&quot;USD&quot;</span><span class="p">,</span> <span class="s2">&quot;NGN&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">wx</span>     <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">weather_lookup</span><span class="p">(</span><span class="s2">&quot;Port Harcourt&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="n">wiki</span>   <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">wikipedia_lookup</span><span class="p">(</span><span class="s2">&quot;Igbo people&quot;</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="s2">&quot;ig&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="n">page</span>   <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">fetch_webpage</span><span class="p">(</span><span class="s2">&quot;https://ncc.gov.ng&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="c1"># OpenAI-compatible schemas for your agent loop</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="n">schemas</span> <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">get_openai_tools</span><span class="p">()</span>  <span class="c1"># all 7 tools</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="n">result</span>  <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="s2">&quot;fx_rates&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="s2">&quot;NGN&quot;</span><span class="p">})</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">natlas</span><span class="w"> </span><span class="kn">import</span> <span class="n">tools</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># Offline</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">result</span> <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">nigeria_gazetteer</span><span class="p">(</span><span class="s2">&quot;Ogun&quot;</span><span class="p">)</span>  <span class="c1"># state info + LGAs</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">calc</span>   <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">math_eval</span><span class="p">(</span><span class="s2">&quot;(200000 * 0.075) + 500&quot;</span><span class="p">)</span>  <span class="c1"># NGN VAT calc</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Free live tools</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">news</span>   <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">web_search</span><span class="p">(</span><span class="s2">&quot;Nigerian AI startup funding 2025&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="n">rates</span>  <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">fx_rates</span><span class="p">(</span><span class="s2">&quot;USD&quot;</span><span class="p">,</span> <span class="s2">&quot;NGN&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="n">wx</span>     <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">weather_lookup</span><span class="p">(</span><span class="s2">&quot;Port Harcourt&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="n">wiki</span>   <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">wikipedia_lookup</span><span class="p">(</span><span class="s2">&quot;Igbo people&quot;</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="s2">&quot;ig&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="n">page</span>   <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">fetch_webpage</span><span class="p">(</span><span class="s2">&quot;https://ncc.gov.ng&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="c1"># OpenAI-compatible schemas for your agent loop</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="n">schemas</span> <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">get_openai_tools</span><span class="p">()</span>  <span class="c1"># all 7 tools</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="n">result</span>  <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="s2">&quot;fx_rates&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="s2">&quot;NGN&quot;</span><span class="p">})</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getOpenAITools</span><span class="p">,</span><span class="w"> </span><span class="nx">executeTool</span><span class="p">,</span><span class="w"> </span><span class="nx">nigeriaGazetteer</span><span class="p">,</span><span class="w"> </span><span class="nx">fxRates</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;natlas/tools&quot;</span><span class="p">;</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nigeriaGazetteer</span><span class="p">(</span><span class="s2">&quot;Rivers&quot;</span><span class="p">);</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">rate</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fxRates</span><span class="p">(</span><span class="s2">&quot;GBP&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;NGN&quot;</span><span class="p">);</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">schemas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getOpenAITools</span><span class="p">();</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">executeTool</span><span class="p">(</span><span class="s2">&quot;weather_lookup&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">location</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Enugu&quot;</span><span class="w"> </span><span class="p">});</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getOpenAITools</span><span class="p">,</span><span class="w"> </span><span class="nx">executeTool</span><span class="p">,</span><span class="w"> </span><span class="nx">nigeriaGazetteer</span><span class="p">,</span><span class="w"> </span><span class="nx">fxRates</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;natlas/tools&quot;</span><span class="p">;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nigeriaGazetteer</span><span class="p">(</span><span class="s2">&quot;Rivers&quot;</span><span class="p">);</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">rate</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fxRates</span><span class="p">(</span><span class="s2">&quot;GBP&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;NGN&quot;</span><span class="p">);</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="kd">const</span><span class="w"> </span><span class="nx">schemas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getOpenAITools</span><span class="p">();</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">executeTool</span><span class="p">(</span><span class="s2">&quot;weather_lookup&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">location</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Enugu&quot;</span><span class="w"> </span><span class="p">});</span>
 </code></pre></div>
 </div>
 </div>
@@ -2026,18 +2078,18 @@
 <hr />
 <h2 id="6-mcp-server-ai-ide-integration">6. MCP Server — AI IDE Integration</h2>
 <p>Expose all N-ATLaS tools to Claude Desktop, Cursor, Antigravity, or Windsurf via the built-in MCP stdio server:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Run from monorepo root</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>python<span class="w"> </span>python-sdk/src/mcp_server.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Run from monorepo root</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>python<span class="w"> </span>python-sdk/src/mcp_server.py
 </code></pre></div>
 <p>Add to <code>claude_desktop_config.json</code>:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">&quot;natlas-tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;/absolute/path/to/N-Atlas-Toolkit/python-sdk/src/mcp_server.py&quot;</span><span class="p">]</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nt">&quot;natlas-tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;/absolute/path/to/N-Atlas-Toolkit/python-sdk/src/mcp_server.py&quot;</span><span class="p">]</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="p">}</span>
 </code></pre></div></p>
 
 

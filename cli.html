@@ -672,6 +672,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#3-language-detection-natlas-detect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Language Detection (natlas detect)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-zero-key-built-in-tools-natlas-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Zero-Key Built-in Tools (natlas tools)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#6-server-health-model-discovery" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1973,6 +1995,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#3-language-detection-natlas-detect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Language Detection (natlas detect)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-zero-key-built-in-tools-natlas-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Zero-Key Built-in Tools (natlas tools)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#6-server-health-model-discovery" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2051,11 +2095,19 @@
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Transcription with word-level timestamps</span>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>natlas<span class="w"> </span>transcribe<span class="w"> </span>speech_yoruba.wav<span class="w"> </span>--language<span class="w"> </span>yoruba<span class="w"> </span>--timestamps
 </code></pre></div>
-<hr />
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>
+<h2 id="3-language-detection-natlas-detect">3. Language Detection (<code>natlas detect</code>)</h2>
+<p>Detect Nigerian indigenous languages from text:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>natlas<span class="w"> </span>detect<span class="w"> </span><span class="s2">&quot;E kaaro o, bawo ni gbogbo nkan?&quot;</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># Output: yoruba (confidence: 0.98)</span>
 </code></pre></div>
 <hr />
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>
+<h2 id="4-zero-key-built-in-tools-natlas-tools">4. Zero-Key Built-in Tools (<code>natlas tools</code>)</h2>
+<p>Query offline Nigerian gazetteer or execute utilities directly from the CLI:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Query LGA or state data</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>natlas<span class="w"> </span>tool<span class="w"> </span>nigeria_gazetteer<span class="w"> </span><span class="s2">&quot;Ikeja&quot;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Query live currency rates</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>natlas<span class="w"> </span>tool<span class="w"> </span>fx_rates<span class="w"> </span><span class="s2">&quot;USD&quot;</span><span class="w"> </span><span class="s2">&quot;NGN&quot;</span>
 </code></pre></div>
 <hr />
 <h2 id="6-server-health-model-discovery">6. Server Health &amp; Model Discovery</h2>
