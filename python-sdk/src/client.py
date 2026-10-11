@@ -10,7 +10,7 @@ import contextlib
 from collections.abc import AsyncIterator, Iterator, Sequence
 from pathlib import Path
 from types import TracebackType
-from typing import Any, Literal, TypeVar, overload
+from typing import Any, Literal, TypeVar, cast, overload
 
 from pydantic import BaseModel
 from typing_extensions import Self, Unpack
@@ -38,6 +38,7 @@ from .local import LocalASRBackend, LocalBackend
 
 Mode = Literal["local", "hosted"]
 T = TypeVar("T")
+ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
 _STREAM_END = object()
@@ -251,13 +252,13 @@ class Client:
 
     def extract(
         self,
-        response_model: type[T],
+        response_model: type[ModelT],
         prompt: list[MessageInput] | str,
         system_instruction: str = "Extract information according to the requested schema.",
         max_retries: int = 2,
         temperature: float = 0.1,
         **kwargs: Any,
-    ) -> T:
+    ) -> ModelT:
         """Extract structured data adhering to a Pydantic schema with automatic validation retry."""
         from .extract import extract_sync
         return extract_sync(
@@ -371,7 +372,8 @@ class Client:
         assert isinstance(resp, ChatResponse)
         from .extract import clean_and_parse_json
         try:
-            return clean_and_parse_json(resp.message.content or "{}")
+            parsed = clean_and_parse_json(resp.message.content or "{}")
+            return cast("dict[str, Any]", parsed) if isinstance(parsed, dict) else {"is_scam": False, "confidence": 0.0, "category": "unknown", "explanation": "Non-object response"}
         except Exception:
             return {"is_scam": False, "confidence": 0.0, "category": "unknown", "explanation": "Failed to parse analysis"}
 
@@ -624,13 +626,13 @@ class AsyncClient:
 
     async def extract(
         self,
-        response_model: type[T],
+        response_model: type[ModelT],
         prompt: list[MessageInput] | str,
         system_instruction: str = "Extract information according to the requested schema.",
         max_retries: int = 2,
         temperature: float = 0.1,
         **kwargs: Any,
-    ) -> T:
+    ) -> ModelT:
         """Asynchronously extract structured data adhering to a Pydantic schema with automatic validation retry."""
         from .extract import extract_async
         return await extract_async(
@@ -744,7 +746,8 @@ class AsyncClient:
         assert isinstance(resp, ChatResponse)
         from .extract import clean_and_parse_json
         try:
-            return clean_and_parse_json(resp.message.content or "{}")
+            parsed = clean_and_parse_json(resp.message.content or "{}")
+            return cast("dict[str, Any]", parsed) if isinstance(parsed, dict) else {"is_scam": False, "confidence": 0.0, "category": "unknown", "explanation": "Non-object response"}
         except Exception:
             return {"is_scam": False, "confidence": 0.0, "category": "unknown", "explanation": "Failed to parse analysis"}
 
