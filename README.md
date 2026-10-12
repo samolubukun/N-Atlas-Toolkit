@@ -60,8 +60,8 @@ This repository is organized as a unified monorepo providing everything needed t
 
 | Component / Directory | Purpose & Key Features |
 | :--- | :--- |
-| **[`python-sdk/`](python-sdk)** | **Official PyPI Package (`pip install natlas-sdk`)**: Fully typed synchronous & asynchronous clients, resilient structured JSON extraction (`client.extract()`), semantic task helpers (`translate()`, `summarize()`, `classify()`, `classify_scam()`, `voice_chat()`), 7 built-in zero-auth agent tools, CLI (`natlas chat`, `natlas transcribe`), and MCP stdio server. |
-| **[`js-sdk/`](js-sdk)** | **Official npm Package (`npm install natlas-sdk`)**: Universal TypeScript/JavaScript SDK with typed errors (`AuthError`, `RateLimitError`, `BadRequestError`, `AbortError`), structured JSON extractor (`extract()`), semantic helpers (`voiceChat`, `classifyScam`), SSE streaming, agent tools, and executable CLI (`npx natlas`). |
+| **[`python-sdk/`](python-sdk)** | **Official PyPI Package (`pip install natlas-sdk` · v0.2.0)**: Fully typed synchronous & asynchronous clients, resilient structured JSON extraction (`client.extract()`), semantic task helpers (`translate()`, `summarize()`, `classify()`, `classify_scam()`, `voice_chat()`), 7 built-in zero-auth agent tools, CLI (`natlas chat`, `natlas transcribe`), and MCP stdio server. |
+| **[`js-sdk/`](js-sdk)** | **Official npm Package (`npm install natlas-sdk` · v0.2.2)**: Universal TypeScript/JavaScript SDK with typed errors (`AuthError`, `RateLimitError`, `BadRequestError`, `AbortError`), structured JSON extractor (`extract()`), semantic helpers (`voiceChat`, `classifyScam`), SSE streaming, agent tools, and executable CLI (`npx natlas`). |
 | **[`playground/`](playground)** | **Interactive Web Application**: React + Vite playground UI with Chat Studio, Audio Recording & Transcription Studio, Model Catalog explorer, and live interactive documentation. |
 | **[`docs/`](docs) & [`mkdocs.yml`](mkdocs.yml)** | **Developer Documentation Site**: Comprehensive documentation built with Material for MkDocs, featuring API specifications, developer tutorials, and bilingual guides (Yorùbá, Hausa, Igbo). |
 | **[`finetune-starter-kit/`](finetune-starter-kit)** | **Domain Adaptation Suite**: LoRA/QLoRA and Unsloth fine-tuning recipes for adapting N-ATLaS to custom enterprise, healthcare, and educational datasets on consumer GPUs. |
@@ -325,55 +325,258 @@ print(tool_resp.choices[0].message.tool_calls)
 
 ---
 
-## 🐍 Official Python SDK (`pip install natlas-sdk`)
+## 🐍 Official Python SDK (`pip install natlas-sdk` · v0.2.0)
 
-The Python SDK (`natlas-sdk`) provides typed synchronous and asynchronous clients, built-in cultural system prompts, word-level ASR, and zero-auth agent tools:
+The official Python SDK ([`natlas-sdk`](https://pypi.org/project/natlas-sdk/)) provides typed synchronous (`Client`) and asynchronous (`AsyncClient`) interfaces, resilient structured JSON extraction (`client.extract()`), high-level semantic task helpers, sovereign Whisper ASR transcription, 7 zero-dependency agent tools, and a built-in CLI:
+
+```bash
+pip install natlas-sdk
+# Or include optional local GPU inference dependencies (PyTorch + Transformers):
+pip install "natlas-sdk[local]"
+```
+
+### 1. Chat Completion & Live SSE Streaming
 
 ```python
 import natlas
-from natlas import tools
 
 client = natlas.Client()
 
-# 1. Chat with Indigenous Cultural System Presets (YO, HA, IG, EN)
+# Cultural System Prompts across Nigerian languages (natlas.YO, natlas.HA, natlas.IG, natlas.EN_NG)
 response = client.chat([
     natlas.system_prompt(natlas.YO),
     {"role": "user", "content": "Bawo ni nkan? Se alaye lori AI ni soki."}
 ])
 print(response.message.content)
 
-# 2. Real-Time Streaming
-for chunk in client.chat([{"role": "user", "content": "Explain AI in Hausa"}], stream=True):
+# Real-Time SSE Streaming
+stream = client.chat(
+    [{"role": "user", "content": "Explain AI opportunities in Nigeria in Hausa"}],
+    stream=True
+)
+for chunk in stream:
     print(chunk.message.content, end="", flush=True)
+print()
+```
 
-# 3. Zero-Auth Built-in Agent Tools (Offline & Live)
-tools.nigeria_gazetteer("Lagos")       # Offline 36 states + FCT + 774 LGAs
-tools.math_eval("50000 * 0.075")       # Safe AST math evaluation
-tools.fx_rates("USD", "NGN")           # Live FX rates via open.er-api.com
+### 2. Resilient Structured JSON Extraction (`client.extract()`)
+
+Extract typed data validated against Pydantic schemas. Includes automatic markdown code-fence stripping, JSON sanitization, and schema error-feedback retry loops:
+
+```python
+from pydantic import BaseModel, Field
+import natlas
+
+class MarketProduct(BaseModel):
+    name: str = Field(description="Product or commodity name")
+    category: str = Field(description="Agricultural or commercial category")
+    estimated_price_ngn: float = Field(description="Estimated price in Naira")
+    market_location: str = Field(description="City or market location")
+
+client = natlas.Client()
+
+item = client.extract(
+    response_model=MarketProduct,
+    prompt="A 50kg bag of white garri is selling for 48,000 Naira at Bodija Market in Ibadan.",
+    temperature=0.1,
+)
+
+print(f"Product: {item.name} | Price: ₦{item.estimated_price_ngn:,.2f} | Market: {item.market_location}")
+```
+
+### 3. High-Level Semantic Task Helpers
+
+Convenience methods for translation, summarization, scam detection, and audio-to-chat pipelines:
+
+```python
+import natlas
+
+client = natlas.Client()
+
+# 1. Cultural Translation
+yoruba_text = client.translate(
+    text="Good health is the foundation of wealth and prosperity.",
+    target_language="Yoruba"
+)
+
+# 2. Localized Summarization
+summary = client.summarize(text=long_report, max_words=60, language="Hausa")
+
+# 3. Nigerian Financial Scam & Phishing Analyzer
+scam_report = client.classify_scam(
+    "Dear customer, your bank account is blocked due to BVN NIN mismatch. Send OTP to unlock."
+)
+print("Is Scam:", scam_report["is_scam"], "| Confidence:", scam_report["confidence"])
+
+# 4. End-to-End Voice Chat (ASR Transcription -> LLM Response in 1 call)
+with open("voice_note.mp3", "rb") as f:
+    result = client.voice_chat(audio=f, language="hausa")
+    print("Transcribed:", result["transcription"])
+    print("AI Response:", result["response"])
+```
+
+### 4. Zero-Auth Built-in Agent Tools (`natlas.tools`)
+
+Ships with 7 free, zero-API-key tools and ready-made OpenAI function-calling schemas:
+
+```python
+from natlas import tools
+
+# Offline tools (instant, zero network required)
+tools.nigeria_gazetteer("Lagos")          # 36 states, FCT, and all 774 LGAs
+tools.math_eval("(50000 * 0.075) + 320")  # Safe AST math expression evaluation
+
+# Free network tools (no registration or API key needed)
+tools.fx_rates("USD", "NGN")              # Live CBN/market exchange rates
+tools.weather_lookup("Abuja")             # Open-Meteo current weather & forecast
+tools.web_search("N-ATLaS Nigeria AI")     # DuckDuckGo clean search results
+tools.wikipedia_lookup("Yoruba", lang="yo")# Wikipedia REST API
+tools.fetch_webpage("https://example.com") # Clean text extractor
+
+# Ready-made OpenAI function schemas for agent loops
+tool_schemas = tools.get_openai_tools(["nigeria_gazetteer", "fx_rates"])
+```
+
+### 5. CLI & MCP Server
+
+```bash
+# Terminal CLI commands
+natlas chat "Kedu kwanu? Kọwaa kọmputa n'asụsụ Igbo."
+natlas transcribe speech_yoruba.wav --model NCAIR1/Yoruba-ASR
+natlas models
+
+# Run standard Model Context Protocol (MCP) server for Cursor / Claude Desktop / Antigravity
+python python-sdk/src/mcp_server.py
 ```
 
 ---
 
-## 🟨 Official JavaScript / TypeScript SDK (`npm install natlas-sdk`)
+## 🟨 Official JavaScript / TypeScript SDK (`npm install natlas-sdk` · v0.2.2)
 
-The universal JS/TS SDK (`natlas-sdk`) works across Node.js (>= 18), Bun, Deno, Next.js, and modern browsers:
+The universal JavaScript / TypeScript SDK ([`natlas-sdk`](https://www.npmjs.com/package/natlas-sdk)) runs in Node.js (>= 18), Bun, Deno, Next.js, and modern browsers with zero external runtime dependencies:
+
+```bash
+npm install natlas-sdk
+# or
+pnpm add natlas-sdk
+# or
+bun add natlas-sdk
+```
+
+### 1. Chat Completion & SSE Streaming
 
 ```typescript
 import { NatlasClient, systemPrompt, HA } from "natlas-sdk";
-import { nigeriaGazetteer, fxRates } from "natlas-sdk/tools";
+
+const client = new NatlasClient({
+  baseURL: process.env.NATLAS_BASE_URL,
+  apiKey: process.env.NATLAS_API_KEY,
+});
+
+// Cultural Chat Completion
+const response = await client.chat([
+  systemPrompt(HA),
+  { role: "user", content: "Sannu! Ka ba ni labari game da Kano a taƙaice." },
+]);
+console.log(response.message.content);
+
+// Real-Time Server-Sent Events (SSE) Streaming
+const stream = await client.chat(
+  [{ role: "user", content: "Tell me about agricultural technology in Nigeria." }],
+  { stream: true }
+);
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk.message.content);
+}
+```
+
+### 2. Resilient Structured JSON Extraction (`client.extract()`)
+
+Extract and validate strongly typed data with error feedback retry loops and JSON fence stripping:
+
+```typescript
+import { NatlasClient } from "natlas-sdk";
+
+interface AgritechCommodity {
+  crop: string;
+  state: string;
+  price_per_ton_ngn: number;
+}
 
 const client = new NatlasClient();
 
-// 1. Chat & Streaming
-const res = await client.chat([
-  systemPrompt(HA),
-  { role: "user", content: "Sannu! Ka ba ni labari game da Kano." }
-]);
-console.log(res.message.content);
+const commodity = await client.extract<AgritechCommodity>({
+  prompt: "Sorghum harvested in Kaduna state is currently valued at 450,000 Naira per metric ton.",
+  schema: {
+    type: "object",
+    properties: {
+      crop: { type: "string" },
+      state: { type: "string" },
+      price_per_ton_ngn: { type: "number" },
+    },
+    required: ["crop", "state", "price_per_ton_ngn"],
+  },
+});
 
-// 2. Zero-Auth Agent Tools
-nigeriaGazetteer("Kano");              // Offline instant LGA lookup
-await fxRates("USD", "NGN");          // Live FX rate
+console.log(`${commodity.crop} in ${commodity.state}: ₦${commodity.price_per_ton_ngn.toLocaleString()}`);
+```
+
+### 3. Speech-to-Text & Semantic Helpers
+
+```typescript
+import { NatlasClient } from "natlas-sdk";
+import * as fs from "node:fs";
+
+const client = new NatlasClient();
+
+// 1. Sovereign Whisper ASR Speech Recognition
+const audioBuffer = fs.readFileSync("audio_yoruba.wav");
+const transcription = await client.audio.transcriptions.create(audioBuffer, {
+  model: "NCAIR1/Yoruba-ASR",
+  language: "yoruba",
+  timestamp_granularities: ["word"],
+});
+console.log("Transcribed text:", transcription.text);
+
+// 2. Cultural Translation
+const translated = await client.translate(
+  "Technology empowers young innovators across Africa.",
+  "Igbo"
+);
+
+// 3. Nigerian Financial Scam Detection
+const scamCheck = await client.classifyScam(
+  "Urgent: You won 1,000,000 NGN in telecom promo. Send your debit card CVV to claim now."
+);
+console.log("Is Scam:", scamCheck.is_scam, "| Reason:", scamCheck.explanation);
+
+// 4. Integrated Voice Chat (Speech Audio -> Text -> Model Response)
+const voiceResult = await client.voiceChat(audioBuffer, { language: "yoruba" });
+console.log("Input:", voiceResult.transcription);
+console.log("Output:", voiceResult.response);
+```
+
+### 4. Zero-Auth Agent Tools & Executable CLI
+
+```typescript
+import { NatlasClient } from "natlas-sdk";
+import { nigeriaGazetteer, fxRates, mathEval, getOpenAITools } from "natlas-sdk/tools";
+
+// Offline & live tool calls
+const lgas = nigeriaGazetteer("Kano");       // Offline LGA lookup
+const fx = await fxRates("USD", "NGN");       // Live CBN / market FX rates
+const calc = mathEval("(120000 * 0.05) + 400"); // Safe AST calculation
+
+// Pass OpenAI-compatible function schemas to client chat
+const schemas = getOpenAITools(["nigeria_gazetteer", "fx_rates"]);
+```
+
+```bash
+# Executable CLI via npx
+npx natlas chat "Bawo ni se daadaa lori ero ayelujara?"
+npx natlas transcribe speech_sample.wav --model NCAIR1/Hausa-ASR
+npx natlas models
 ```
 
 ---

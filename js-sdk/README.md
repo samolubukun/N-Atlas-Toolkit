@@ -40,7 +40,7 @@ bun add natlas-sdk
 ### 1. Chat Completion
 
 ```typescript
-import { NatlasClient, systemPrompt, YO } from "natlas";
+import { NatlasClient, systemPrompt, YO } from "natlas-sdk";
 
 const client = new NatlasClient({
   baseURL: "https://samuelolubukun--natlas-engine-natlasapi-serve.modal.run",
@@ -62,7 +62,7 @@ main();
 ### 2. Streaming Responses
 
 ```typescript
-import { NatlasClient } from "natlas";
+import { NatlasClient } from "natlas-sdk";
 
 const client = new NatlasClient();
 
@@ -82,7 +82,7 @@ streamDemo();
 ### 3. Speech-to-Text (Batch Audio Transcription)
 
 ```typescript
-import { NatlasClient } from "natlas";
+import { NatlasClient } from "natlas-sdk";
 import * as fs from "node:fs";
 
 const client = new NatlasClient();
@@ -105,7 +105,7 @@ transcribeDemo();
 ### 4. Tool Calling & Agentic Function Execution
 
 ```typescript
-import { NatlasClient } from "natlas";
+import { NatlasClient } from "natlas-sdk";
 
 const client = new NatlasClient();
 
@@ -141,7 +141,7 @@ if (response.done_reason === "tool_calls") {
 ### 5. Language Detection & System Prompts
 
 ```typescript
-import { detectLanguage, systemPrompt } from "natlas";
+import { detectLanguage, systemPrompt } from "natlas-sdk";
 
 const userInput = "Kedu ka ị mere taa?";
 const lang = detectLanguage(userInput); // "igbo"
@@ -171,13 +171,13 @@ console.log("Sovereign prompt:", systemPrompt(lang));
 The `tools` namespace ships 7 built-in tools — **no API key or external account required**:
 
 ```typescript
-import { tools } from "natlas";
+import { tools } from "natlas-sdk";
 // or tree-shakeable subpath:
 import {
   nigeriaGazetteer, mathEval, webSearch, weatherLookup,
   fxRates, wikipediaLookup, fetchWebpage,
   getOpenAITools, executeTool, registerTool,
-} from "natlas/tools";
+} from "natlas-sdk/tools";
 
 // Offline (no network)
 nigeriaGazetteer("Lagos");           // states, capitals, 774 LGAs

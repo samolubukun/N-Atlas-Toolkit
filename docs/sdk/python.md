@@ -106,16 +106,18 @@ result = client.classify_scam(
     "Your BVN has been blocked by CBN. Call 08012345678 immediately to unblock your account."
 )
 print("Is Scam:", result["is_scam"])
-print("Reason:", result["reason"])
+print("Confidence:", result["confidence"])
+print("Category:", result["category"])
+print("Explanation:", result["explanation"])
 ```
 
 ### Full-Duplex Voice Chat (`voice_chat`)
-Transcribes input audio via sovereign ASR, feeds the text to the sovereign LLM, and returns the response:
+Transcribes input audio via sovereign ASR, feeds the text to the sovereign LLM, and returns both transcription and response:
 ```python
 with open("user_speech.wav", "rb") as f:
-    resp = client.voice_chat(f.read(), language="yoruba")
-    print("User said:", resp["user_text"])
-    print("Assistant replied:", resp["assistant_text"])
+    resp = client.voice_chat(f, language="yoruba")
+    print("User said:", resp["transcription"])
+    print("Assistant replied:", resp["response"])
 ```
 
 ---

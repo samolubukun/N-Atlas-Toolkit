@@ -79,7 +79,7 @@ The JavaScript SDK includes high-level convenience methods:
 ```typescript
 const translated = await client.translate(
   "Good morning, how are you?",
-  { targetLanguage: "yoruba" }
+  "yoruba"
 );
 console.log(translated);
 ```
@@ -98,7 +98,9 @@ const result = await client.classifyScam(
   "Your BVN has been blocked. Call 08012345678 immediately to unblock your account."
 );
 console.log("Is scam:", result.is_scam);
-console.log("Risk category:", result.risk_category);
+console.log("Confidence:", result.confidence);
+console.log("Category:", result.category);
+console.log("Explanation:", result.explanation);
 ```
 
 ### Voice Chat
@@ -107,8 +109,8 @@ import * as fs from "node:fs";
 
 const audioBuffer = fs.readFileSync("voice_note.wav");
 const chatResult = await client.voiceChat(audioBuffer, { language: "igbo" });
-console.log("User:", chatResult.user_text);
-console.log("Assistant:", chatResult.assistant_text);
+console.log("User:", chatResult.transcription);
+console.log("Assistant:", chatResult.response);
 ```
 
 ---
