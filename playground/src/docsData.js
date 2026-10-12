@@ -276,7 +276,63 @@ for chunk in stream:
     print(chunk.message.content, end="", flush=True)
 \`\`\`
 
-### 2. Speech-to-Text Transcription
+### 2. Resilient Structured JSON Extraction (\`client.extract\`)
+
+Extract type-safe structured data conforming to a Pydantic schema with automatic JSON repair, code-fence stripping, and retry loops:
+
+\`\`\`python
+from pydantic import BaseModel, Field
+import natlas
+
+class MarketProduct(BaseModel):
+    name: str = Field(description="Product or commodity name")
+    category: str = Field(description="Agricultural or commercial category")
+    estimated_price_ngn: float = Field(description="Estimated price in Naira")
+    market_location: str = Field(description="City or market location")
+
+client = natlas.Client()
+
+item = client.extract(
+    response_model=MarketProduct,
+    prompt="A 50kg bag of white garri is selling for 48,000 Naira at Bodija Market in Ibadan.",
+    temperature=0.1,
+)
+
+print(f"Product: {item.name} | Price: ₦{item.estimated_price_ngn:,.2f} | Market: {item.market_location}")
+\`\`\`
+
+### 3. High-Level Semantic Helpers
+
+Convenience wrappers for cultural translation, summarization, scam detection, and audio voice chat:
+
+\`\`\`python
+import natlas
+
+client = natlas.Client()
+
+# 1. Cultural Translation
+yoruba_text = client.translate(
+    text="Good health is the foundation of wealth and prosperity.",
+    target_language="Yoruba"
+)
+
+# 2. Localized Summarization
+summary = client.summarize(text=long_report, max_words=60, language="Hausa")
+
+# 3. Nigerian Financial Scam & Phishing Analyzer
+scam_report = client.classify_scam(
+    "Dear customer, your bank account is blocked due to BVN NIN mismatch. Send OTP to unlock."
+)
+print("Is Scam:", scam_report["is_scam"], "| Confidence:", scam_report["confidence"])
+
+# 4. End-to-End Voice Chat (Audio input -> ASR -> LLM Response in 1 call)
+with open("voice_note.mp3", "rb") as f:
+    result = client.voice_chat(audio=f, language="hausa")
+    print("Transcribed:", result["transcription"])
+    print("AI Response:", result["response"])
+\`\`\`
+
+### 4. Speech-to-Text Transcription
 
 \`\`\`python
 with open("yoruba_audio.wav", "rb") as f:
@@ -292,7 +348,7 @@ for w in result.words:
     print(f"[{w.start:.2f}s -> {w.end:.2f}s] {w.word}")
 \`\`\`
 
-### 3. Built-in Agent Tools (Zero-Key)
+### 5. Built-in Agent Tools (Zero-Key)
 
 All 7 tools work immediately after \`pip install natlas-sdk\` — no API keys:
 
@@ -315,7 +371,7 @@ schemas = tools.get_openai_tools()  # all 7
 result  = tools.execute_tool("fx_rates", {"base": "USD", "target": "NGN"})
 \`\`\`
 
-    `
+    \`
   },
 
   "sdk-js": {
@@ -323,7 +379,7 @@ result  = tools.execute_tool("fx_rates", {"base": "USD", "target": "NGN"})
     subtitle: "Universal client for Node.js >= 18, Next.js, Bun, Deno, and modern browsers.",
     badge: "npm / TypeScript",
     studioLink: "chat",
-    content: `
+    content: \`
 ### Installation
 
 Install directly from npm:
@@ -339,7 +395,7 @@ import { NatlasClient, systemPrompt, YO } from "natlas-sdk";
 
 const client = new NatlasClient({
   apiKey: process.env.NATLAS_API_KEY,
-  baseUrl: process.env.NATLAS_BASE_URL,
+  baseURL: process.env.NATLAS_BASE_URL,
 });
 
 // Standard completion
@@ -359,25 +415,71 @@ for await (const chunk of stream) {
 }
 \`\`\`
 
-### 2. Audio Transcription (Node.js & Browser)
+### 2. Resilient Structured JSON Extraction (\`client.extract\`)
+
+\`\`\`typescript
+import { NatlasClient } from "natlas-sdk";
+
+interface AgritechCommodity {
+  crop: string;
+  state: string;
+  price_per_ton_ngn: number;
+}
+
+const client = new NatlasClient();
+
+const commodity = await client.extract<AgritechCommodity>({
+  prompt: "Sorghum harvested in Kaduna state is currently valued at 450,000 Naira per metric ton.",
+  schema: {
+    type: "object",
+    properties: {
+      crop: { type: "string" },
+      state: { type: "string" },
+      price_per_ton_ngn: { type: "number" },
+    },
+    required: ["crop", "state", "price_per_ton_ngn"],
+  },
+});
+
+console.log(\`\${commodity.crop} in \${commodity.state}: ₦\${commodity.price_per_ton_ngn.toLocaleString()}\`);
+\`\`\`
+
+### 3. Speech-to-Text & Semantic Helpers
 
 \`\`\`typescript
 import { NatlasClient } from "natlas-sdk";
 import * as fs from "node:fs";
 
 const client = new NatlasClient();
+
+// 1. Sovereign Whisper ASR Speech Recognition
 const audioBuffer = fs.readFileSync("audio_sample.wav");
-
-const result = await client.audio.transcriptions.create(audioBuffer, {
+const transcription = await client.audio.transcriptions.create(audioBuffer, {
   model: "NCAIR1/Hausa-ASR",
-  language: "ha",
-  timestampGranularities: ["word"],
+  language: "hausa",
+  timestamp_granularities: ["word"],
 });
+console.log("Transcribed Text:", transcription.text);
 
-console.log("Transcribed Text:", result.text);
+// 2. Cultural Translation
+const translated = await client.translate(
+  "Technology empowers young innovators across Africa.",
+  "Igbo"
+);
+
+// 3. Nigerian Financial Scam Detection
+const scamCheck = await client.classifyScam(
+  "Urgent: You won 1,000,000 NGN in telecom promo. Send your debit card CVV to claim now."
+);
+console.log("Is Scam:", scamCheck.is_scam, "| Reason:", scamCheck.explanation);
+
+// 4. Integrated Voice Chat (Speech Audio -> Text -> Model Response)
+const voiceResult = await client.voiceChat(audioBuffer, { language: "hausa" });
+console.log("Input:", voiceResult.transcription);
+console.log("Output:", voiceResult.response);
 \`\`\`
 
-### 3. Built-in Agent Tools (Zero-Key)
+### 4. Built-in Agent Tools (Zero-Key)
 
 All 7 tools work immediately after \`npm install natlas-sdk\` — no API keys:
 
@@ -402,22 +504,22 @@ const schemas = getOpenAITools();
 const result  = await executeTool("fx_rates", { base: "USD", target: "NGN" });
 \`\`\`
 
-    `
+    \`
   },
 
   "cli": {
     title: "Unified CLI Reference (natlas)",
     subtitle: "Command-line interface for testing models, streaming audio, and verifying gateway status.",
-    badge: "CLI v0.1.0",
-    content: `
+    badge: "CLI v0.2.2",
+    content: \`
 ### Running the CLI with Hosted Packages
 
 You can run the unified CLI instantly via **npm (npx)** or **PyPI**:
 
 #### Option 1: Node.js / npm (Zero-Install with \`npx\`)
 \`\`\`bash
-# Run instantly with npx (fetches hosted natlas-sdk package directly):
-npx natlas-sdk --help
+# Run instantly with npx:
+npx natlas --help
 
 # Or install globally from npm:
 npm install -g natlas-sdk
