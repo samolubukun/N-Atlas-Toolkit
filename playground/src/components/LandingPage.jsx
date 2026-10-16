@@ -386,6 +386,13 @@ export const LandingPage = ({ onSelectStudio }) => {
               <Volume2 className="w-4 h-4 text-emerald-600" />
               Try XTTS Speech
             </button>
+            <button
+              onClick={() => onSelectStudio('s2s')}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-md"
+            >
+              <Mic className="w-4 h-4" />
+              Try Voice Agent (S2S)
+            </button>
             <a
               href="https://huggingface.co/NCAIR1"
               target="_blank"

@@ -13,11 +13,13 @@ import {
   Circle,
   BookOpen,
   Volume2,
+  Mic,
 } from 'lucide-react';
 import { ASRStudio } from './ASRStudio';
 import { ChatStream } from './ChatStream';
 import { TranslationStudio } from './TranslationStudio';
 import { TTSStudio } from './TTSStudio';
+import { S2SStudio } from './S2SStudio';
 
 import { isConfigured } from '../constants';
 
@@ -50,6 +52,14 @@ const studios = [
     sub: 'Speech Synthesis',
     badge: 'XTTS-v2',
     icon: Volume2,
+  },
+  {
+    id: 's2s',
+    name: 'Voice Agent',
+    full: 'Speech-to-Speech',
+    sub: 'End-to-End Voice Loop',
+    badge: 'Live S2S',
+    icon: Mic,
   },
 ];
 
@@ -242,6 +252,7 @@ export const PlaygroundView = ({ activeStudio = 'chat', selectedModelId = null, 
         {/* Studio content */}
         <div className="animate-fade-up">
           {activeStudio === 'chat'       && <ChatStream initialPrompt={transferredPrompt} />}
+          {activeStudio === 's2s'        && <S2SStudio onSendToLLM={handleSendToLLM} />}
           {activeStudio === 'tts'        && <TTSStudio onSendToLLM={handleSendToLLM} />}
           {activeStudio === 'translate'  && <TranslationStudio onSendToChat={handleSendToLLM} />}
           {activeStudio === 'asr'        && <ASRStudio initialModelId={selectedModelId} onSendToLLM={handleSendToLLM} />}
