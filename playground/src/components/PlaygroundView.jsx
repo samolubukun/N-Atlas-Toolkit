@@ -12,10 +12,12 @@ import {
   X,
   Circle,
   BookOpen,
+  Volume2,
 } from 'lucide-react';
 import { ASRStudio } from './ASRStudio';
 import { ChatStream } from './ChatStream';
 import { TranslationStudio } from './TranslationStudio';
+import { TTSStudio } from './TTSStudio';
 
 import { isConfigured } from '../constants';
 
@@ -40,6 +42,14 @@ const studios = [
     full: 'Cultural Translator',
     sub: 'Bi-directional with tone marks',
     icon: Languages,
+  },
+  {
+    id: 'tts',
+    name: 'TTS Speech',
+    full: 'Wazobia XTTS',
+    sub: 'Speech Synthesis',
+    badge: 'XTTS-v2',
+    icon: Volume2,
   },
 ];
 
@@ -154,8 +164,19 @@ export const PlaygroundView = ({ activeStudio = 'chat', selectedModelId = null, 
               >
                 <SIcon className={`shrink-0 ${isCollapsed && !mobileOpen ? 'w-5 h-5' : 'w-4 h-4'}`} />
                 {(!isCollapsed || mobileOpen) && (
-                  <div className="min-w-0">
-                    <div className="text-xs font-semibold leading-tight truncate">{s.full}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-xs font-semibold leading-tight truncate">{s.full}</span>
+                      {s.badge && (
+                        <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                          active
+                            ? 'bg-white/20 text-white'
+                            : 'bg-emerald-100 text-emerald-800'
+                        }`}>
+                          {s.badge}
+                        </span>
+                      )}
+                    </div>
                     <div className={`text-[10px] leading-tight truncate mt-0.5 ${active ? 'text-federal-200' : 'text-stone-400'}`}>
                       {s.sub}
                     </div>
@@ -203,6 +224,11 @@ export const PlaygroundView = ({ activeStudio = 'chat', selectedModelId = null, 
           >
             <Menu className="w-4 h-4 shrink-0 text-federal-600" />
             <span className="truncate">{current.full}</span>
+            {current.badge && (
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 shrink-0">
+                {current.badge}
+              </span>
+            )}
           </button>
 
           <button
@@ -216,6 +242,7 @@ export const PlaygroundView = ({ activeStudio = 'chat', selectedModelId = null, 
         {/* Studio content */}
         <div className="animate-fade-up">
           {activeStudio === 'chat'       && <ChatStream initialPrompt={transferredPrompt} />}
+          {activeStudio === 'tts'        && <TTSStudio onSendToLLM={handleSendToLLM} />}
           {activeStudio === 'translate'  && <TranslationStudio onSendToChat={handleSendToLLM} />}
           {activeStudio === 'asr'        && <ASRStudio initialModelId={selectedModelId} onSendToLLM={handleSendToLLM} />}
         </div>

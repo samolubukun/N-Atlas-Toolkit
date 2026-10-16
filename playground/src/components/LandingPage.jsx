@@ -18,6 +18,7 @@ import {
   Code2,
   Layers,
   Server,
+  Volume2,
 } from 'lucide-react';
 import { KenteStripe, NsibidiScatter, AnkaraHex, AdireDots, AsoOkeWeave } from './SvgPatterns';
 
@@ -166,6 +167,23 @@ export const LandingPage = ({ onSelectStudio }) => {
       buttonClass: "bg-purple-700 hover:bg-purple-800 text-white",
       tags: ["120h Training Data", "Nigerian Accented English", "en-NG Native"],
     },
+    /*
+    {
+      id: "samuelolubukun/wazobia-sovereign-audio-studio",
+      name: "Wazobia XTTS-v2 Speech",
+      subtitle: "Research by Samuel Olubukun",
+      description: "Fine-tuned Coqui XTTS-v2 speech models across Yoruba, Hausa, and Igbo with natural conversational cadence.",
+      hfUrl: "https://www.samuelolubukun.com/blogs/fine-tuning-xtts-v2-wazobia-conversational-speech",
+      action: "tts",
+      accentColor: "#059669",
+      cardBg: "bg-emerald-50/60 hover:bg-emerald-50/90",
+      borderClass: "border-emerald-200/90 hover:border-emerald-400",
+      accentStripe: "bg-emerald-600",
+      pillBadge: "bg-stone-100 text-stone-800 border-stone-200",
+      buttonClass: "bg-stone-800 hover:bg-stone-900 text-white",
+      tags: ["Experimental Studio", "Voice Generation", "XTTS-v2 Conversational"],
+    },
+    */
   ];
 
   const toolkitFeatures = [
@@ -360,6 +378,13 @@ export const LandingPage = ({ onSelectStudio }) => {
             >
               <Languages className="w-4 h-4 text-federal-600" />
               Try Translator
+            </button>
+            <button
+              onClick={() => onSelectStudio('tts')}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-card"
+            >
+              <Volume2 className="w-4 h-4 text-emerald-600" />
+              Try XTTS Speech
             </button>
             <a
               href="https://huggingface.co/NCAIR1"
