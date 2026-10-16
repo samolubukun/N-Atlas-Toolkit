@@ -365,71 +365,161 @@ DIRECTIVES FOR COMMUNITY HEALTH OFFICERS:
     let hasReceivedFirstToken = false;
 
     try {
-      let languageInstruction = '';
-      if (selectedLang === 'yoruba') {
-        languageInstruction = `You are conversing in Yorùbá.
-RULES:
-1. Speak ONLY in simple, natural everyday Yorùbá.
-2. The user might type without diacritics or tone marks (e.g. "kinniun" = kìnnìún / lion). Understand their intent from context.
-3. Keep responses CONCISE (2 to 3 sentences maximum). Do not write long rambling paragraphs.
-4. Use ONLY common, well-known Yorùbá words. Never invent words or attempt convoluted descriptions.
-5. NEVER repeat words back as questions or echo phrases like "Kini un?".
-6. Answer FACTUALLY and directly. If unsure, say "Mi ò mọ̀" briefly.`;
-      } else if (selectedLang === 'hausa') {
-        languageInstruction = `You are conversing in Hausa.
-RULES:
-1. Speak ONLY in simple, natural everyday Hausa.
-2. Keep responses CONCISE (2 to 3 sentences maximum). Do not write long rambling essays.
-3. Understand user questions even without tone marks or special hooks.
-4. NEVER echo back words or play word-repetition games.
-5. Answer FACTUALLY and directly. If unsure, say "Ban sani ba" briefly.`;
-      } else if (selectedLang === 'igbo') {
-        languageInstruction = `You are conversing in Igbo.
-RULES:
-1. Speak ONLY in simple, natural everyday Igbo.
-2. Keep responses CONCISE (2 to 3 sentences maximum). Do not write long rambling essays.
-3. Understand user questions even if typed without tone marks or diacritics (ị, ọ, ụ, ṅ).
-4. NEVER echo back words or play word-repetition games.
-5. Answer FACTUALLY and directly. If unsure, say "Amaghị m" briefly.`;
-      } else if (selectedLang === 'english') {
-        languageInstruction = `You are conversing in authentic Nigerian English. Speak warmly, respectfully, and concisely (2 to 4 sentences). Answer directly and factually.`;
-      }
+      let targetLangName = null;
+      if (selectedLang === 'yoruba') targetLangName = 'Yorùbá';
+      else if (selectedLang === 'hausa') targetLangName = 'Hausa';
+      else if (selectedLang === 'igbo') targetLangName = 'Igbo';
 
-      const systemMessage = {
-        role: 'system',
-        content: `You are N-ATLaS, Nigeria's sovereign AI assistant developed by FMCIDE, NCAIR, NITDA, and Awarri Technologies.
-${languageInstruction}
-Answer the user's questions directly, accurately, and concisely. Do not append unsolicited conversational questions (such as "Question: ...") at the end of your answers.`
-      };
+      // ── SOVEREIGN DUAL-PASS ENGINE FOR INDIGENOUS LANGUAGES ──
+      // Pass 1: Reason factually in English (Llama-3's deep knowledge core)
+      // Pass 2: Stream high-fidelity translation in pure Yorùbá / Hausa / Igbo with tones
+      if (targetLangName) {
+        setMessages([...conversationHistory, { role: 'assistant', content: '...' }]);
 
-      const payload = {
-        model: 'NCAIR1/N-ATLaS',
-        messages: [
-          systemMessage,
-          ...conversationHistory.map(m => ({
-            role: m.role,
-            content: m.content || '',
-          }))
-        ],
-        temperature: parseFloat(temperature),
-        max_tokens: parseInt(maxTokens),
-        stream: true,
-      };
+        // Pass 1: English Knowledge Extraction
+        const reasonPayload = {
+          model: 'NCAIR1/N-ATLaS',
+          messages: [
+            {
+              role: 'system',
+              content: `You are N-ATLaS, Nigeria's expert sovereign AI.
+If the user's message is in Yoruba, Hausa, or Igbo, understand the underlying concept accurately.
+Answer the question factually, truthfully, and concisely in 2 clear English sentences.
+Do not talk about language or translation; just answer the user's question directly.`
+            },
+            {
+              role: 'user',
+              content: userPrompt
+            }
+          ],
+          temperature: 0.1,
+          max_tokens: 120,
+          stream: false,
+        };
 
-      setMessages([...conversationHistory, { role: 'assistant', content: '' }]);
+        const reasonResp = await fetch(`${DEFAULT_ENDPOINTS.llmUrl}/v1/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${DEFAULT_ENDPOINTS.apiKey}`,
+          },
+          body: JSON.stringify(reasonPayload),
+        });
 
-      const streamResp = await fetch(`${DEFAULT_ENDPOINTS.llmUrl}/v1/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${DEFAULT_ENDPOINTS.apiKey}`,
-        },
-        body: JSON.stringify(payload),
-      });
+        if (!reasonResp.ok) throw new Error(`Reasoning step failed (HTTP ${reasonResp.status})`);
+        const reasonData = await reasonResp.json();
+        let englishAnswer = reasonData.choices?.[0]?.message?.content?.trim();
 
-      if (!streamResp.ok) throw new Error(`HTTP Error: ${streamResp.status}`);
-      const reader = streamResp.body.getReader();
-      const decoder = new TextDecoder('utf-8');
+        if (!englishAnswer) throw new Error('No reasoning content generated');
+
+        // Pass 2: Stream high-fidelity indigenous translation
+        const translatePayload = {
+          model: 'NCAIR1/N-ATLaS',
+          messages: [
+            {
+              role: 'system',
+              content: `You are N-ATLaS, Nigeria's Sovereign Multilingual Translation Engine.
+Translate the text into natural, fluent ${targetLangName}.
+${targetLangName === 'Yorùbá' ? 'Use proper Yorùbá tone marks (Àmì Ohùn).' : 'Use authentic, standard indigenous phrasing.'}
+Output ONLY the translated words. Do not wrap in quotes. Do not include labels or notes.`
+            },
+            {
+              role: 'user',
+              content: englishAnswer
+            }
+          ],
+          temperature: 0.1,
+          max_tokens: parseInt(maxTokens) || 200,
+          stream: true,
+        };
+
+        const streamResp = await fetch(`${DEFAULT_ENDPOINTS.llmUrl}/v1/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${DEFAULT_ENDPOINTS.apiKey}`,
+          },
+          body: JSON.stringify(translatePayload),
+        });
+
+        if (!streamResp.ok) throw new Error(`Translation step failed (HTTP ${streamResp.status})`);
+        const reader = streamResp.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let fullAssistantMsg = '';
+        setMessages([...conversationHistory, { role: 'assistant', content: '' }]);
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            const clean = line.trim();
+            if (!clean.startsWith('data:')) continue;
+            const dataStr = clean.replace(/^data:\s*/, '');
+            if (dataStr === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(dataStr);
+              const delta = parsed.choices?.[0]?.delta?.content || '';
+              if (delta) {
+                if (!hasReceivedFirstToken) {
+                  hasReceivedFirstToken = true;
+                  setTtft(((performance.now() - startTime) / 1000).toFixed(2));
+                }
+                fullAssistantMsg += delta;
+                const cleanDisplayMsg = fullAssistantMsg.replace(/^["'“”«»`]+\s*/, '');
+                setMessages(prev => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    role: 'assistant',
+                    content: cleanDisplayMsg
+                  };
+                  return updated;
+                });
+              }
+            } catch {
+              // Ignore partial JSON chunks
+            }
+          }
+        }
+      } else {
+        // Standard English Streaming
+        const systemMessage = {
+          role: 'system',
+          content: `You are N-ATLaS, Nigeria's sovereign AI assistant developed by FMCIDE, NCAIR, NITDA, and Awarri Technologies.
+Answer the user's questions directly, accurately, and concisely. Do not append unsolicited conversational questions at the end of your answers.`
+        };
+
+        const payload = {
+          model: 'NCAIR1/N-ATLaS',
+          messages: [
+            systemMessage,
+            ...conversationHistory.map(m => ({
+              role: m.role,
+              content: m.content || '',
+            }))
+          ],
+          temperature: parseFloat(temperature),
+          max_tokens: parseInt(maxTokens),
+          stream: true,
+        };
+
+        setMessages([...conversationHistory, { role: 'assistant', content: '' }]);
+
+        const streamResp = await fetch(`${DEFAULT_ENDPOINTS.llmUrl}/v1/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${DEFAULT_ENDPOINTS.apiKey}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!streamResp.ok) throw new Error(`HTTP Error: ${streamResp.status}`);
+        const reader = streamResp.body.getReader();
+        const decoder = new TextDecoder('utf-8');
       let fullAssistantMsg = '';
 
       while (true) {
@@ -469,7 +559,8 @@ Answer the user's questions directly, accurately, and concisely. Do not append u
           }
         }
       }
-    } catch (err) {
+    }
+  } catch (err) {
       console.error('Chat error:', err);
       setMessages(prev => [
         ...prev,

@@ -62,12 +62,11 @@ const S2S_LANGUAGES = [
     ttsModel: 'samuelolubukun/xtts-v2-yoruba-openbible-conversational',
     systemPrompt: `You are a friendly native Yoruba speaker having a casual voice conversation.
 RULES:
-1. Reply ONLY in plain, everyday spoken Yoruba — the kind a market trader or neighbour would use. No academic or literary Yoruba.
-2. NO JARGON. If a concept has a common Yoruba word, use it. If a loanword is needed (e.g. "fóònù"), use it naturally.
-3. Be FACTUALLY CORRECT. If asked "Kí ni X?", describe the real thing simply. Example: kìnnìún = ẹran igbó nla tó ní irun gígùn ní orí, animal, the lion — NOT a dog. If you genuinely don't know, say "Mi ò mọ̀" briefly.
-4. Answer EXACTLY what was asked. Do not add background lectures or off-topic information.
-5. Keep it to 1–2 short natural sentences.
-6. Output spoken words only. No asterisks, bullet points, labels, or markdown.`,
+1. Reply ONLY in plain, everyday spoken Yoruba — the kind a neighbour would use.
+2. NO JARGON. Use common everyday Yoruba words naturally.
+3. Be FACTUALLY CORRECT. Answer exactly what was asked directly and truthfully. If you genuinely do not know, say "Mi ò mọ̀ dájú" briefly.
+4. Keep it to 1–2 short natural sentences.
+5. Output spoken words only. No asterisks, bullet points, labels, or markdown.`,
     quickSample: 'Ẹ n lẹ́ o gbogbo ilé, ṣé àlàáfíà ni ẹ wà?',
   },
   {
@@ -337,7 +336,10 @@ export const S2SStudio = ({ onSendToLLM }) => {
           messages: [
             {
               role: 'system',
-              content: activeLang.systemPrompt,
+              content: `You are N-ATLaS, Nigeria's sovereign AI brain.
+Understand the user's spoken voice query (even if in Yoruba, Hausa, Igbo, or English without accents).
+Answer factually, accurately, and concisely (1 to 2 spoken sentences maximum).
+Explain the real-world meaning, answer, or proverb clearly in English.`
             },
             {
               role: 'user',
@@ -345,7 +347,7 @@ export const S2SStudio = ({ onSendToLLM }) => {
             },
           ],
           temperature: 0.2,
-          max_tokens: 100,
+          max_tokens: 80,
           stream: false,
         }),
       });
@@ -355,7 +357,40 @@ export const S2SStudio = ({ onSendToLLM }) => {
       }
 
       const llmData = await llmRes.json();
-      let agentReply = llmData.choices?.[0]?.message?.content?.trim() || '';
+      const englishThought = llmData.choices?.[0]?.message?.content?.trim() || '';
+
+      // Pass B2: Translate into natural spoken indigenous language for XTTS-v2
+      const transRes = await fetch(`${DEFAULT_ENDPOINTS.llmUrl}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${DEFAULT_ENDPOINTS.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'NCAIR1/N-ATLaS-7B',
+          messages: [
+            {
+              role: 'system',
+              content: `You are N-ATLaS, Nigeria's Sovereign Multilingual Voice Partner.
+Translate the following concise explanation into natural, everyday spoken ${activeLang.name}.
+${activeLang.id === 'yo' ? 'Use proper Yorùbá tone marks (Àmì Ohùn) accurately.' : 'Use natural, fluent phrasing.'}
+Keep it strictly to 1 or 2 natural spoken sentences.
+Output ONLY the spoken words. No markdown, asterisks, bullet points, or labels.`
+            },
+            {
+              role: 'user',
+              content: englishThought,
+            },
+          ],
+          temperature: 0.1,
+          max_tokens: 100,
+          stream: false,
+        }),
+      });
+
+      if (!transRes.ok) throw new Error(`Indigenous voice translation failed (HTTP ${transRes.status})`);
+      const transData = await transRes.json();
+      let agentReply = transData.choices?.[0]?.message?.content?.trim() || '';
       if (!agentReply) {
         throw new Error('LLM generated an empty response.');
       }
