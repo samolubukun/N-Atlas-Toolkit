@@ -62,7 +62,7 @@ This repository is organized as a unified monorepo providing everything needed t
 | :--- | :--- |
 | **[`python-sdk/`](python-sdk)** | **Official PyPI Package (`pip install natlas-sdk` · v0.2.0)**: Fully typed synchronous & asynchronous clients, resilient structured JSON extraction (`client.extract()`), semantic task helpers (`translate()`, `summarize()`, `classify()`, `classify_scam()`, `voice_chat()`), 7 built-in zero-auth agent tools, CLI (`natlas chat`, `natlas transcribe`), and MCP stdio server. |
 | **[`js-sdk/`](js-sdk)** | **Official npm Package (`npm install natlas-sdk` · v0.2.2)**: Universal TypeScript/JavaScript SDK with typed errors (`AuthError`, `RateLimitError`, `BadRequestError`, `AbortError`), structured JSON extractor (`extract()`), semantic helpers (`voiceChat`, `classifyScam`), SSE streaming, agent tools, and executable CLI (`npx natlas`). |
-| **[`playground/`](playground)** | **Interactive Web Application**: React + Vite playground UI with Chat Studio, Audio Recording & Transcription Studio, Model Catalog explorer, and live interactive documentation. |
+| **[`playground/`](playground)** | **Interactive Web Application**: React + Vite playground UI featuring Chat Studio, Sovereign ASR Studio, Cultural Translation Studio, and **exclusively in the live playground**: **Wazobia XTTS-v2 Speech Synthesis** and experimental **Live Speech-to-Speech (S2S)** voice agent loops fine-tuned across Yoruba, Hausa, and Igbo. |
 | **[`docs/`](docs) & [`mkdocs.yml`](mkdocs.yml)** | **Developer Documentation Site**: Comprehensive documentation built with Material for MkDocs, featuring API specifications, developer tutorials, and bilingual guides (Yorùbá, Hausa, Igbo). |
 | **[`finetune-starter-kit/`](finetune-starter-kit)** | **Domain Adaptation Suite**: LoRA/QLoRA and Unsloth fine-tuning recipes for adapting N-ATLaS to custom enterprise, healthcare, and educational datasets on consumer GPUs. |
 | **[`templates/`](templates)** | **Turnkey Starter Kits**: Full-stack application boilerplates including WhatsApp/Telegram Multilingual AI CRM and React + NestJS chat app. |
@@ -93,6 +93,17 @@ The N-ATLaS ecosystem comprises one 8B large language model and four specialized
 | **Hausa Speech (ASR)** | **[`NCAIR1/Hausa-ASR`](https://huggingface.co/NCAIR1/Hausa-ASR)** | Whisper Small | **244M** | 120+ hours native audio | Accurately models hooked implosive consonants (`ɓ`, `ɗ`, `ƙ`) and glottal stops. |
 | **Igbo Speech (ASR)** | **[`NCAIR1/Igbo-ASR`](https://huggingface.co/NCAIR1/Igbo-ASR)** | Whisper Small | **244M** | 120+ hours native audio | Sub-dot vowel harmony (`ị`, `ọ`, `ụ`) and complex nasal compounds (`ṅ`, `nw`, `ny`). |
 | **Nigerian English (ASR)** | **[`NCAIR1/NigerianAccentedEnglish`](https://huggingface.co/NCAIR1/NigerianAccentedEnglish)** | Whisper Small | **244M** | 120+ hours native audio | West African pitch, syllable-timed stress patterns, and Nigerian accented English pronunciation. |
+
+### 🎙️ Indigenous Speech Synthesis (TTS) & Live Speech-to-Speech (S2S) *(Playground Exclusive)*
+
+Available exclusively within the **[Live Interactive Playground](https://natlas-toolkit-playground.vercel.app/)**, the toolkit integrates custom conversational **XTTS-v2** speech synthesis models fine-tuned by **Samuel Olubukun** for natural Nigerian vocal cadences, coupled with an experimental end-to-end **Live S2S voice loop**:
+
+| Modality | Model Identifier | Fine-Tuned By | Base Engine | Key Features & Accents |
+| :--- | :--- | :--- | :--- | :--- |
+| **Yorùbá XTTS** | **[`samuelolubukun/xtts-v2-yoruba-openbible-conversational`](https://huggingface.co/samuelolubukun/xtts-v2-yoruba-openbible-conversational)** | Samuel Olubukun | Coqui XTTS-v2 | Expressive Yorùbá voice inflection, tonal pacing, OpenBible conversational audio. |
+| **Hausa XTTS** | **[`samuelolubukun/xtts-v2-hausa-openbible-conversational`](https://huggingface.co/samuelolubukun/xtts-v2-hausa-openbible-conversational)** | Samuel Olubukun | Coqui XTTS-v2 | Authentic Hausa vocal timbre, rhythmic syllable-timed cadence. |
+| **Igbo XTTS** | **[`samuelolubukun/xtts-v2-igbo-openbible-conversational`](https://huggingface.co/samuelolubukun/xtts-v2-igbo-openbible-conversational)** | Samuel Olubukun | Coqui XTTS-v2 | Natural Igbo conversational delivery with authentic vowel harmony. |
+| **Live S2S Voice Agent** | **Unified Pipeline (`ASR ➔ N-ATLaS LLM ➔ XTTS-v2`)** | Open-source integration | Real-time audio loop | End-to-end voice conversations directly in your browser: talk in Yoruba, Hausa, or Igbo and receive instant spoken replies. |
 
 ---
 
