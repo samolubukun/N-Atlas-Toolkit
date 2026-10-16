@@ -24,7 +24,7 @@ export const TTS_MODELS = [
     hfUrl: "https://huggingface.co/samuelolubukun/xtts-v2-yoruba-openbible-conversational",
     description: "Natural conversational speech synthesis with authentic pacing and expressive Yoruba voice inflection.",
     badge: "Yoruba",
-    sampleText: "Ẹ kú àárọ̀ gbogbo ilé o, ṣé àlàáfíà ni ẹ wà lónìí? Ẹ jẹ́ kí á bẹ̀rẹ̀ iṣẹ́ pẹ̀lú ayọ̀.",
+    sampleText: "Àjọṣepọ̀ àti ìrẹ́pọ̀ ló ń mú ìlọsíwájú wá. Nígbà tí a bá fi ọwọ́ kan ṣiṣẹ́, àṣeyọrí máa ń tètè dé fún gbogbo wa.",
   },
   {
     id: "samuelolubukun/xtts-v2-hausa-openbible-conversational",
@@ -33,7 +33,7 @@ export const TTS_MODELS = [
     hfUrl: "https://huggingface.co/samuelolubukun/xtts-v2-hausa-openbible-conversational",
     description: "Natural conversational speech synthesis with authentic pacing and expressive Hausa voice inflection.",
     badge: "Hausa",
-    sampleText: "Ina kwana ranka ya dade, fatan kana lafiya lau. Yau ma za mu yi aiki mai albarka.",
+    sampleText: "Hadin kai da zaman lafiya sune ginshikin ci gaba. Idan muna aiki tare da zuciya daya, komai zai tafi daidai.",
   },
   {
     id: "samuelolubukun/xtts-v2-igbo-openbible-conversational",
@@ -42,7 +42,7 @@ export const TTS_MODELS = [
     hfUrl: "https://huggingface.co/samuelolubukun/xtts-v2-igbo-openbible-conversational",
     description: "Natural conversational speech synthesis with authentic pacing and expressive Igbo voice inflection.",
     badge: "Igbo",
-    sampleText: "Nnọọ nwanne m nwoke, kedu ka ezinụlọ gị na ụmụaka si eme taa? Anyị nwere olileanya dị mma.",
+    sampleText: "Udo na ọganihu dị mma maka obodo anyị. Mgbe anyị na-enyere ibe anyị aka, ndụ na-aka mma.",
   },
 ];
 

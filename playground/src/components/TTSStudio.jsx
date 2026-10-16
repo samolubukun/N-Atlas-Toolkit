@@ -19,21 +19,21 @@ const QUICK_PRESETS = [
     modelId: "samuelolubukun/xtts-v2-yoruba-openbible-conversational",
     voice: "male_victor",
     title: "Yoruba Sample",
-    text: "Ẹ kú àárọ̀ gbogbo ilé o, ṣé àlàáfíà ni ẹ wà lónìí? Ẹ jẹ́ kí á fi ọkàn kan kọ́ iṣẹ́ tuntun.",
+    text: "Àjọṣepọ̀ àti ìrẹ́pọ̀ ló ń mú ìlọsíwájú wá. Nígbà tí a bá fi ọwọ́ kan ṣiṣẹ́, àṣeyọrí máa ń tètè dé fún gbogbo wa.",
   },
   {
     category: "Hausa",
     modelId: "samuelolubukun/xtts-v2-hausa-openbible-conversational",
     voice: "male_victor",
     title: "Hausa Sample",
-    text: "Ina kwana ranka ya dade, fatan kana lafiya lau. Allah ya ba da sa'a a cikin dukkan ayyukanmu na yau.",
+    text: "Hadin kai da zaman lafiya sune ginshikin ci gaba. Idan muna aiki tare da zuciya daya, komai zai tafi daidai.",
   },
   {
     category: "Igbo",
     modelId: "samuelolubukun/xtts-v2-igbo-openbible-conversational",
     voice: "female_blessing",
     title: "Igbo Sample",
-    text: "Nnọọ nwanne m nwoke, kedu ka ezinụlọ gị na ụmụaka si eme taa? Anyị nwere olileanya na ihe niile na-aga nke ọma.",
+    text: "Udo na ọganihu dị mma maka obodo anyị. Mgbe anyị na-enyere ibe anyị aka, ndụ na-aka mma.",
   },
 ];
 
@@ -394,12 +394,14 @@ export const TTSStudio = ({ onSendToLLM }) => {
                 >
                   {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
                 </button>
-                <div className="min-w-0">
-                  <div className="text-xs font-bold text-stone-900 truncate">
-                    {selectedModel.name} · {selectedVoiceObj.name}
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-bold text-stone-900 leading-snug break-words">
+                    {selectedModel.name} <span className="text-stone-400 font-normal">·</span> {selectedVoiceObj.name}
                   </div>
-                  <div className="text-[11px] text-stone-500 font-mono truncate">
-                    24,000 Hz Mono WAV · High-Fidelity XTTS
+                  <div className="text-[11px] text-stone-500 font-mono tracking-tight flex items-center gap-1.5 flex-wrap">
+                    <span>24kHz Mono WAV</span>
+                    <span className="text-stone-300">·</span>
+                    <span className="text-emerald-700 font-sans font-medium">XTTS-v2</span>
                   </div>
                 </div>
               </div>
