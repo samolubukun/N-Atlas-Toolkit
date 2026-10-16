@@ -1,18 +1,68 @@
 // Strip trailing slashes and trailing /v1 so `${baseUrl}/v1/chat/completions` always forms the correct path
 const rawUrl = (import.meta.env.VITE_NATLAS_API_URL || import.meta.env.NATLAS_API_URL || "").trim().replace(/\/+$/, "").replace(/\/v1$/, "");
+const rawTtsUrl = (import.meta.env.VITE_WAZOBIA_TTS_API_URL || import.meta.env.WAZOBIA_TTS_API_URL || "").trim().replace(/\/+$/, "").replace(/\/v1$/, "");
 
 // N-ATLaS Endpoints strictly loaded from environment variables (.env)
 export const DEFAULT_ENDPOINTS = {
   llmUrl: rawUrl,
   asrUrl: rawUrl,
+  ttsUrl: rawTtsUrl,
   apiKey: (import.meta.env.VITE_NATLAS_API_KEY || import.meta.env.NATLAS_API_KEY || "").trim(),
+  ttsApiKey: (import.meta.env.VITE_WAZOBIA_TTS_API_KEY || import.meta.env.WAZOBIA_TTS_API_KEY || "none").trim(),
 };
 
 // Returns true when the playground has the minimum config to make API calls
 export const isConfigured = () =>
   Boolean(DEFAULT_ENDPOINTS.llmUrl && DEFAULT_ENDPOINTS.apiKey);
 
+// Wazobia Sovereign XTTS-v2 Speech Synthesis Models
+export const TTS_MODELS = [
+  {
+    id: "samuelolubukun/xtts-v2-yoruba-openbible-conversational",
+    name: "Yoruba XTTS",
+    lang: "yo",
+    hfUrl: "https://huggingface.co/samuelolubukun/xtts-v2-yoruba-openbible-conversational",
+    description: "Natural conversational speech synthesis with authentic pacing and expressive Yoruba voice inflection.",
+    badge: "Yoruba",
+    sampleText: "Ẹ kú àárọ̀ gbogbo ilé o, ṣé àlàáfíà ni ẹ wà lónìí? Ẹ jẹ́ kí á bẹ̀rẹ̀ iṣẹ́ pẹ̀lú ayọ̀.",
+  },
+  {
+    id: "samuelolubukun/xtts-v2-hausa-openbible-conversational",
+    name: "Hausa XTTS",
+    lang: "ha",
+    hfUrl: "https://huggingface.co/samuelolubukun/xtts-v2-hausa-openbible-conversational",
+    description: "Natural conversational speech synthesis with authentic pacing and expressive Hausa voice inflection.",
+    badge: "Hausa",
+    sampleText: "Ina kwana ranka ya dade, fatan kana lafiya lau. Yau ma za mu yi aiki mai albarka.",
+  },
+  {
+    id: "samuelolubukun/xtts-v2-igbo-openbible-conversational",
+    name: "Igbo XTTS",
+    lang: "ig",
+    hfUrl: "https://huggingface.co/samuelolubukun/xtts-v2-igbo-openbible-conversational",
+    description: "Natural conversational speech synthesis with authentic pacing and expressive Igbo voice inflection.",
+    badge: "Igbo",
+    sampleText: "Nnọọ nwanne m nwoke, kedu ka ezinụlọ gị na ụmụaka si eme taa? Anyị nwere olileanya dị mma.",
+  },
+];
 
+// Voices for XTTS-v2
+export const TTS_VOICES = [
+  {
+    id: "male_victor",
+    name: "Victor (Male)",
+    gender: "Male",
+    tagline: "Nigerian male speaker reference timbre",
+    accent: "Nigerian",
+  },
+  {
+    id: "female_blessing",
+    name: "Blessing (Female)",
+    gender: "Female",
+    tagline: "Nigerian female speaker reference timbre",
+    accent: "Nigerian",
+  },
+];
 
 // 4 Pretrained Sovereign ASR Models
 export const ASR_MODELS = [
@@ -58,7 +108,6 @@ export const LLM_LANGUAGES = [
   { id: "hausa", name: "Hausa", shortName: "Hausa", code: "ha", greeting: "Sannu! Me zan iya taimaka muku da shi a yau?" },
   { id: "igbo", name: "Igbo", shortName: "Igbo", code: "ig", greeting: "Nnọọ! Kedụ ihe m nwere ike inyere gị taa?" },
 ];
-
 
 export const CULTURAL_CONTEXTS = [
   { id: "Yoruba", name: "Yoruba Cultural Respect", desc: "Traditional respect etiquette, honorifics, and proverbs" },
