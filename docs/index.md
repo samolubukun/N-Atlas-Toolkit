@@ -19,10 +19,16 @@ Welcome to the developer documentation for **N-ATLaS (NCAIR1/N-ATLaS)**, Nigeria
   <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
   <br>
   <strong>🌐 Interactive Landing Page & Overview Walkthrough</strong><br>
-  <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSUnZRyJjWD0rgFHScjZwCGehi4ABas5blmkyI" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
+  <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSUnZRyJjWD0rgFHScjZwCGehi4ABas5blmkyI" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
+  <br>
+  <strong>🔊 Text-to-Speech (TTS) Demo *(Experimental)*</strong><br>
+  <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSnkC4Xt7d3FCwxoOQEtgvWB1KfeY5p9JbLPA6" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px; margin-bottom: 20px;"></video>
+  <br>
+  <strong>🔄 Speech-to-Speech (STS) Demo *(Experimental)*</strong><br>
+  <video src="https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSNV8EDUiBP62SNaVhqAtYsb3iFZ9CJgjdQDnc" controls="controls" muted="muted" style="max-height:480px; width:100%; border-radius: 8px;"></video>
 </p>
 
-*(Direct Video Links: [Full Playground Walkthrough [Updated]](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSS1VU1lWOWuF5jsvYkEQACcqhN7Blgo38fGm6) · [LLM Streaming Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSWcGgYDXLgTfpX463sKnubzmVaRQy0O9ACqc2) · [Sovereign ASR Audio Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj) · [Interactive Landing Page Tour](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSUnZRyJjWD0rgFHScjZwCGehi4ABas5blmkyI))*
+*(Direct Video Links: [Full Playground Walkthrough [Updated]](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSS1VU1lWOWuF5jsvYkEQACcqhN7Blgo38fGm6) · [LLM Streaming Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSWcGgYDXLgTfpX463sKnubzmVaRQy0O9ACqc2) · [Sovereign ASR Audio Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj) · [Interactive Landing Page Tour](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSUnZRyJjWD0rgFHScjZwCGehi4ABas5blmkyI) · [TTS Demo (Experimental)](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSnkC4Xt7d3FCwxoOQEtgvWB1KfeY5p9JbLPA6) · [STS Demo (Experimental)](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSNV8EDUiBP62SNaVhqAtYsb3iFZ9CJgjdQDnc))*
 
 ---
 

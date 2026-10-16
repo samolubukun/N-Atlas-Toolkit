@@ -45,12 +45,16 @@ npm install natlas-sdk       # JavaScript / TypeScript SDK
 | <img src="assets/1-Natlas-toolkit-playground-llm.gif" alt="LLM Chat" width="100%" /> | <img src="assets/2-Natlas-toolkit-playground-asr.gif" alt="Speech to Text" width="100%" /> |
 | **Translation** | **Playground Landing Page** |
 | <img src="assets/3-Natlas-toolkit-playground-translate.gif" alt="Translation" width="100%" /> | <img src="assets/4-Natlas-toolkit-playground-landing.gif" alt="Playground Landing Page" width="100%" /> |
+| **Text-to-Speech (TTS) *(Experimental)*** | **Speech-to-Speech (STS) *(Experimental)*** |
+| <img src="assets/5-Natlas-toolkit-playground-tts.gif" alt="Text-to-Speech (TTS)" width="100%" /> | <img src="assets/6-Natlas-toolkit-playground-sts.gif" alt="Speech-to-Speech (STS)" width="100%" /> |
 
 **Direct Video Links**
 - [Full Playground Walkthrough [Updated]](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSS1VU1lWOWuF5jsvYkEQACcqhN7Blgo38fGm6)
 - [LLM Streaming Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSWcGgYDXLgTfpX463sKnubzmVaRQy0O9ACqc2)
 - [Sovereign ASR Audio Demo](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSmJ0N0a9iRwu6TNxcIC0QZ4pdBMaKerfk5zHj)
 - [Interactive Landing Page Tour](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSUnZRyJjWD0rgFHScjZwCGehi4ABas5blmkyI)
+- [Text-to-Speech (TTS) Demo *(Experimental)*](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSnkC4Xt7d3FCwxoOQEtgvWB1KfeY5p9JbLPA6)
+- [Speech-to-Speech (STS) Demo *(Experimental)*](https://xxr2q8wqbj.ufs.sh/f/5VP3IsRxk7FSNV8EDUiBP62SNaVhqAtYsb3iFZ9CJgjdQDnc)
 
 ---
 
